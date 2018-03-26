@@ -15,22 +15,41 @@ namespace Toggl.Foundation.Extensions
             IScheduler scheduler)
         {
             var currentAttempt = 0;
+            
+            IObservable<T> delayedSource()
+            {
+                var timeSpan = currentAttempt == 0 ? TimeSpan.Zero : backOffStrategy(currentAttempt);
+                currentAttempt++;
+                return source.DelaySubscription(timeSpan, scheduler);
+            }
 
-            return Observable.Defer(() =>
-                {
-                    var timeSpan = currentAttempt == 0 ? TimeSpan.Zero : backOffStrategy(currentAttempt);
-                    currentAttempt++;
-                    return source.DelaySubscription(timeSpan, scheduler);
-                })
-                .Select<T, (bool succeeded, T t, Exception e)>(result => (true, result, null))
-                .Catch<(bool succeeded, T t, Exception e), Exception>(exception => 
-                    shouldRetryOn(exception)
-                    ? Observable.Throw<(bool succeeded, T t, Exception e)>(exception)
-                    : Observable.Return((succeeded: false, t: default(T), e: exception))
-                ).Retry(maxRetries + 1)
-                .SelectMany(result =>
-                    result.succeeded ? Observable.Return(result.t) : Observable.Throw<T>(result.e)
-                );
+            (bool shouldCompleteWithSuccess, T objectToReturn, Exception) wrapSuccessfulResult(T objectOnSuccess) =>
+                (shouldCompleteWithSuccess: true, objectOnSuccess, null);
+
+            IObservable<(bool shouldCompleteWithSuccess, T, Exception)> proceedWithFailure(Exception exception) =>
+                Observable.Return((shouldCompleteWithSuccess: false, default(T), exception));
+            
+            IObservable<(bool shouldCompleteWithSuccess, T, Exception)> triggerRetry(Exception exception) =>
+                Observable.Throw<(bool, T, Exception)>(exception);
+
+            IObservable<(bool shouldCompleteWithSuccess, T objectToReturn, Exception exception)>
+            processException(Exception exception) => 
+                shouldRetryOn(exception)
+                ? triggerRetry(exception)
+                : proceedWithFailure(exception);
+            
+            IObservable<T>
+            unwrapResult((bool shouldCompleteWithSuccess, T objectToReturn, Exception exception) result) =>
+                result.shouldCompleteWithSuccess
+                    ? Observable.Return(result.objectToReturn)
+                    : Observable.Throw<T>(result.exception);
+
+            return Observable
+                .Defer(delayedSource)
+                .Select(wrapSuccessfulResult)
+                .Catch<(bool shouldCompleteWithSuccess, T, Exception exception), Exception>(processException)
+                .Retry(maxRetries + 1)
+                .SelectMany(unwrapResult);
         }
     }
 }
