@@ -506,6 +506,7 @@
     <InterfaceDefinition Include="Views\Settings\LicensesViewCell.xib" />
     <InterfaceDefinition Include="Views\Log\TimeEntriesEmptyLogView.xib" />
     <InterfaceDefinition Include="Views\Log\TimeEntryMockView.xib" />
+    <InterfaceDefinition Include="ViewControllers\SelectCountryViewController.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -865,6 +866,10 @@
     <Compile Include="Onboarding\MainView\SwipeRightOnboardingStep.cs" />
     <Compile Include="Onboarding\EditView\CategorizeTimeUsingProjectsOnboardingStep.cs" />
     <Compile Include="Extensions\TimeEntriesLogViewCellExtensions.cs" />
+    <Compile Include="ViewControllers\SelectCountryViewController.cs" />
+    <Compile Include="ViewControllers\SelectCountryViewController.designer.cs">
+      <DependentUpon>SelectCountryViewController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Toggl.Foundation.MvvmCross\Toggl.Foundation.MvvmCross.csproj">
