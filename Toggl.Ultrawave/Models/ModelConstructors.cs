@@ -1,7 +1,6 @@
 ﻿using Toggl.Multivac;
 using Toggl.Multivac.Models;
 
-
 namespace Toggl.Ultrawave.Models
 {
     [Preserve(AllMembers = true)]
@@ -46,8 +45,6 @@ namespace Toggl.Ultrawave.Models
             Name = entity.Name;
             IsPrivate = entity.IsPrivate;
             Active = entity.Active;
-            At = entity.At;
-            ServerDeletedAt = entity.ServerDeletedAt;
             Color = entity.Color;
             Billable = entity.Billable;
             Template = entity.Template;
@@ -56,6 +53,8 @@ namespace Toggl.Ultrawave.Models
             Rate = entity.Rate;
             Currency = entity.Currency;
             ActualHours = entity.ActualHours;
+            At = entity.At;
+            ServerDeletedAt = entity.ServerDeletedAt;
         }
     }
 
@@ -88,8 +87,8 @@ namespace Toggl.Ultrawave.Models
             UserId = entity.UserId;
             EstimatedSeconds = entity.EstimatedSeconds;
             Active = entity.Active;
-            At = entity.At;
             TrackedSeconds = entity.TrackedSeconds;
+            At = entity.At;
         }
     }
 
@@ -109,9 +108,9 @@ namespace Toggl.Ultrawave.Models
             Duration = entity.Duration;
             Description = entity.Description;
             TagIds = entity.TagIds;
+            UserId = entity.UserId;
             At = entity.At;
             ServerDeletedAt = entity.ServerDeletedAt;
-            UserId = entity.UserId;
         }
     }
 
@@ -145,7 +144,6 @@ namespace Toggl.Ultrawave.Models
             Name = entity.Name;
             Admin = entity.Admin;
             SuspendedAt = entity.SuspendedAt;
-            ServerDeletedAt = entity.ServerDeletedAt;
             DefaultHourlyRate = entity.DefaultHourlyRate;
             DefaultCurrency = entity.DefaultCurrency;
             OnlyAdminsMayCreateProjects = entity.OnlyAdminsMayCreateProjects;
@@ -154,8 +152,9 @@ namespace Toggl.Ultrawave.Models
             ProjectsBillableByDefault = entity.ProjectsBillableByDefault;
             Rounding = entity.Rounding;
             RoundingMinutes = entity.RoundingMinutes;
-            At = entity.At;
             LogoUrl = entity.LogoUrl;
+            At = entity.At;
+            ServerDeletedAt = entity.ServerDeletedAt;
         }
     }
 

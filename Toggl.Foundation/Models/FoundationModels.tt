@@ -22,7 +22,10 @@ namespace Toggl.Foundation.Models
     foreach(var modelFile in modelsToGenerate)
     {
         var interfaceName = Path.GetFileName(modelFile).Replace(".cs", "");
-        if (interfaceName == "IIdentifiable") continue;
+        if (interfaceName == "IIdentifiable"
+            || interfaceName == "IDeletable"
+            || interfaceName == "ILastChangedDatable")
+            continue;
 
         var className = interfaceName.Substring(1, interfaceName.Length - 1);
         
@@ -33,21 +36,25 @@ namespace Toggl.Foundation.Models
         var implementsIDatabaseSyncable = databaseInterfaceExists
             && File.ReadAllLines(databaseInterfaceFileName).Any(l => l.Contains("IDatabaseSyncable"));
 
+        var implementsIDeletable = File.ReadAllLines(modelFile).Any(l => l.Contains("IDeletable"));
+
+        var implementsILastChangedDatabale = File.ReadAllLines(modelFile).Any(l => l.Contains("ILastChangedDatable"));
+
+        var implementsIIdentifiable = File.ReadAllLines(modelFile).Any(l => l.Contains("IIdentifiable"));
+
         if (!isFirstClass)
             WriteLine("");
 
         WriteLine($"    internal partial class {className} : IDatabase{className}");
         WriteLine( "    {");
 
+        if (implementsIIdentifiable)
+        {
+            WriteLine("        public long Id { get; }\n");
+        }
+
         foreach(var line in File.ReadAllLines(modelFile))
         {
-            var extendsIIdentifiable = line.Contains(": IIdentifiable");
-            if (extendsIIdentifiable)
-            {
-                WriteLine("        public long Id { get; }\n");
-                continue;
-            }
-        
             var isProperty = line.Contains("get;");
             if (!isProperty) continue;
 
@@ -72,6 +79,18 @@ namespace Toggl.Foundation.Models
             WriteLine("        public bool IsDeleted { get; }\n");
             WriteLine("        public SyncStatus SyncStatus { get; }\n");
             WriteLine("        public string LastSyncErrorMessage { get; }");
+            if (implementsILastChangedDatabale || implementsIDeletable) WriteLine("");
+        }
+        
+        if (implementsILastChangedDatabale)
+        {
+            WriteLine("        public DateTimeOffset At { get; }");
+            if (implementsIDeletable) WriteLine("");
+        }
+        
+        if (implementsIDeletable)
+        {
+            WriteLine("        public DateTimeOffset? ServerDeletedAt { get; }");
         }
         WriteLine("    }");
 

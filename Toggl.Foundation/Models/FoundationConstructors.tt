@@ -20,7 +20,10 @@ namespace Toggl.Foundation.Models
     foreach(var modelFile in modelsToGenerate)
     {
         var interfaceName = Path.GetFileName(modelFile).Replace(".cs", "");
-        if (interfaceName == "IIdentifiable") continue;
+        if (interfaceName == "IIdentifiable"
+            || interfaceName == "IDeletable"
+            || interfaceName == "ILastChangedDatable")
+            continue;
 
         var className = interfaceName.Substring(1, interfaceName.Length - 1);
 
@@ -31,6 +34,9 @@ namespace Toggl.Foundation.Models
         var implementsIDatabaseSyncable = databaseInterfaceExists
             && File.ReadAllLines(databaseInterfaceFileName).Any(l => l.Contains("IDatabaseSyncable"));
 
+        var implementsIDeletable = File.ReadAllLines(modelFile).Any(l => l.Contains("IDeletable"));
+
+        var implementsILastChangedDatabale = File.ReadAllLines(modelFile).Any(l => l.Contains("ILastChangedDatable"));
         if (!isFirstClass)
             WriteLine("");
 
@@ -113,6 +119,16 @@ namespace Toggl.Foundation.Models
             var propName = trimmedLine.Substring(indexOfPropName, trimmedLine.Length - 9 - indexOfPropName);
 
             WriteLine($"            {propName} = entity.{propName};");
+        }
+
+        if (implementsILastChangedDatabale)
+        {
+            WriteLine("            At = entity.At;");
+        }
+
+        if (implementsIDeletable)
+        {
+            WriteLine("            ServerDeletedAt = entity.ServerDeletedAt;");
         }
 
         if (implementsIDatabaseSyncable)
