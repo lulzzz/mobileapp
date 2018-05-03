@@ -6,13 +6,13 @@ using Toggl.Multivac;
 using Toggl.PrimeRadiant;
 using Toggl.PrimeRadiant.Models;
 
-namespace Toggl.Foundation.Interactors.Client
+namespace Toggl.Foundation.Interactors
 {
-    public class GetClientsThatFailedToSync : IInteractor<IObservable<IEnumerable<IDatabaseClient>>>
+    public class GetClientsThatFailedToSyncInteractor : IInteractor<IObservable<IEnumerable<IDatabaseClient>>>
     {
         private readonly ITogglDatabase database;
 
-        public GetClientsThatFailedToSync(ITogglDatabase database)
+        public GetClientsThatFailedToSyncInteractor(ITogglDatabase database)
         {
             Ensure.Argument.IsNotNull(database, nameof(database));
 

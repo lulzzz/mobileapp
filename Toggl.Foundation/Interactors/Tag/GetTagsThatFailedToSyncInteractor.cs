@@ -6,7 +6,7 @@ using Toggl.Multivac;
 using Toggl.PrimeRadiant;
 using Toggl.PrimeRadiant.Models;
 
-namespace Toggl.Foundation.Interactors.Tag
+namespace Toggl.Foundation.Interactors
 {
     public class GetTagsThatFailedToSyncInteractor : IInteractor<IObservable<IEnumerable<IDatabaseTag>>>
     {

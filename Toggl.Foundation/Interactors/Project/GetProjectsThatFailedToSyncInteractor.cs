@@ -6,7 +6,7 @@ using Toggl.Multivac;
 using Toggl.PrimeRadiant;
 using Toggl.PrimeRadiant.Models;
 
-namespace Toggl.Foundation.Interactors.Project
+namespace Toggl.Foundation.Interactors
 {
     public class GetProjectsThatFailedToSyncInteractor : IInteractor<IObservable<IEnumerable<IDatabaseProject>>>
     {

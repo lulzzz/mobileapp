@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Toggl.PrimeRadiant.Models;
 
 namespace Toggl.Foundation.Interactors
 {
@@ -9,5 +11,8 @@ namespace Toggl.Foundation.Interactors
 
         public IInteractor<IObservable<bool>> ProjectDefaultsToBillable(long projectId)
             => new ProjectDefaultsToBillableInteractor(database, projectId);
+
+        public IInteractor<IObservable<IEnumerable<IDatabaseProject>>> GetProjectsThatFailedToSync()
+            => new GetProjectsThatFailedToSyncInteractor(database);
     }
 }

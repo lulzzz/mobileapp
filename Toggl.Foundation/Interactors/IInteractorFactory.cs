@@ -26,6 +26,8 @@ namespace Toggl.Foundation.Interactors
 
         IInteractor<IObservable<bool>> IsBillableAvailableForProject(long projectId);
 
+        IInteractor<IObservable<IEnumerable<IDatabaseProject>>> GetProjectsThatFailedToSync();
+
         #endregion
 
         #region Workspaces
@@ -43,6 +45,18 @@ namespace Toggl.Foundation.Interactors
         IInteractor<IObservable<bool>> AreCustomColorsEnabledForWorkspace(long workspaceId);
 
         IInteractor<IObservable<bool>> IsBillableAvailableForWorkspace(long workspaceId);
+
+        #endregion
+
+        #region Clients
+
+        IInteractor<IObservable<IEnumerable<IDatabaseClient>>> GetClientsThatFailedToSync();
+
+        #endregion
+
+        #region Tags
+
+        IInteractor<IObservable<IEnumerable<IDatabaseTag>>> GetTagsThatFailedToSync();
 
         #endregion
     }
