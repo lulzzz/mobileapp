@@ -49,5 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Analytics\" />
+    <Folder Include="Interactors\Client\" />
+    <Folder Include="Interactors\Tag\" />
   </ItemGroup>
 </Project>
