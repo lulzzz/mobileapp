@@ -4,12 +4,12 @@ namespace Toggl.Foundation.MvvmCross.Parameters
 {
     public sealed class SelectCountryParameter
     {
-        public ICountry SelectedCountry { get; set; }
+        public long SelectedCountryId { get; set; }
 
-        public static SelectCountryParameter WithIds(ICountry selectedCountry)
+        public static SelectCountryParameter WithCountryCode(long? selectedCountryId)
             => new SelectCountryParameter
             {
-                SelectedCountry = selectedCountry
+                SelectedCountryId = selectedCountryId ?? 0
             };
     }
 }

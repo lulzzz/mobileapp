@@ -20,7 +20,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         private readonly IMvxNavigationService navigationService;
 
         private IEnumerable<ICountry> allCountries;
-        private ICountry selectedCountry;
+        private long selectedCountryId;
 
         public IMvxAsyncCommand CloseCommand { get; }
 
@@ -54,7 +54,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         public override void Prepare(SelectCountryParameter parameter)
         {
-            selectedCountry = parameter.SelectedCountry;
+            selectedCountryId = parameter.SelectedCountryId;
         }
 
         private void OnTextChanged()
@@ -64,7 +64,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             Suggestions.AddRange(
                 allCountries
                     .Where(c => c.Name.ContainsIgnoringCase(text))
-                    .Select(c => new SelectableCountryViewModel(c, c.CountryCode == selectedCountry.CountryCode))
+                    .Select(c => new SelectableCountryViewModel(c, c.Id == selectedCountryId))
             );
         }
 
