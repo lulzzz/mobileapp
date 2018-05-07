@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Toggl.Foundation.Models.Interfaces;
 using Toggl.PrimeRadiant;
 using Toggl.PrimeRadiant.Models;
 using Toggl.Multivac;
@@ -7,7 +8,7 @@ using Toggl.Multivac.Models;
 
 namespace Toggl.Foundation.Models
 {
-    internal partial class Client : IDatabaseClient
+    internal partial class Client : IThreadsafeClient
     {
         public long Id { get; }
 
@@ -28,7 +29,7 @@ namespace Toggl.Foundation.Models
         public DateTimeOffset? ServerDeletedAt { get; }
     }
 
-    internal partial class Preferences : IDatabasePreferences
+    internal partial class Preferences : IThreadsafePreferences
     {
         public TimeFormat TimeOfDayFormat { get; }
 
@@ -45,7 +46,7 @@ namespace Toggl.Foundation.Models
         public string LastSyncErrorMessage { get; }
     }
 
-    internal partial class Project : IDatabaseProject
+    internal partial class Project : IThreadsafeProject
     {
         public long Id { get; }
 
@@ -92,7 +93,7 @@ namespace Toggl.Foundation.Models
         public DateTimeOffset? ServerDeletedAt { get; }
     }
 
-    internal partial class Tag : IDatabaseTag
+    internal partial class Tag : IThreadsafeTag
     {
         public long Id { get; }
 
@@ -113,7 +114,7 @@ namespace Toggl.Foundation.Models
         public DateTimeOffset? ServerDeletedAt { get; }
     }
 
-    internal partial class Task : IDatabaseTask
+    internal partial class Task : IThreadsafeTask
     {
         public long Id { get; }
 
@@ -146,7 +147,7 @@ namespace Toggl.Foundation.Models
         public DateTimeOffset At { get; }
     }
 
-    internal partial class TimeEntry : IDatabaseTimeEntry
+    internal partial class TimeEntry : IThreadsafeTimeEntry
     {
         public long Id { get; }
 
@@ -189,7 +190,7 @@ namespace Toggl.Foundation.Models
         public DateTimeOffset? ServerDeletedAt { get; }
     }
 
-    internal partial class User : IDatabaseUser
+    internal partial class User : IThreadsafeUser
     {
         public long Id { get; }
 
@@ -216,7 +217,7 @@ namespace Toggl.Foundation.Models
         public DateTimeOffset At { get; }
     }
 
-    internal partial class Workspace : IDatabaseWorkspace
+    internal partial class Workspace : IThreadsafeWorkspace
     {
         public long Id { get; }
 
@@ -255,7 +256,7 @@ namespace Toggl.Foundation.Models
         public DateTimeOffset? ServerDeletedAt { get; }
     }
 
-    internal partial class WorkspaceFeature : IDatabaseWorkspaceFeature
+    internal partial class WorkspaceFeature : IThreadsafeWorkspaceFeature
     {
         public WorkspaceFeatureId FeatureId { get; }
 
@@ -263,7 +264,7 @@ namespace Toggl.Foundation.Models
 
     }
 
-    internal partial class WorkspaceFeatureCollection : IDatabaseWorkspaceFeatureCollection
+    internal partial class WorkspaceFeatureCollection : IThreadsafeWorkspaceFeatureCollection
     {
         public long WorkspaceId { get; }
 
