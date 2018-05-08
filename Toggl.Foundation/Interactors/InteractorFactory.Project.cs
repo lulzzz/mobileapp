@@ -13,6 +13,6 @@ namespace Toggl.Foundation.Interactors
             => new ProjectDefaultsToBillableInteractor(database, projectId);
 
         public IInteractor<IObservable<IEnumerable<IDatabaseProject>>> GetProjectsThatFailedToSync()
-            => new GetProjectsThatFailedToSyncInteractor(database);
+            => new GetItemsThatFailedToSyncInteractor<IDatabaseProject>(database.Projects);
     }
 }

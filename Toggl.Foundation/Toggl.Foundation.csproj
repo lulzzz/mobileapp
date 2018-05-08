@@ -49,7 +49,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Analytics\" />
-    <Folder Include="Interactors\Client\" />
-    <Folder Include="Interactors\Tag\" />
+    <Folder Include="Interactors\Sync\" />
   </ItemGroup>
 </Project>

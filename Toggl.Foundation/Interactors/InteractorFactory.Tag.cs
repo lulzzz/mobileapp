@@ -7,6 +7,6 @@ namespace Toggl.Foundation.Interactors
     public sealed partial class InteractorFactory : IInteractorFactory
     {
         public IInteractor<IObservable<IEnumerable<IDatabaseTag>>> GetTagsThatFailedToSync()
-            => new GetTagsThatFailedToSyncInteractor(database);
+            => new GetItemsThatFailedToSyncInteractor<IDatabaseTag>(database.Tags);
     }
 }
