@@ -11,6 +11,13 @@ public class TemporaryFileTransformation
 var target = Argument("target", "Default");
 var buildAll = Argument("buildall", Bitrise.IsRunningOnBitrise);
 
+private void FormatAndroidAxml()
+{
+	var args = "tools/xml-format/WilliamizeXml.Console.dll Toggl.Giskard/Resources/layout/";
+
+	StartProcess("mono", new ProcessSettings { Arguments = args });
+}
+
 private Action Test(string[] projectPaths)
 {
     var settings = new DotNetCoreTestSettings { NoBuild = true };
@@ -161,11 +168,13 @@ private TemporaryFileTransformation GetIosCrashConfigurationTransformation()
 private TemporaryFileTransformation GetAndroidGoogleServicesTransformation()
 {
     const string path = "Toggl.Giskard/google-services.json";
-    var apiKey = EnvironmentVariable("TOGGL_DROID_GOOGLE_SERVICES_API_KEY");
-    var clientId = EnvironmentVariable("TOGGL_DROID_GOOGLE_SERVICES_CLIENT_ID");
+    var gcmSenderId = EnvironmentVariable("TOGGL_GCM_SENDER_ID");
+    var databaseUrl = EnvironmentVariable("TOGGL_DATABASE_URL");
+    var projectId = EnvironmentVariable("TOGGL_PROJECT_ID");
+    var storageBucket = EnvironmentVariable("TOGGL_STORAGE_BUCKET");
     var mobileSdkAppId = EnvironmentVariable("TOGGL_DROID_GOOGLE_SERVICES_MOBILE_SDK_APP_ID");
-    var projectNumber = EnvironmentVariable("TOGGL_DROID_GOOGLE_SERVICES_PROJECT_NUMBER");
-    var projectId = EnvironmentVariable("TOGGL_DROID_GOOGLE_SERVICES_PROJECT_ID");
+    var clientId = EnvironmentVariable("TOGGL_DROID_GOOGLE_SERVICES_CLIENT_ID");
+    var apiKey = EnvironmentVariable("TOGGL_DROID_GOOGLE_SERVICES_API_KEY");
 
     var filePath = GetFiles(path).Single();
     var file = TransformTextFile(filePath).ToString();
@@ -174,11 +183,13 @@ private TemporaryFileTransformation GetAndroidGoogleServicesTransformation()
     { 
         Path = path, 
         Original = file,
-        Temporary = file.Replace("{TOGGL_DROID_GOOGLE_SERVICES_API_KEY}", apiKey)
-                        .Replace("{TOGGL_DROID_GOOGLE_SERVICES_CLIENT_ID}", clientId)
+        Temporary = file.Replace("{TOGGL_GCM_SENDER_ID}", gcmSenderId)
+                        .Replace("{TOGGL_DATABASE_URL}", databaseUrl)
+                        .Replace("{TOGGL_PROJECT_ID}", projectId)
+                        .Replace("{TOGGL_STORAGE_BUCKET}", storageBucket)
                         .Replace("{TOGGL_DROID_GOOGLE_SERVICES_MOBILE_SDK_APP_ID}", mobileSdkAppId)
-                        .Replace("{TOGGL_DROID_GOOGLE_SERVICES_PROJECT_NUMBER}", projectNumber)
-                        .Replace("{TOGGL_DROID_GOOGLE_SERVICES_PROJECT_ID}", projectId)
+                        .Replace("{TOGGL_DROID_GOOGLE_SERVICES_CLIENT_ID}", clientId)
+                        .Replace("{TOGGL_DROID_GOOGLE_SERVICES_API_KEY}", apiKey)
     };
 }
 
@@ -219,21 +230,25 @@ private TemporaryFileTransformation GetIosInfoConfigurationTransformation()
     const string path = "Toggl.Daneel/Info.plist";
     const string bundleIdToReplace = "com.toggl.daneel.debug";
     const string appNameToReplace = "Toggl for Devs";
+    const string iconSetToReplace = "Assets.xcassets/AppIcon-debug.appiconset";
 
     var commitCount = GetCommitCount();
     var reversedClientId = EnvironmentVariable("TOGGL_REVERSED_CLIENT_ID");
     var bundleId = bundleIdToReplace;
     var appName = appNameToReplace;
+    var iconSet = iconSetToReplace;
 
     if (target == "Build.Release.iOS.AdHoc")
     {
         bundleId = "com.toggl.daneel.adhoc";
         appName = "Toggl for Tests";
+        iconSet = "Assets.xcassets/AppIcon-adhoc.appiconset";
     }
     else if (target == "Build.Release.iOS.AppStore")
     {
         bundleId = "com.toggl.daneel";
         appName = "Toggl";
+        iconSet = "Assets.xcassets/AppIcon.appiconset";
     }
 
     var filePath = GetFiles(path).Single();
@@ -247,6 +262,7 @@ private TemporaryFileTransformation GetIosInfoConfigurationTransformation()
                         .Replace("IOS_BUNDLE_VERSION", commitCount)
                         .Replace(bundleIdToReplace, bundleId)
                         .Replace(appNameToReplace, appName)
+                        .Replace(iconSetToReplace, iconSet)
     };
 }
 
@@ -334,6 +350,10 @@ Task("Clean")
             CleanDirectory("./Toggl.Ultrawave.Tests/obj");
             CleanDirectory("./Toggl.Ultrawave.Tests.Integration/obj");
         });
+
+Task("Format")
+    .IsDependentOn("Clean")
+    .Does(() => FormatAndroidAxml());
 
 Task("Nuget")
     .IsDependentOn("Clean")

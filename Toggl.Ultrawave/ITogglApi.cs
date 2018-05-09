@@ -15,5 +15,6 @@ namespace Toggl.Ultrawave
         IWorkspaceFeaturesApi WorkspaceFeatures { get; }
         IProjectsSummaryApi ProjectsSummary { get; }
         IPreferencesApi Preferences { get; }
+        ICountriesApi Countries { get; }
     }
 }

@@ -103,25 +103,6 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             }
         }
 
-        public sealed class TheViewAppearedMethod : MainViewModelTest
-        {
-            [Fact, LogIfTooSlow]
-            public void RequestsTheSuggestionsViewModel()
-            {
-                ViewModel.ViewAppeared();
-
-                NavigationService.Received().Navigate<SuggestionsViewModel>();
-            }
-
-            [Fact, LogIfTooSlow]
-            public void RequestsTheLogTimeEntriesViewModel()
-            {
-                ViewModel.ViewAppeared();
-
-                NavigationService.Received().Navigate<TimeEntriesLogViewModel>();
-            }
-        }
-
         public sealed class TheStartTimeEntryCommand : MainViewModelTest
         {
             public TheStartTimeEntryCommand()

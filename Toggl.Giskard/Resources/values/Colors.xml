@@ -29,4 +29,6 @@
     <color name="blueStatusBarBackground">#559fec</color>
     <color name="blueBackgroundTextHintColor">#b9d9f7</color>
     <color name="onboardingStatusBarColor">#53a0fd</color>
+    <color name="halfTransparentWhite">#B3FFFFFF</color>
+    <color name="popupBlueBackground">#328FFF</color>
 </resources>

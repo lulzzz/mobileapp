@@ -26,15 +26,16 @@
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="52a-eA-uvh">
-                    <rect key="frame" x="0.0" y="0.0" width="40" height="40"/>
+                    <rect key="frame" x="0.0" y="0.0" width="44" height="44"/>
                     <constraints>
-                        <constraint firstAttribute="width" constant="40" id="5NF-cY-Byt"/>
-                        <constraint firstAttribute="height" constant="40" id="UMr-V4-sYF"/>
+                        <constraint firstAttribute="width" constant="44" id="5NF-cY-Byt"/>
+                        <constraint firstAttribute="height" constant="44" id="UMr-V4-sYF"/>
                     </constraints>
+                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2" maxY="2"/>
                     <state key="normal" image="icClose"/>
                 </button>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Projects" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LAW-Wn-H2j">
-                    <rect key="frame" x="133" y="11.5" width="54.5" height="17"/>
+                    <rect key="frame" x="133" y="13.5" width="54.5" height="17"/>
                     <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>
@@ -97,7 +98,7 @@ Use them to categorize your time.</string>
                 <constraint firstItem="y7h-xi-13f" firstAttribute="top" secondItem="N4r-0Y-VVU" secondAttribute="bottom" constant="6" id="UP7-sf-pDm"/>
                 <constraint firstItem="y7h-xi-13f" firstAttribute="centerX" secondItem="2" secondAttribute="centerX" id="VbA-Yd-ASM"/>
                 <constraint firstItem="52a-eA-uvh" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="X8m-gg-KoE"/>
-                <constraint firstItem="ecR-WI-plE" firstAttribute="top" secondItem="52a-eA-uvh" secondAttribute="bottom" constant="30" id="eks-wc-Gxx"/>
+                <constraint firstItem="ecR-WI-plE" firstAttribute="top" secondItem="52a-eA-uvh" secondAttribute="bottom" constant="26" id="eks-wc-Gxx"/>
                 <constraint firstItem="q0w-Zp-Y5Q" firstAttribute="leading" secondItem="ecR-WI-plE" secondAttribute="trailing" constant="10" id="gU8-Y8-X28"/>
                 <constraint firstItem="N4r-0Y-VVU" firstAttribute="top" secondItem="2" secondAttribute="top" constant="160" id="jnE-Ks-K6F"/>
                 <constraint firstAttribute="bottom" secondItem="Ebm-06-qhS" secondAttribute="bottom" id="lmR-W4-yFV"/>

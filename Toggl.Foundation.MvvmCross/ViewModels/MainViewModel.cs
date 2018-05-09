@@ -220,8 +220,6 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         public override void ViewAppeared()
         {
             base.ViewAppeared();
-            navigationService.Navigate<SuggestionsViewModel>();
-            navigationService.Navigate<TimeEntriesLogViewModel>();
 
             ChangePresentation(new CardVisibilityHint(CurrentTimeEntryId != null));
         }

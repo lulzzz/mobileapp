@@ -31,15 +31,7 @@ namespace Toggl.Giskard.Fragments
         {
             base.OnResume();
 
-            var displayMetrics = new DisplayMetrics();
-            Activity.WindowManager.DefaultDisplay.GetMetrics(displayMetrics);
-            var screenWidth = displayMetrics.WidthPixels;
-            var isLargeScreen = screenWidth > 360.DpToPixels(Context);
-
-            var width = isLargeScreen ? screenWidth - 72.DpToPixels(Context) : 312.DpToPixels(Context);
-            var height = 400.DpToPixels(Context);
-
-            Dialog.Window.SetLayout(width, height);
+            Dialog.Window.SetDefaultDialogLayout(Activity, Context, heightDp: 400);
         }
 
         public override void OnCancel(IDialogInterface dialog)

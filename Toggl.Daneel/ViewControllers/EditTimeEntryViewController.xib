@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -85,15 +85,16 @@
                     </userDefinedRuntimeAttributes>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Pp0-YW-3Bg">
-                    <rect key="frame" x="0.0" y="0.0" width="40" height="40"/>
+                    <rect key="frame" x="0.0" y="0.0" width="44" height="44"/>
                     <constraints>
-                        <constraint firstAttribute="height" constant="40" id="ZNF-C7-3b7"/>
-                        <constraint firstAttribute="width" constant="40" id="uVv-5V-I7Y"/>
+                        <constraint firstAttribute="height" constant="44" id="ZNF-C7-3b7"/>
+                        <constraint firstAttribute="width" constant="44" id="uVv-5V-I7Y"/>
                     </constraints>
+                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2" maxY="2"/>
                     <state key="normal" image="icClose"/>
                 </button>
                 <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Pzm-Vp-XJF">
-                    <rect key="frame" x="0.0" y="48" width="320" height="794"/>
+                    <rect key="frame" x="0.0" y="52" width="320" height="790"/>
                     <subviews>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="ezG-FV-3G1">
                             <rect key="frame" x="0.0" y="0.0" width="320" height="541.5"/>
@@ -417,10 +418,11 @@
                                                     <color key="textColor" red="0.36862745099999999" green="0.35686274509999999" blue="0.35686274509999999" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fcT-2a-vU7">
-                                                    <rect key="frame" x="16" y="9.5" width="32" height="20"/>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fcT-2a-vU7">
+                                                    <rect key="frame" x="16" y="0.5" width="44" height="40"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="height" constant="20" id="Cdz-G4-Iiq"/>
+                                                        <constraint firstAttribute="width" constant="44" id="5Ca-SW-jU9"/>
+                                                        <constraint firstAttribute="height" constant="40" id="Cdz-G4-Iiq"/>
                                                     </constraints>
                                                     <state key="normal" title="Stop">
                                                         <color key="titleColor" red="0.29803921568627451" green="0.85098039215686272" blue="0.39215686274509803" alpha="1" colorSpace="calibratedRGB"/>
@@ -430,11 +432,11 @@
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             <constraints>
                                                 <constraint firstAttribute="bottom" secondItem="Jm3-o3-8kP" secondAttribute="bottom" constant="10" id="3QA-GP-vSt"/>
-                                                <constraint firstItem="Jm3-o3-8kP" firstAttribute="top" secondItem="fcT-2a-vU7" secondAttribute="bottom" constant="2" id="4EK-yK-jD1"/>
                                                 <constraint firstItem="SJr-Ox-SV2" firstAttribute="leading" secondItem="Jm3-o3-8kP" secondAttribute="leading" id="AKl-Hj-sQY"/>
                                                 <constraint firstItem="Jm3-o3-8kP" firstAttribute="leading" secondItem="lfx-NK-d5k" secondAttribute="leading" constant="16" id="FJj-ll-oTm"/>
                                                 <constraint firstItem="Jm3-o3-8kP" firstAttribute="top" secondItem="SJr-Ox-SV2" secondAttribute="bottom" constant="2" id="Pj3-n7-91X"/>
                                                 <constraint firstItem="fcT-2a-vU7" firstAttribute="leading" secondItem="Jm3-o3-8kP" secondAttribute="leading" id="V62-7Q-XVJ"/>
+                                                <constraint firstItem="Jm3-o3-8kP" firstAttribute="top" secondItem="fcT-2a-vU7" secondAttribute="bottom" constant="-9" id="skk-0l-h18"/>
                                             </constraints>
                                         </view>
                                     </subviews>

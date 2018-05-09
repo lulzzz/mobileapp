@@ -22,6 +22,7 @@
     <string name="AddTagsHint">Add/filter tags</string>
     <string name="StartTime">Start time</string>
     <string name="EndTime">End time</string>
+    <string name="StopButtonText">Stop</string>
     <string name="Save">Save</string>
     <string name="Oops">Oops!</string>
     <string name="NameTakenError">Sorry, this name is already taken.</string>
@@ -56,6 +57,7 @@ your app to continue.</string>
 	<string name="UpdateTheApp">Update the app</string>
     <string name="Reports">Reports</string>
     <string name="NewTimeEntry">New time entry</string>
+    <string name="StopTimer">Stop timer</string>
     
     <string name="MainTemplateSelector" translatable="false">Toggl.Giskard.TemplateSelectors.MainTemplateSelector, Toggl.Giskard</string>
     <string name="ReportsTemplateSelector" translatable="false">Toggl.Giskard.TemplateSelectors.ReportsTemplateSelector, Toggl.Giskard</string>

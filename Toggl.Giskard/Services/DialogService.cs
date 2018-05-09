@@ -32,7 +32,10 @@ namespace Toggl.Giskard.Services
                     builder = builder.SetNegativeButton(dismissButtonText, (s, e) => tcs.SetResult(false));
                 }
 
-                builder.Show();
+                var dialog = builder.Create();
+                dialog.CancelEvent += (s, e) => tcs.SetResult(false);
+                          
+                dialog.Show();
             });
 
             return tcs.Task;

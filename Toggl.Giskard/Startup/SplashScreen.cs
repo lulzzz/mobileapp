@@ -51,7 +51,8 @@ namespace Toggl.Giskard
             #if USE_ANALYTICS
             Microsoft.AppCenter.AppCenter.Start(
                 "{TOGGL_APP_CENTER_ID_DROID}",
-                typeof(Microsoft.AppCenter.Crashes.Crashes));
+                typeof(Microsoft.AppCenter.Crashes.Crashes),
+                typeof(Microsoft.AppCenter.Analytics.Analytics));
             #endif
         }
     }
