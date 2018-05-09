@@ -1,14 +1,22 @@
-using Foundation;
 using CoreGraphics;
+using Foundation;
+using MvvmCross.Binding.BindingContext;
 using MvvmCross.Binding.iOS.Views;
+using MvvmCross.Binding.iOS;
+using MvvmCross.Core.ViewModels;
 using ObjCRuntime;
 using System;
+using Toggl.Daneel.Extensions;
+using Toggl.Foundation.MvvmCross.Converters;
+using Toggl.Foundation.MvvmCross.ViewModels;
 using UIKit;
 
 namespace Toggl.Daneel
 {
     public partial class RatingView : MvxView
     {
+        public IMvxCommand<bool> AnswerTappedCommand { get; set; }
+
         public RatingView (IntPtr handle) : base (handle)
         {
         }
@@ -20,6 +28,41 @@ namespace Toggl.Daneel
             view.AutoresizingMask = UIViewAutoresizing.FlexibleWidth;
             view.TranslatesAutoresizingMaskIntoConstraints = true;
             return view;
+        }
+
+        public override void MovedToSuperview()
+        {
+            base.MovedToSuperview();
+
+            var inverseBoolConverter = new BoolToConstantValueConverter<bool>(false, true);
+            var boolToHeightConverter = new BoolToConstantValueConverter<nfloat>(209, 236);
+            var bindingSet = this.CreateBindingSet<RatingView, RatingViewModel>();
+
+            bindingSet.Bind(QuestionView)
+                      .For(v => v.BindVisibility())
+                      .To(vm => vm.GotAnswer);
+
+            bindingSet.Bind(CTAView)
+                      .For(v => v.BindVisibility())
+                      .To(vm => vm.GotAnswer)
+                      .WithConversion(inverseBoolConverter);
+
+            bindingSet.Bind(HeightConstraint)
+                      .For(v => v.BindConstant())
+                      .To(vm => vm.GotAnswer)
+                      .WithConversion(boolToHeightConverter);
+
+            bindingSet.Apply();
+
+            YesView.AddGestureRecognizer(new UITapGestureRecognizer(() =>
+            {
+                AnswerTappedCommand?.Execute(true);
+            }));
+
+            NotReallyView.AddGestureRecognizer(new UITapGestureRecognizer(() =>
+            {
+                AnswerTappedCommand?.Execute(false);
+            }));
         }
 
         public override void LayoutSubviews()

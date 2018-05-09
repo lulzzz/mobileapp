@@ -134,7 +134,7 @@
                                     </state>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fDt-tb-hdG" userLabel="Dismiss Button">
-                                    <rect key="frame" x="107" y="180" width="74" height="30"/>
+                                    <rect key="frame" x="107" y="157" width="74" height="30"/>
                                     <state key="normal" title="No, thanks">
                                         <color key="titleColor" red="0.29803921568627451" green="0.85098039215686272" blue="0.39215686274509803" alpha="1" colorSpace="calibratedRGB"/>
                                     </state>
@@ -142,7 +142,7 @@
                             </subviews>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <constraints>
-                                <constraint firstAttribute="bottom" secondItem="fDt-tb-hdG" secondAttribute="bottom" constant="-1" id="0kO-G8-s3Q"/>
+                                <constraint firstAttribute="bottom" secondItem="fDt-tb-hdG" secondAttribute="bottom" constant="22" id="0kO-G8-s3Q"/>
                                 <constraint firstAttribute="trailing" secondItem="fiL-lD-qx5" secondAttribute="trailing" constant="16" id="P41-9C-u7q"/>
                                 <constraint firstItem="f7G-wc-dSL" firstAttribute="top" secondItem="fiL-lD-qx5" secondAttribute="bottom" id="PdC-BM-5Pb"/>
                                 <constraint firstItem="fDt-tb-hdG" firstAttribute="centerX" secondItem="ERe-sb-HT7" secondAttribute="centerX" id="TwY-0m-09C"/>

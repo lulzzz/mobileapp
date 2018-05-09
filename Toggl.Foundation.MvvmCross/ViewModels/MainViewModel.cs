@@ -91,6 +91,8 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         public SuggestionsViewModel SuggestionsViewModel { get; }
 
+        public RatingViewModel RatingViewModel { get; }
+
         public IOnboardingStorage OnboardingStorage => onboardingStorage;
 
         public IMvxNavigationService NavigationService => navigationService;
@@ -138,6 +140,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
             TimeEntriesLogViewModel = new TimeEntriesLogViewModel(timeService, dataSource, interactorFactory, onboardingStorage, navigationService);
             SuggestionsViewModel = new SuggestionsViewModel(dataSource, interactorFactory, suggestionProviders);
+            RatingViewModel = new RatingViewModel(dataSource);
 
             RefreshCommand = new MvxCommand(refresh);
             OpenReportsCommand = new MvxAsyncCommand(openReports);
@@ -158,6 +161,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
             await TimeEntriesLogViewModel.Initialize();
             await SuggestionsViewModel.Initialize();
+            await RatingViewModel.Initialize();
 
             var tickDisposable = timeService
                 .CurrentDateTimeObservable

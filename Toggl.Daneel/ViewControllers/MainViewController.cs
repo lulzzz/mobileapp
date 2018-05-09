@@ -102,6 +102,7 @@ namespace Toggl.Daneel.ViewControllers
             TimeEntriesLogTableView.Source = source;
 
             suggestionsView.DataContext = ViewModel.SuggestionsViewModel;
+			ratingView.DataContext = ViewModel.RatingViewModel;
 
             source.Initialize();
 
@@ -169,6 +170,10 @@ namespace Toggl.Daneel.ViewControllers
             bindingSet.Bind(suggestionsView)
                       .For(v => v.SuggestionTappedCommad)
                       .To(vm => vm.SuggestionsViewModel.StartTimeEntryCommand);
+
+			bindingSet.Bind(ratingView)
+					  .For(v => v.AnswerTappedCommand)
+					  .To(vm => vm.RatingViewModel.ProcessAnswerCommand);
 
             //Visibility
             bindingSet.Bind(WelcomeBackView)
