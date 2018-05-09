@@ -18,7 +18,7 @@ namespace Toggl.Foundation
             TModel entity,
             Func<TModel, TModel, ConflictResolutionMode> conflictResolution,
             IRivalsResolver<TModel> rivalsResolver = null)
-            where TModel : IIdentifiable, IDatabaseSyncable
+            where TModel : IDatabaseSyncable
             => repository
                 .BatchUpdate(new[] { (id, entity) }, conflictResolution, rivalsResolver)
                 .SingleAsync()

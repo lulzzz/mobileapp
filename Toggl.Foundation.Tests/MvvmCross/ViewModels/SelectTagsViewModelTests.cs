@@ -12,6 +12,7 @@ using NSubstitute.Core;
 using Toggl.Foundation.Autocomplete;
 using Toggl.Foundation.Autocomplete.Suggestions;
 using Toggl.Foundation.DataSources;
+using Toggl.Foundation.Models.Interfaces;
 using Toggl.Foundation.MvvmCross.ViewModels;
 using Toggl.Foundation.Tests.Generators;
 using Toggl.PrimeRadiant.Models;
@@ -49,9 +50,9 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                     .Select(i => CreateTagSubstitute(i, i.ToString()))
                     .Select(tag => new TagSuggestion(tag));
 
-            protected IDatabaseTag CreateTagSubstitute(long id, string name)
+            protected IThreadsafeTag CreateTagSubstitute(long id, string name)
             {
-                var tag = Substitute.For<IDatabaseTag>();
+                var tag = Substitute.For<IThreadsafeTag>();
                 tag.Id.Returns(id);
                 tag.Name.Returns(name);
                 return tag;
@@ -185,7 +186,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 var tags = Enumerable.Range(0, 10)
                                      .Select(i =>
                                      {
-                                         var tag = Substitute.For<IDatabaseTag>();
+                                         var tag = Substitute.For<IThreadsafeTag>();
                                          tag.Name.Returns(Guid.NewGuid().ToString());
                                          tag.Id.Returns(i);
                                          tag.WorkspaceId.Returns(workspaceIdSelector(i));
@@ -245,9 +246,9 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             public async Task ReturnsFalseIfTagIsCreated()
             {
                 var tagsSource = Substitute.For<ITagsSource>();
-                tagsSource.GetAll().Returns(Observable.Return(new List<IDatabaseTag>()));
+                tagsSource.GetAll().Returns(Observable.Return(new List<IThreadsafeTag>()));
 
-                var newTag = Substitute.For<IDatabaseTag>();
+                var newTag = Substitute.For<IThreadsafeTag>();
                 newTag.Id.Returns(12345);
 
                 tagsSource
@@ -489,7 +490,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 ViewModel.Prepare((new long[0], workspaceId));
                 await ViewModel.Initialize();
 
-                var createdTag = Substitute.For<IDatabaseTag>();
+                var createdTag = Substitute.For<IThreadsafeTag>();
                 createdTag.Id.Returns(tagId);
                 createdTag.WorkspaceId.Returns(workspaceId);
                 DataSource

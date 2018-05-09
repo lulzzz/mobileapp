@@ -112,7 +112,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         {
             await base.Initialize();
 
-            BeginningOfWeek = (await dataSource.User.Current).BeginningOfWeek;
+            BeginningOfWeek = (await dataSource.User.Current.FirstAsync()).BeginningOfWeek;
             fillMonthArray();
             RaisePropertyChanged(nameof(CurrentMonth));
 

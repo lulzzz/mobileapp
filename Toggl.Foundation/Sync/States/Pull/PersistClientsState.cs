@@ -12,7 +12,7 @@ namespace Toggl.Foundation.Sync.States
     internal sealed class PersistClientsState : BasePersistState<IClient, IDatabaseClient>
     {
         public PersistClientsState(IRepository<IDatabaseClient> repository, ISinceParameterRepository sinceParameterRepository)
-            : base(repository, sinceParameterRepository, Resolver.ForClients())
+            : base(repository, sinceParameterRepository, Resolver.ForClients)
         {
         }
 

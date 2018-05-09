@@ -12,7 +12,7 @@ namespace Toggl.Foundation.Sync.States
     internal sealed class PersistTagsState : BasePersistState<ITag, IDatabaseTag>
     {
         public PersistTagsState(IRepository<IDatabaseTag> repository, ISinceParameterRepository sinceParameterRepository)
-            : base(repository, sinceParameterRepository, Resolver.ForTags())
+            : base(repository, sinceParameterRepository, Resolver.ForTags)
         {
         }
 

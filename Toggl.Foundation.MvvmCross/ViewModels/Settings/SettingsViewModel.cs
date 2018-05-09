@@ -171,7 +171,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         public override async Task Initialize()
         {
-            var user = await dataSource.User.Current;
+            var user = await dataSource.User.Current.FirstAsync();
             var defaultWorkspace = await interactorFactory.GetDefaultWorkspace().Execute();
 
             Email = user.Email;

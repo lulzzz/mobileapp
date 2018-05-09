@@ -12,7 +12,7 @@ namespace Toggl.Foundation.Sync.States
     internal sealed class PersistProjectsState : BasePersistState<IProject, IDatabaseProject>
     {
         public PersistProjectsState(IRepository<IDatabaseProject> repository, ISinceParameterRepository sinceParameterRepository)
-            : base(repository, sinceParameterRepository, Resolver.ForProjects())
+            : base(repository, sinceParameterRepository, Resolver.ForProjects)
         {
         }
 

@@ -1,23 +1,29 @@
 using System;
+using System.Collections.Generic;
+using System.Reactive;
+using Toggl.Foundation.DataSources.Interfaces;
 using Toggl.Foundation.DTOs;
+using Toggl.Foundation.Models.Interfaces;
 using Toggl.PrimeRadiant;
 using Toggl.PrimeRadiant.Models;
 
 namespace Toggl.Foundation.DataSources
 {
-    public interface ITimeEntriesSource : IRepository<IDatabaseTimeEntry>
+    public interface ITimeEntriesSource
+        : IObservableDataSource<IThreadsafeTimeEntry, IDatabaseTimeEntry>
     {
-        IObservable<IDatabaseTimeEntry> CurrentlyRunningTimeEntry { get; }
-
-        IObservable<IDatabaseTimeEntry> TimeEntryCreated { get; }
-
-        IObservable<(long Id, IDatabaseTimeEntry Entity)> TimeEntryUpdated { get; }
-
-        IObservable<long> TimeEntryDeleted { get; }
+        IObservable<IThreadsafeTimeEntry> CurrentlyRunningTimeEntry { get; }
 
         IObservable<bool> IsEmpty { get; }
-         IObservable<IDatabaseTimeEntry> Stop(DateTimeOffset stopTime);
 
-        IObservable<IDatabaseTimeEntry> Update(EditTimeEntryDto dto);
+        IObservable<Unit> SoftDelete(IThreadsafeTimeEntry timeEntry);
+        
+        IObservable<IThreadsafeTimeEntry> Stop(DateTimeOffset stopTime);
+
+        IObservable<IThreadsafeTimeEntry> Update(EditTimeEntryDto dto);
+
+        IObservable<IEnumerable<IThreadsafeTimeEntry>> GetAllNonDeleted();
+
+        IObservable<IEnumerable<IThreadsafeTimeEntry>> GetAllNonDeleted(Func<IDatabaseTimeEntry, bool> predicate);
     }
 }

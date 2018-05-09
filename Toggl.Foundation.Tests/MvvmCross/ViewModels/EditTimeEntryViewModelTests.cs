@@ -10,12 +10,14 @@ using FsCheck.Xunit;
 using NSubstitute;
 using Toggl.Foundation.DTOs;
 using Toggl.Foundation.Models;
+using Toggl.Foundation.Models.Interfaces;
 using Toggl.Foundation.MvvmCross.Parameters;
 using Toggl.Foundation.MvvmCross.Services;
 using Toggl.Foundation.MvvmCross.ViewModels;
 using Toggl.Foundation.Tests.Generators;
 using Toggl.PrimeRadiant.Models;
 using Toggl.Foundation.Analytics;
+using Toggl.Foundation.Interactors;
 using Xunit;
 using static Toggl.Foundation.Helper.Constants;
 using static Toggl.Multivac.Extensions.StringExtensions;
@@ -31,7 +33,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
 
             protected readonly TimeSpan Duration = TimeSpan.FromHours(1);
 
-            protected IDatabaseTimeEntry TheTimeEntry;
+            protected IThreadsafeTimeEntry TheTimeEntry;
 
             protected IAnalyticsService AnalyticsService { get; } = Substitute.For<IAnalyticsService>();
 
@@ -95,9 +97,9 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             {
                 ConfigureEditedTimeEntry(DateTimeOffset.Now, true);
 
-                var te = Substitute.For<IDatabaseTimeEntry>();
-                var project = Substitute.For<IDatabaseProject>();
-                var task = Substitute.For<IDatabaseTask>();
+                var te = Substitute.For<IThreadsafeTimeEntry>();
+                var project = Substitute.For<IThreadsafeProject>();
+                var task = Substitute.For<IThreadsafeTask>();
 
                 project.Id.Returns(TheTimeEntry.ProjectId.Value);
                 task.Id.Returns(TheTimeEntry.TaskId.Value);
@@ -278,11 +280,12 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 }
 
                 [Fact, LogIfTooSlow]
-                public async Task CallsDeleteOnDataSource()
+                public async Task ExecutesTheDeleteInteractor()
                 {
                     await ViewModel.DeleteCommand.ExecuteAsync();
 
-                    await DataSource.TimeEntries.Received().Delete(Arg.Is(ViewModel.Id));
+                    InteractorFactory.Received().DeleteTimeEntry(Arg.Any<long>());
+                    InteractorFactory.DeleteTimeEntry(Arg.Any<long>()).Received().Execute();
                 }
 
                 [Fact, LogIfTooSlow]
@@ -296,8 +299,11 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 [Fact, LogIfTooSlow]
                 public async Task DoesNotInitiatePushSyncWhenDeletingFails()
                 {
-                    DataSource.TimeEntries.Delete(Arg.Any<long>())
+                    var interactor = Substitute.For<IInteractor<IObservable<Unit>>>();
+                    interactor.Execute()
                         .Returns(Observable.Throw<Unit>(new Exception()));
+                    InteractorFactory.DeleteTimeEntry(Arg.Any<long>())
+                        .Returns(interactor);
 
                     await ViewModel.DeleteCommand.ExecuteAsync();
 
@@ -439,7 +445,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             public async Task DoesNotInitiatePushSyncWhenSavingFails()
             {
                 DataSource.TimeEntries.Update(Arg.Any<EditTimeEntryDto>())
-                    .Returns(Observable.Throw<IDatabaseTimeEntry>(new Exception()));
+                    .Returns(Observable.Throw<IThreadsafeTimeEntry>(new Exception()));
 
                 ViewModel.IsEditingDescription = false;
                 ViewModel.ConfirmCommand.Execute();
@@ -450,14 +456,14 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             [Fact, LogIfTooSlow]
             public async Task UpdatesWorkspaceIdIfProjectFromAnotherWorkspaceWasSelected()
             {
-                var timeEntry = Substitute.For<IDatabaseTimeEntry>();
+                var timeEntry = Substitute.For<IThreadsafeTimeEntry>();
                 timeEntry.Id.Returns(10);
                 timeEntry.WorkspaceId.Returns(11);
                 timeEntry.ProjectId.Returns(12);
                 DataSource.TimeEntries.GetById(Arg.Is(timeEntry.Id))
                   .Returns(Observable.Return(timeEntry));
                 var newProjectId = 20;
-                var project = Substitute.For<IDatabaseProject>();
+                var project = Substitute.For<IThreadsafeProject>();
                 project.Id.Returns(newProjectId);
                 project.WorkspaceId.Returns(21);
                 DataSource.Projects.GetById(project.Id)
@@ -481,14 +487,14 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             public async Task DoesNotUpdateWorkspaceIdIfProjectFromTheSameWorkspaceIsSelected()
             {
                 var workspaceId = 11;
-                var timeEntry = Substitute.For<IDatabaseTimeEntry>();
+                var timeEntry = Substitute.For<IThreadsafeTimeEntry>();
                 timeEntry.Id.Returns(10);
                 timeEntry.WorkspaceId.Returns(workspaceId);
                 timeEntry.ProjectId.Returns(12);
                 DataSource.TimeEntries.GetById(Arg.Is(timeEntry.Id))
                   .Returns(Observable.Return(timeEntry));
                 var newProjectId = 20;
-                var project = Substitute.For<IDatabaseProject>();
+                var project = Substitute.For<IThreadsafeProject>();
                 project.Id.Returns(newProjectId);
                 project.WorkspaceId.Returns(workspaceId);
                 DataSource.Projects.GetById(project.Id)
@@ -512,7 +518,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             {
                 var oldWorkspaceId = 11;
                 var newWorkspaceId = 21;
-                var timeEntry = Substitute.For<IDatabaseTimeEntry>();
+                var timeEntry = Substitute.For<IThreadsafeTimeEntry>();
                 timeEntry.Id.Returns(10);
                 timeEntry.WorkspaceId.Returns(oldWorkspaceId);
                 timeEntry.ProjectId.Returns(12);
@@ -535,7 +541,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             [Fact, LogIfTooSlow]
             public async Task InvertsTheFlagIfDescriptionWasBeingEdited()
             {
-                var timeEntry = Substitute.For<IDatabaseTimeEntry>();
+                var timeEntry = Substitute.For<IThreadsafeTimeEntry>();
                 timeEntry.Id.Returns(1);
                 DataSource.TimeEntries.GetById(Arg.Is(timeEntry.Id))
                   .Returns(Observable.Return(timeEntry));
@@ -551,7 +557,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             [Fact, LogIfTooSlow]
             public async Task DidNotCallUpdateIfDescriptionWasBeingEdited()
             {
-                var timeEntry = Substitute.For<IDatabaseTimeEntry>();
+                var timeEntry = Substitute.For<IThreadsafeTimeEntry>();
                 timeEntry.Id.Returns(1);
                 DataSource.TimeEntries.GetById(Arg.Is(timeEntry.Id))
                   .Returns(Observable.Return(timeEntry));
@@ -613,7 +619,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 var tagIds = nonNegativeInts.Select(i => (long)i.Get)
                     .Distinct();
                 long id = 13;
-                var timeEntry = Substitute.For<IDatabaseTimeEntry>();
+                var timeEntry = Substitute.For<IThreadsafeTimeEntry>();
                 timeEntry.Id.Returns(id);
                 timeEntry.TagIds.Returns(tagIds);
                 DataSource.TimeEntries.GetById(Arg.Is(id)).Returns(Observable.Return(timeEntry));
@@ -634,9 +640,9 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             public async Task NavigatesToTheSelectTagsViewModelPassingWorkspaceId()
             {
                 long workspaceId = 13;
-                var workspace = Substitute.For<IDatabaseWorkspace>();
+                var workspace = Substitute.For<IThreadsafeWorkspace>();
                 workspace.Id.Returns(workspaceId);
-                var timeEntry = Substitute.For<IDatabaseTimeEntry>();
+                var timeEntry = Substitute.For<IThreadsafeTimeEntry>();
                 timeEntry.Id.Returns(14);
                 timeEntry.WorkspaceId.Returns(workspaceId);
                 DataSource.TimeEntries.GetById(Arg.Any<long>())
@@ -711,9 +717,9 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 AnalyticsService.Received().TrackEditOpensTagSelector();
             }
 
-            private IDatabaseTag createTag(long id)
+            private IThreadsafeTag createTag(long id)
             {
-                var tag = Substitute.For<IDatabaseTag>();
+                var tag = Substitute.For<IThreadsafeTag>();
                 tag.Id.Returns(id);
                 tag.Name.Returns($"Tag{id}");
                 return tag;
@@ -729,7 +735,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             {
                 var errorMessage = initialValue ? "Some error" : null;
                 var id = 13;
-                var timeEntry = Substitute.For<IDatabaseTimeEntry>();
+                var timeEntry = Substitute.For<IThreadsafeTimeEntry>();
                 timeEntry.Id.Returns(id);
                 timeEntry.LastSyncErrorMessage.Returns(errorMessage);
                 DataSource.TimeEntries.GetById(Arg.Is<long>(id)).Returns(Observable.Return(timeEntry));
@@ -744,11 +750,11 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
 
         public sealed class TheInitializeMethod : EditTimeEntryViewModelTest
         {
-            private readonly IDatabaseTimeEntry timeEntry;
+            private readonly IThreadsafeTimeEntry timeEntry;
 
             public TheInitializeMethod()
             {
-                timeEntry = Substitute.For<IDatabaseTimeEntry>();
+                timeEntry = Substitute.For<IThreadsafeTimeEntry>();
                 timeEntry.Id.Returns(Id);
                 DataSource.TimeEntries.GetById(Arg.Is<long>(Id)).Returns(Observable.Return(timeEntry));
             }
@@ -820,7 +826,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                         && dto.TagIds.All(tagId => uniqueTagIds.Any(originalTagId => originalTagId == tagId)))).Wait();
             }
 
-            private IDatabaseTimeEntry mockTimeEntry(
+            private IThreadsafeTimeEntry mockTimeEntry(
                 long id,
                 long workspaceId,
                 long? projectId,
@@ -831,23 +837,23 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 string description,
                 long[] tagIds)
             {
-                var databaseTimeEntry = Substitute.For<IDatabaseTimeEntry>();
+                var databaseTimeEntry = Substitute.For<IThreadsafeTimeEntry>();
 
                 databaseTimeEntry.Id.Returns(id);
                 databaseTimeEntry.WorkspaceId.Returns(workspaceId);
 
-                IDatabaseProject project = null;
+                IThreadsafeProject project = null;
                 if (projectId.HasValue)
                 {
-                    project = Substitute.For<IDatabaseProject>();
+                    project = Substitute.For<IThreadsafeProject>();
                     project.Id.Returns(projectId.Value);
                 }
                 databaseTimeEntry.Project.Returns(project);
 
-                IDatabaseTask task = null;
+                IThreadsafeTask task = null;
                 if (taskId.HasValue)
                 {
-                    task = Substitute.For<IDatabaseTask>();
+                    task = Substitute.For<IThreadsafeTask>();
                     task.Id.Returns(taskId.Value);
                 }
                 databaseTimeEntry.Task.Returns(task);
@@ -887,9 +893,9 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 await ViewModel.Initialize();
             }
 
-            private IDatabaseTimeEntry prepareTimeEntry(long id)
+            private IThreadsafeTimeEntry prepareTimeEntry(long id)
             {
-                var timeEntry = Substitute.For<IDatabaseTimeEntry>();
+                var timeEntry = Substitute.For<IThreadsafeTimeEntry>();
                 timeEntry.Id.Returns(id);
                 timeEntry.Description.Returns("Doing stuff");
                 timeEntry.Project.Name.Returns(Guid.NewGuid().ToString());
@@ -901,10 +907,10 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 return timeEntry;
             }
 
-            private IDatabaseProject prepareProject(
+            private IThreadsafeProject prepareProject(
                 long projectId, string projectName, string projectColor, string clientName, long workspaceId)
             {
-                var project = Substitute.For<IDatabaseProject>();
+                var project = Substitute.For<IThreadsafeProject>();
                 project.Id.Returns(projectId);
                 project.Name.Returns(projectName);
                 project.Color.Returns(projectColor);
@@ -917,7 +923,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
 
             private void prepareTask(long taskId, string taskName)
             {
-                var task = Substitute.For<IDatabaseTask>();
+                var task = Substitute.For<IThreadsafeTask>();
                 task.Id.Returns(taskId);
                 task.Name.Returns(taskName);
                 DataSource.Tasks.GetById(Arg.Is(task.Id))
@@ -930,11 +936,11 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                            Arg.Any<SelectProjectParameter>())
                        .Returns(SelectProjectParameter.WithIds(projectId, taskId, 0));
 
-            private List<IDatabaseTag> createTags(int count)
+            private List<IThreadsafeTag> createTags(int count)
                 => Enumerable.Range(10000, count)
                     .Select(i =>
                     {
-                        var tag = Substitute.For<IDatabaseTag>();
+                        var tag = Substitute.For<IThreadsafeTag>();
                         tag.Name.Returns($"Tag{i}");
                         tag.Id.Returns(i);
                         return tag;
@@ -1079,12 +1085,12 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
 
             private async Task prepareTest(int tagLength, string tagGrapheme)
             {
-                var tag = Substitute.For<IDatabaseTag>();
+                var tag = Substitute.For<IThreadsafeTag>();
                 tag.Name.Returns(getLongTagName(tagLength, tagGrapheme));
-                var timeEntry = Substitute.For<IDatabaseTimeEntry>();
+                var timeEntry = Substitute.For<IThreadsafeTimeEntry>();
 
                 timeEntry.Id.Returns(13);
-                timeEntry.Tags.Returns(new IDatabaseTag[] { tag });
+                timeEntry.Tags.Returns(new IThreadsafeTag[] { tag });
 
                 DataSource.TimeEntries.GetById(Arg.Is(timeEntry.Id))
                     .Returns(Observable.Return(timeEntry));

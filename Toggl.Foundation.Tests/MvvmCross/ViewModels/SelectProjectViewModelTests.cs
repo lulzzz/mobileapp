@@ -9,6 +9,7 @@ using NSubstitute;
 using Toggl.Foundation.Autocomplete;
 using Toggl.Foundation.Autocomplete.Suggestions;
 using Toggl.Foundation.DataSources;
+using Toggl.Foundation.Models.Interfaces;
 using Toggl.Foundation.MvvmCross.Parameters;
 using Toggl.Foundation.MvvmCross.ViewModels;
 using Toggl.Foundation.Tests.Generators;
@@ -399,7 +400,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
 
                 if (returnedId == null) return;
 
-                var project = Substitute.For<IDatabaseProject>();
+                var project = Substitute.For<IThreadsafeProject>();
                 project.Id.Returns(returnedId.Value);
                 DataSource.Projects.GetById(returnedId.Value).Returns(Observable.Return(project));
             }
@@ -633,9 +634,9 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
         {
             const long workspaceId = 1;
 
-            private IDatabaseProject createArbitraryProject(int id)
+            private IThreadsafeProject createArbitraryProject(int id)
             {
-                var project = Substitute.For<IDatabaseProject>();
+                var project = Substitute.For<IThreadsafeProject>();
                 project.Id.Returns(id);
                 project.WorkspaceId.Returns(workspaceId);
                 project.Name.Returns(Guid.NewGuid().ToString());
@@ -688,7 +689,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             public async Task ReturnsTrueIfHasNoProjects()
             {
                 var projectsSource = Substitute.For<IProjectsSource>();
-                projectsSource.GetAll().Returns(Observable.Return(new List<IDatabaseProject>()));
+                projectsSource.GetAll().Returns(Observable.Return(new List<IThreadsafeProject>()));
 
                 DataSource.Projects.Returns(projectsSource);
 
@@ -702,7 +703,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             public void ReturnsFalseBeforeLoadingProjectsFromDatabase()
             {
                 var projectsSource = Substitute.For<IProjectsSource>();
-                projectsSource.GetAll().Returns(Observable.Return(new List<IDatabaseProject>()));
+                projectsSource.GetAll().Returns(Observable.Return(new List<IThreadsafeProject>()));
 
                 DataSource.Projects.Returns(projectsSource);
 

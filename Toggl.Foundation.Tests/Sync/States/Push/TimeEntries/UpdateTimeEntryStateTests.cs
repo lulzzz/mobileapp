@@ -1,6 +1,7 @@
 ﻿using System;
 using NSubstitute;
 using Toggl.Foundation.Models;
+using Toggl.Foundation.Models.Interfaces;
 using Toggl.Foundation.Sync;
 using Toggl.Foundation.Sync.States;
 using Toggl.Foundation.Tests.Mocks;
@@ -37,7 +38,7 @@ namespace Toggl.Foundation.Tests.Sync.States
 
             protected override IDatabaseTimeEntry CreateCleanWithPositiveIdFrom(IDatabaseTimeEntry entity)
             {
-                var te = new MockTimeEntry(entity);
+                var te = new MockTimeEntry(TimeEntry.From(entity));
                 te.Id = 1;
                 return TimeEntry.Clean(te);
             }

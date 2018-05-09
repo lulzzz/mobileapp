@@ -12,7 +12,7 @@ namespace Toggl.Foundation.Sync.States
     internal sealed class PersistTasksState : BasePersistState<ITask, IDatabaseTask>
     {
         public PersistTasksState(IRepository<IDatabaseTask> repository, ISinceParameterRepository sinceParameterRepository)
-            : base(repository, sinceParameterRepository, Resolver.ForTasks())
+            : base(repository, sinceParameterRepository, Resolver.ForTasks)
         {
         }
 

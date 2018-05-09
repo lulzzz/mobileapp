@@ -11,7 +11,7 @@ namespace Toggl.Foundation.Sync.States
     internal sealed class PersistWorkspacesFeaturesState : BasePersistState<IWorkspaceFeatureCollection, IDatabaseWorkspaceFeatureCollection>
     {
         public PersistWorkspacesFeaturesState(IRepository<IDatabaseWorkspaceFeatureCollection> repository, ISinceParameterRepository sinceParameterRepository)
-            : base(repository, sinceParameterRepository, Resolver.ForWorkspaceFeatures())
+            : base(repository, sinceParameterRepository, Resolver.ForWorkspaceFeatures)
         {
         }
 

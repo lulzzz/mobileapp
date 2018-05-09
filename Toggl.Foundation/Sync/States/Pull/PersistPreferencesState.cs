@@ -15,7 +15,7 @@ namespace Toggl.Foundation.Sync.States
         private const int fakeId = 0;
 
         public PersistPreferencesState(IRepository<IDatabasePreferences> repository, ISinceParameterRepository sinceParameterRepository)
-            : base(repository, sinceParameterRepository, Resolver.ForPreferences())
+            : base(repository, sinceParameterRepository, Resolver.ForPreferences)
         {
         }
 

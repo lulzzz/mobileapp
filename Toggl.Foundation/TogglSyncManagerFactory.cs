@@ -74,9 +74,9 @@ namespace Toggl.Foundation
             var persistUser = new PersistUserState(database.User, database.SinceParameters);
             var persistTags = new PersistTagsState(database.Tags, database.SinceParameters);
             var persistClients = new PersistClientsState(database.Clients, database.SinceParameters);
-            var persistPreferences = new PersistPreferencesState(dataSource.Preferences, database.SinceParameters);
+            var persistPreferences = new PersistPreferencesState(database.Preferences, database.SinceParameters);
             var persistProjects = new PersistProjectsState(database.Projects, database.SinceParameters);
-            var persistTimeEntries = new PersistTimeEntriesState(dataSource.TimeEntries, database.SinceParameters, timeService);
+            var persistTimeEntries = new PersistTimeEntriesState(database.TimeEntries, database.SinceParameters, timeService);
             var persistTasks = new PersistTasksState(database.Tasks, database.SinceParameters);
             var checkServerStatus = new CheckServerStatusState(api, scheduler, apiDelay, statusDelay, delayCancellation);
             var finished = new ResetAPIDelayState(apiDelay);
@@ -139,12 +139,12 @@ namespace Toggl.Foundation
 
             var push = new PushTimeEntriesState(database.TimeEntries);
             var pushOne = new PushOneEntityState<IDatabaseTimeEntry>();
-            var create = new CreateTimeEntryState(api, dataSource.TimeEntries);
-            var update = new UpdateTimeEntryState(api, dataSource.TimeEntries);
+            var create = new CreateTimeEntryState(api, database.TimeEntries);
+            var update = new UpdateTimeEntryState(api, database.TimeEntries);
             var delete = new DeleteTimeEntryState(api, database.TimeEntries);
             var deleteLocal = new DeleteLocalTimeEntryState(database.TimeEntries);
             var tryResolveClientError = new TryResolveClientErrorState<IDatabaseTimeEntry>();
-            var unsyncable = new UnsyncableTimeEntryState(dataSource.TimeEntries);
+            var unsyncable = new UnsyncableTimeEntryState(database.TimeEntries);
             var checkServerStatus = new CheckServerStatusState(api, scheduler, apiDelay, statusDelay, delayCancellation);
             var finished = new ResetAPIDelayState(apiDelay);
 

@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using Toggl.Foundation.Analytics;
 using Toggl.Foundation.DataSources;
 using Toggl.Foundation.Models;
+using Toggl.Foundation.Models.Interfaces;
 using Toggl.Multivac;
 using Toggl.PrimeRadiant;
 using Toggl.PrimeRadiant.Models;
@@ -38,14 +39,14 @@ namespace Toggl.Foundation.Interactors
         public IObservable<IDatabaseTimeEntry> Execute()
             => dataSource
                 .TimeEntries
-                .GetAll()
+                .GetAllNonDeleted()
                 .Select(timeEntries => timeEntries.MaxBy(te => te.Start))
                 .Select(newTimeEntry)
                 .SelectMany(dataSource.TimeEntries.Create)
                 .Do(_ => dataSource.SyncManager.PushSync())
                 .Do(_ => analyticsService.TrackStartedTimeEntry(TimeEntryStartOrigin.ContinueMostRecent));
 
-        private IDatabaseTimeEntry newTimeEntry(IDatabaseTimeEntry timeEntry)
+        private IThreadsafeTimeEntry newTimeEntry(IThreadsafeTimeEntry timeEntry)
             => TimeEntry.Builder
                         .Create(idProvider.GetNextIdentifier())
                         .SetTagIds(timeEntry.TagIds)

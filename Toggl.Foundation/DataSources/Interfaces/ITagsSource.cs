@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Toggl.Foundation.DataSources.Interfaces;
+using Toggl.Foundation.Models.Interfaces;
 using Toggl.PrimeRadiant.Models;
 
 namespace Toggl.Foundation.DataSources
 {
-    public interface ITagsSource
+    public interface ITagsSource : IDataSource<IThreadsafeTag, IDatabaseTag>
     {
-        IObservable<IDatabaseTag> GetById(long id);
-        IObservable<IEnumerable<IDatabaseTag>> GetAll();
-        IObservable<IDatabaseTag> Create(string name, long workspaceId);
-        IObservable<IEnumerable<IDatabaseTag>> GetAll(Func<IDatabaseTag, bool> predicate);
+        IObservable<IThreadsafeTag> Create(string name, long workspaceId);
     }
 }
