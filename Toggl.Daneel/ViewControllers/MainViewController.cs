@@ -96,15 +96,15 @@ namespace Toggl.Daneel.ViewControllers
             prepareOnboarding();
 
             var suggestionsView = new SuggestionsView();
-			var ratingView = RatingView.Create();
+            var ratingView = RatingView.Create();
             ratingView.AutoresizingMask = UIViewAutoresizing.FlexibleWidth;
             ratingView.TranslatesAutoresizingMaskIntoConstraints = true;
 
-			TimeEntriesLogTableView.TableHeaderView = ratingView;
+            TimeEntriesLogTableView.TableHeaderView = ratingView;
             TimeEntriesLogTableView.Source = source;
 
             suggestionsView.DataContext = ViewModel.SuggestionsViewModel;
-			ratingView.DataContext = ViewModel.RatingViewModel;
+            ratingView.DataContext = ViewModel.RatingViewModel;
 
             source.Initialize();
 
@@ -181,9 +181,9 @@ namespace Toggl.Daneel.ViewControllers
                       .For(v => v.CTATappedCommand)
                       .To(vm => vm.RatingViewModel.LeaveReviewCommand);
 
-			bindingSet.Bind(ratingView)
-					  .For(v => v.DismissTappedCommand)
-					  .To(vm => vm.RatingViewModel.DismissViewCommand);
+            bindingSet.Bind(ratingView)
+                      .For(v => v.DismissTappedCommand)
+                      .To(vm => vm.RatingViewModel.DismissViewCommand);
 
             //Visibility
             bindingSet.Bind(WelcomeBackView)
