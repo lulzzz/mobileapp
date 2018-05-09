@@ -7,7 +7,7 @@
     android:layout_height="wrap_content">
     <View
         local:MvxBind="Visibility Visibility(IsCalendarView)"
-        android:background="@color/blueToolbarBackground"
+        android:background="@color/popupBlueBackground"
         android:layout_height="96dp"
         android:layout_width="match_parent"
         android:layout_alignParentTop="true" />

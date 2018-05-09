@@ -288,7 +288,7 @@
             </RelativeLayout>
             <RelativeLayout
                 android:id="@+id/EditTimeRightPart"
-                local:MvxBind="Click SelectTimeCommand, CommandParameter='StopTime'"
+                local:MvxBind="Click StopTimeEntryCommand, CommandParameter='StopTime'"
                 android:background="?attr/selectableItemBackground"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
@@ -310,7 +310,7 @@
                 <TextView
                     android:id="@+id/EditEndValueSetLabel"
                     local:MvxBind="Visibility Visibility(IsTimeEntryRunning)"
-                    android:text="Set"
+                    android:text="@string/StopButtonText"
                     android:textSize="15sp"
                     android:textColor="@color/buttonBlue"
                     android:layout_width="match_parent"

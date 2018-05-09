@@ -159,6 +159,8 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         public IMvxAsyncCommand DoneCommand { get; }
 
+        public IMvxAsyncCommand<string> SelectTimeCommand { get; }
+
         public IMvxAsyncCommand SetStartDateCommand { get; }
 
         public IMvxAsyncCommand ChangeTimeCommand { get; }
@@ -217,6 +219,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             ToggleProjectSuggestionsCommand = new MvxCommand(toggleProjectSuggestions);
             SelectSuggestionCommand = new MvxAsyncCommand<AutocompleteSuggestion>(selectSuggestion);
             ToggleTaskSuggestionsCommand = new MvxCommand<ProjectSuggestion>(toggleTaskSuggestions);
+            SelectTimeCommand = new MvxAsyncCommand<string>(selectTime);
         }
 
         public void Init()
@@ -524,6 +527,26 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             IsBillable = !IsBillable;
         }
 
+        private async Task selectTime(string bindingString) 
+        {
+            IsEditingTime = true;
+
+            var parameters = SelectTimeParameters.CreateFromBindingString(bindingString, StartTime);
+            var result = await navigationService
+                .Navigate<SelectTimeViewModel, SelectTimeParameters, SelectTimeResultsParameters>(parameters)
+                .ConfigureAwait(false);
+
+            if (result == null)
+                return;
+
+            StartTime = result.Start;
+
+            if (result.Stop.HasValue) 
+                updateDurationAfterEditing(result.Stop - result.Start);
+
+            IsEditingTime = false;
+        }
+
         private async Task changeTime()
         {
             IsEditingTime = true;
@@ -536,15 +559,18 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             StartTime = selectedDuration.Start;
 
             if (selectedDuration.Duration.HasValue)
-            {
-                Duration = selectedDuration.Duration;
-                displayedTime = selectedDuration.Duration.Value;
-                elapsedTimeDisposable?.Dispose();
-                elapsedTimeDisposable = null;
-                RaisePropertyChanged(nameof(DisplayedTime));
-            }
+                updateDurationAfterEditing(selectedDuration.Duration);
 
             IsEditingTime = false;
+        }
+
+        private void updateDurationAfterEditing(TimeSpan? duration) 
+        { 
+            Duration = duration;
+            displayedTime = duration.Value;
+            elapsedTimeDisposable?.Dispose();
+            elapsedTimeDisposable = null;
+            RaisePropertyChanged(nameof(DisplayedTime));
         }
 
         private async Task setStartDate()

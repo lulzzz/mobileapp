@@ -160,6 +160,8 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         public IMvxCommand StopCommand { get; }
 
+        public IMvxAsyncCommand<string> StopTimeEntryCommand { get; }
+
         public IMvxAsyncCommand DeleteCommand { get; }
 
         public IMvxAsyncCommand CloseCommand { get; }
@@ -210,6 +212,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             CloseCommand = new MvxAsyncCommand(closeWithConfirmation);
             EditDurationCommand = new MvxAsyncCommand(editDuration);
             StopCommand = new MvxCommand(stopTimeEntry, () => IsTimeEntryRunning);
+            StopTimeEntryCommand = new MvxAsyncCommand<string>(onStopTimeEntryCommand);
 
             SelectStartTimeCommand = new MvxAsyncCommand(selectStartTime);
             SelectEndTimeCommand = new MvxAsyncCommand(selectEndTime);
@@ -348,11 +351,11 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
                 .ConfigureAwait(false);
         }
 
-        private async Task selectTime(string bindingString)
+        private async Task selectTime(string bindingParameter)
         {
             var parameters = 
                 SelectTimeParameters
-                .CreateFromBindingString(bindingString, StartTime, StopTime);
+                .CreateFromBindingString(bindingParameter, StartTime, StopTime);
 
             var data = await navigationService
                 .Navigate<SelectTimeViewModel, SelectTimeParameters, SelectTimeResultsParameters>(parameters)
@@ -368,6 +371,17 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         private void stopTimeEntry()
         {
             StopTime = timeService.CurrentDateTime;
+        }
+
+        private async Task onStopTimeEntryCommand(string bindingParameter)
+        {
+            if (IsTimeEntryRunning)
+            {
+                StopTime = timeService.CurrentDateTime;
+                return;
+            }
+
+            await SelectTimeCommand.ExecuteAsync(bindingParameter);
         }
 
         private async Task selectEndTime()

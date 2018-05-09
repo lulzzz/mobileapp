@@ -62,11 +62,15 @@
     <TextView
         local:MvxBind="Click SignUpCommand"
         android:textSize="14sp"
-        android:text="@string/OnboardingSignup"
-        android:textColor="@android:color/white"
-        android:layout_marginBottom="80dp"
+        android:minHeight="36dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:layout_marginBottom="76dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true" />
+        android:layout_alignParentBottom="true" 
+        android:text="@string/OnboardingSignup"
+        android:textColor="@android:color/white"
+        android:gravity="center|center_vertical" />
 </RelativeLayout>
