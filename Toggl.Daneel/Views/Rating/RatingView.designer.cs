@@ -16,10 +16,31 @@ namespace Toggl.Daneel
 		UIKit.UIView CardView { get; set; }
 
 		[Outlet]
+		UIKit.UIButton CTAButton { get; set; }
+
+		[Outlet]
+		UIKit.UILabel CTADescription { get; set; }
+
+		[Outlet]
+		UIKit.UILabel CTATitle { get; set; }
+
+		[Outlet]
+		UIKit.UIView CTAView { get; set; }
+
+		[Outlet]
+		UIKit.UIButton DismissButton { get; set; }
+
+		[Outlet]
+		UIKit.NSLayoutConstraint HeightConstraint { get; set; }
+
+		[Outlet]
 		UIKit.UILabel NotReallyLabel { get; set; }
 
 		[Outlet]
 		UIKit.UIView NotReallyView { get; set; }
+
+		[Outlet]
+		UIKit.UIView QuestionView { get; set; }
 
 		[Outlet]
 		UIKit.UILabel TitleLabel { get; set; }
@@ -37,14 +58,24 @@ namespace Toggl.Daneel
 				CardView = null;
 			}
 
-			if (TitleLabel != null) {
-				TitleLabel.Dispose ();
-				TitleLabel = null;
+			if (HeightConstraint != null) {
+				HeightConstraint.Dispose ();
+				HeightConstraint = null;
 			}
 
-			if (YesView != null) {
-				YesView.Dispose ();
-				YesView = null;
+			if (QuestionView != null) {
+				QuestionView.Dispose ();
+				QuestionView = null;
+			}
+
+			if (CTAView != null) {
+				CTAView.Dispose ();
+				CTAView = null;
+			}
+
+			if (NotReallyLabel != null) {
+				NotReallyLabel.Dispose ();
+				NotReallyLabel = null;
 			}
 
 			if (NotReallyView != null) {
@@ -52,14 +83,39 @@ namespace Toggl.Daneel
 				NotReallyView = null;
 			}
 
+			if (TitleLabel != null) {
+				TitleLabel.Dispose ();
+				TitleLabel = null;
+			}
+
 			if (YesLabel != null) {
 				YesLabel.Dispose ();
 				YesLabel = null;
 			}
 
-			if (NotReallyLabel != null) {
-				NotReallyLabel.Dispose ();
-				NotReallyLabel = null;
+			if (YesView != null) {
+				YesView.Dispose ();
+				YesView = null;
+			}
+
+			if (CTATitle != null) {
+				CTATitle.Dispose ();
+				CTATitle = null;
+			}
+
+			if (CTADescription != null) {
+				CTADescription.Dispose ();
+				CTADescription = null;
+			}
+
+			if (CTAButton != null) {
+				CTAButton.Dispose ();
+				CTAButton = null;
+			}
+
+			if (DismissButton != null) {
+				DismissButton.Dispose ();
+				DismissButton = null;
 			}
 		}
 	}
