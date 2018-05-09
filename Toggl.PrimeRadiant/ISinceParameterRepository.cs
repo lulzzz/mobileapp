@@ -6,6 +6,8 @@ namespace Toggl.PrimeRadiant
     {
         DateTimeOffset? Get<T>() where T : IDatabaseSyncable;
 
-        void Set<T>(DateTimeOffset? since) where T : IDatabaseSyncable;
+        void Set<T>(DateTimeOffset? since);
+
+        bool Supports<T>();
     }
 }

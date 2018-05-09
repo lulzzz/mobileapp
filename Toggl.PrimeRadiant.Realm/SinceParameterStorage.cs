@@ -50,7 +50,6 @@ namespace Toggl.PrimeRadiant.Realm
         }
 
         public void Set<T>(DateTimeOffset? since)
-            where T : IDatabaseSyncable
         {
             var id = getId<T>();
             var record = new RealmSinceParameter
@@ -71,6 +70,9 @@ namespace Toggl.PrimeRadiant.Realm
                 }
             }
         }
+
+        public bool Supports<T>()
+            => typesToIdsMapping.TryGetValue(typeof(T), out _);
 
         private static long getId<T>()
         {
