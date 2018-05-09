@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Specialized;
 using System.Linq;
 using Android.Runtime;
 using Android.Support.V7.Widget;
@@ -55,6 +56,11 @@ namespace Toggl.Giskard.Adapters
             return Collection.First()[actualViewPosition];
         }
 
+        protected override void OnItemsSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            base.OnItemsSourceCollectionChanged(sender, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+
         protected override MvxObservableCollection<WorkspaceGroupedCollection<AutocompleteSuggestion>> Collection
             => ItemsSource as MvxObservableCollection<WorkspaceGroupedCollection<AutocompleteSuggestion>>;
 
@@ -65,11 +71,11 @@ namespace Toggl.Giskard.Adapters
 
             var itemBindingContext = new MvxAndroidBindingContext(parent.Context, BindingContext.LayoutInflaterHolder);
             var inflatedView = InflateViewForHolder(parent, viewType, itemBindingContext);
-            var viewHolder = new SelectProjectWithExpandableTasksRecyclerViewHolder(inflatedView, itemBindingContext)
+            var viewHolder = new SelectProjectWithExpandableTasksRecyclerViewHolder(
+                inflatedView, itemBindingContext, Resource.Id.StartTimeEntryToggleTasksButton)
             {
                 Click = ItemClick,
                 LongClick = ItemLongClick,
-                ToggleTasksExpansionButtonId = Resource.Id.StartTimeEntryToggleTasksButton,
                 ToggleTasksCommand = ToggleTasksCommand
             };
 

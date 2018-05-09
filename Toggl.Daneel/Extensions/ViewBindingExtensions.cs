@@ -18,17 +18,26 @@ namespace Toggl.Daneel.Extensions
         public static string BindCommand(this UIBarButtonItem self)
             => BarButtonCommandTargetBinding.BindingName;
 
+        public static string BindAnimatedTitle(this UIButton self)
+            => ButtonAnimatedTitleTargetBinding.BindingName;
+
         public static string BindImage(this UIButton self)
             => ButtonImageTargetBinding.BindingName;
 
         public static string BindDateTimeOffset(this UIDatePicker self)
             => DatePickerDateTimeOffsetTargetBinding.BindingName;
 
+        public static string BindAnimatedImage(this UIImageView self)
+            => ImageViewAnimatedImageTargetBinding.BindingName;
+
         public static string BindAnimatedConstant(this NSLayoutConstraint self)
             => LayoutConstraintAnimatedConstantTargetBinding.BindingName;
 
         public static string BindConstant(this NSLayoutConstraint self)
             => LayoutConstraintConstantTargetBinding.BindingName;
+
+        public static string BindFirstResponder(this LoginTextField self)
+            => LoginTextFieldFirstResponderTargetBinding.BindingName;
 
         public static string BindHidesBackButton(this UINavigationItem self)
             => NavigationItemHidesBackButtonTargetBinding.BindingName;
@@ -65,5 +74,8 @@ namespace Toggl.Daneel.Extensions
 
         public static string BindAnimatedVisibility(this UIView self)
             => ViewAnimatedVisibilityTargetBinding.BindingName;
+
+        public static string BindVisibilityWithFade(this UIView self)
+            => ViewVisibilityWithFadeTargetBinding.BindingName;
     }
 }

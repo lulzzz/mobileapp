@@ -3,10 +3,12 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using MvvmCross.Core.Navigation;
 using MvvmCross.Core.ViewModels;
+using Toggl.Foundation.Analytics;
 using Toggl.Foundation.DataSources;
 using Toggl.Foundation.Login;
 using Toggl.Foundation.MvvmCross.Services;
 using Toggl.Multivac;
+using Toggl.PrimeRadiant.Settings;
 using Toggl.Ultrawave.Exceptions;
 
 namespace Toggl.Foundation.MvvmCross.ViewModels
@@ -18,6 +20,9 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         private readonly ITogglDataSource dataSource;
         private readonly IDialogService dialogService;
         private readonly IMvxNavigationService navigationService;
+        private readonly IUserPreferences userPreferences;
+        private readonly IOnboardingStorage onboardingStorage;
+        private readonly IAnalyticsService analyticsService;
 
         private bool needsSync;
 
@@ -45,17 +50,27 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             ILoginManager loginManager,
             ITogglDataSource dataSource,
             IDialogService dialogService,
-            IMvxNavigationService navigationService)
+            IMvxNavigationService navigationService,
+            IUserPreferences userPreferences,
+            IOnboardingStorage onboardingStorage,
+            IAnalyticsService analyticsService
+        )
         {
             Ensure.Argument.IsNotNull(dataSource, nameof(dataSource));
             Ensure.Argument.IsNotNull(loginManager, nameof(loginManager));
             Ensure.Argument.IsNotNull(dialogService, nameof(dialogService));
             Ensure.Argument.IsNotNull(navigationService, nameof(navigationService));
+            Ensure.Argument.IsNotNull(userPreferences, nameof(userPreferences));
+            Ensure.Argument.IsNotNull(onboardingStorage, nameof(onboardingStorage));
+            Ensure.Argument.IsNotNull(analyticsService, nameof(analyticsService));
 
             this.dataSource = dataSource;
             this.loginManager = loginManager;
             this.dialogService = dialogService;
             this.navigationService = navigationService;
+            this.userPreferences = userPreferences;
+            this.onboardingStorage = onboardingStorage;
+            this.analyticsService = analyticsService;
 
             DoneCommand = new MvxCommand(done);
             SignOutCommand = new MvxAsyncCommand(signout);
@@ -85,6 +100,9 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
             if (!shouldLogout) return;
 
+            analyticsService.TrackLogoutEvent(LogoutSource.TokenReset);
+            userPreferences.Reset();
+            onboardingStorage.Reset();
             await dataSource.Logout();
             await navigationService.Navigate<OnboardingViewModel>();
         }

@@ -1,3 +1,4 @@
+using System;
 using Android.App;
 using Android.Content.PM;
 using Android.Graphics;
@@ -25,11 +26,26 @@ namespace Toggl.Giskard.Activities
 
             OverridePendingTransition(Resource.Animation.abc_fade_in, Resource.Animation.abc_fade_out);
 
+            setupToolbar();
+        }
+
+        private void setupToolbar()
+        {
             var toolbar = FindViewById<Toolbar>(Resource.Id.Toolbar);
 
+            toolbar.Title = ViewModel.Title;
+
             SetSupportActionBar(toolbar);
-            SupportActionBar.SetDisplayShowHomeEnabled(false);
-            SupportActionBar.SetDisplayShowTitleEnabled(false);
+
+            SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+            SupportActionBar.SetDisplayShowHomeEnabled(true);
+
+            toolbar.NavigationClick += onNavigateBack;
+        }
+
+        private void onNavigateBack(object sender, Toolbar.NavigationClickEventArgs e)
+        {
+            ViewModel.BackCommand.Execute();
         }
 
         public override void Finish()

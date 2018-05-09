@@ -1,64 +1,65 @@
-<?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:local="http://schemas.android.com/apk/res-auto"
+<?xml version="1.0" encoding="UTF-8"?>
+<android.support.design.widget.CoordinatorLayout
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:local="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="@android:color/white"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <RelativeLayout
         android:elevation="2dp"
-        android:background="@color/blueToolbarBackground"
         android:orientation="horizontal"
+        android:background="@color/blueToolbarBackground"
         android:layout_width="match_parent"
         android:layout_height="@dimen/expandedToolbarHeight">
         <ImageView
             android:id="@+id/SelectTagsBackIcon"
             local:MvxBind="Click CloseCommand"
+            android:padding="16dp"
             android:clickable="true"
-            android:tint="@android:color/white"
             android:src="@drawable/arrow_back"
+            android:tint="@android:color/white"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="16dp" />
+            android:layout_width="56dp"
+            android:layout_height="56dp" />
         <EditText
             local:MvxBind="Text Text"
             android:textSize="19sp"
+            android:paddingLeft="16dp"
             android:letterSpacing="-0.01"
             android:lineSpacingExtra="5sp"
             android:hint="@string/AddTagsHint"
-            android:textColor="@android:color/white"
             android:textCursorDrawable="@null"
+            android:textColor="@android:color/white"
             android:background="@color/blueToolbarBackground"
             android:textColorHint="@color/blueBackgroundTextHintColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_below="@id/SelectTagsBackIcon"
-            android:layout_alignLeft="@id/SelectTagsBackIcon"
-            android:layout_marginTop="20dp" />
+            android:layout_alignLeft="@id/SelectTagsBackIcon" />
         <TextView
             local:MvxBind="Click SaveCommand"
-            android:clickable="true"
             android:textSize="14sp"
-            android:text="@string/Save"
-            android:textColor="@color/buttonBlue"
+            android:clickable="true"
             android:textAllCaps="true"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:text="@string/Save"
+            android:gravity="center_vertical"
             android:src="@drawable/arrow_back"
+            android:textColor="@android:color/white"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="16dp"
             android:layout_alignParentRight="true"
             android:layout_alignTop="@id/SelectTagsBackIcon"
-            android:layout_alignBottom="@id/SelectTagsBackIcon"
-            android:gravity="center_vertical" />
+            android:layout_alignBottom="@id/SelectTagsBackIcon" />
     </RelativeLayout>
     <toggl.giskard.views.SelectTagsRecyclerView
         local:MvxBind="ItemsSource Tags; ItemClick SelectTagCommand; CreateCommand CreateTagCommand; Text Text; IsSuggestingCreation SuggestCreation"
-        local:MvxTemplateSelector="@string/SelectTagsTemplateSelector"
         android:scrollbars="vertical"
+        local:MvxTemplateSelector="@string/SelectTagsTemplateSelector"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="@dimen/expandedToolbarHeight" />

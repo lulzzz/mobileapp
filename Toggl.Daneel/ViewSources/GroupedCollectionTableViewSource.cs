@@ -22,11 +22,40 @@ namespace Toggl.Daneel.ViewSources
         private readonly object animationLock = new object();
         private readonly List<IDisposable> disposables = new List<IDisposable>();
 
-        protected IEnumerable<MvxObservableCollection<TItem>> GroupedItems
-            => ItemsSource as IEnumerable<MvxObservableCollection<TItem>>;
+        private NestableObservableCollection<TCollection, TItem> observableCollection;
 
-        protected NestableObservableCollection<TCollection, TItem> AnimatableCollection
-            => ItemsSource as NestableObservableCollection<TCollection, TItem>;
+        private readonly List<TCollection> displayedGroupedItems = new List<TCollection>();
+
+        protected IReadOnlyCollection<TCollection> GroupedItems { get; }
+
+        public override IEnumerable ItemsSource
+        {
+            get => GroupedItems;
+            set { throw new InvalidOperationException($"You must bind to the {nameof(ObservableCollection)} and not the {nameof(ItemsSource)}"); }
+        }
+
+        public NestableObservableCollection<TCollection, TItem> ObservableCollection
+        {
+            get => observableCollection;
+            set
+            {
+                if (observableCollection != null)
+                {
+                    observableCollection.CollectionChanged -= OnCollectionChanged;
+                    observableCollection.OnChildCollectionChanged -= OnChildCollectionChanged;
+                }
+
+                observableCollection = value;
+                cloneCollection();
+                base.ItemsSource = GroupedItems;
+
+                if (observableCollection != null)
+                {
+                    observableCollection.CollectionChanged += OnCollectionChanged;
+                    observableCollection.OnChildCollectionChanged += OnChildCollectionChanged;
+                }
+            }
+        }
 
         protected GroupedCollectionTableViewSource(UITableView tableView, string cellIdentifier, string headerCellIdentifier)
             : base(tableView)
@@ -35,6 +64,8 @@ namespace Toggl.Daneel.ViewSources
             this.headerCellIdentifier = headerCellIdentifier;
 
             UseAnimations = true;
+
+            GroupedItems = displayedGroupedItems.AsReadOnly();
         }
 
         public override UIView GetViewForHeader(UITableView tableView, nint section)
@@ -71,14 +102,16 @@ namespace Toggl.Daneel.ViewSources
             => GetGroupAt(section).Count();
 
         protected virtual IEnumerable<TItem> GetGroupAt(nint section)
-            => GroupedItems.ElementAtOrDefault((int)section) ?? new TCollection();
+            => displayedGroupedItems.ElementAtOrDefault((int)section) ?? new TCollection();
 
         protected override object GetItemAt(NSIndexPath indexPath)
-            => GroupedItems.ElementAtOrDefault(indexPath.Section)?.ElementAtOrDefault((int)indexPath.Item);
+            => displayedGroupedItems.ElementAtOrDefault(indexPath.Section)?.ElementAtOrDefault((int)indexPath.Item);
 
         public override void HeaderViewDisplayingEnded(UITableView tableView, UIView headerView, nint section)
         {
-            var firstVisible = TableView.IndexPathsForVisibleRows.First();
+            var firstVisible = TableView.IndexPathsForVisibleRows.FirstOrDefault();
+            if (firstVisible == null) return;
+
             if (firstVisible.Section != section + 1) return;
 
             var nextHeader = TableView.GetHeaderView(firstVisible.Section) as IHeaderViewCellWithHideableTopSeparator;
@@ -92,7 +125,9 @@ namespace Toggl.Daneel.ViewSources
             var headerViewCell = headerView as IHeaderViewCellWithHideableTopSeparator;
             if (headerViewCell == null) return;
 
-            var firstVisibleIndexPath = TableView.IndexPathsForVisibleRows.First();
+            var firstVisibleIndexPath = TableView.IndexPathsForVisibleRows.FirstOrDefault();
+            if (firstVisibleIndexPath == null) return;
+
             if (firstVisibleIndexPath.Section == section)
             {
                 var nextHeader = TableView.GetHeaderView(section + 1) as IHeaderViewCellWithHideableTopSeparator;
@@ -112,96 +147,82 @@ namespace Toggl.Daneel.ViewSources
         protected override UITableViewCell GetOrCreateCellFor(UITableView tableView, NSIndexPath indexPath, object item)
             => tableView.DequeueReusableCell(cellIdentifier, indexPath);
 
-        public override IEnumerable ItemsSource
+        protected void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
-            get => base.ItemsSource;
-            set
-            {
-                if (AnimatableCollection != null)
-                {
-                    AnimatableCollection.OnChildCollectionChanged -= OnChildCollectionChanged;
-                }
-
-                base.ItemsSource = value;
-
-                if (AnimatableCollection != null)
-                {
-                    AnimatableCollection.OnChildCollectionChanged += OnChildCollectionChanged;
-                }
-            }
-        }
-
-        protected override void CollectionChangedOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
-        {
-            InvokeOnMainThread(() =>
-            {
-                if (!UseAnimations)
-                {
-                    ReloadTableData();
-                    return;
-                }
-
-                animateSectionChangesIfPossible(args);
-            });
+            tryAnimateOnMainThread(() => animateSectionChangesIfPossible(args));
         }
 
         protected void OnChildCollectionChanged(object sender, ChildCollectionChangedEventArgs args)
         {
+            tryAnimateOnMainThread(() => animateRowChangesIfPossible(args));
+        }
+
+        private void tryAnimateOnMainThread(Action animate)
+        {
             InvokeOnMainThread(() =>
             {
                 if (!UseAnimations)
                 {
-                    ReloadTableData();
+                    reloadTable();
                     return;
                 }
 
-                animateRowChangesIfPossible(args);
+                try
+                {
+                    animate();
+                }
+                catch
+                {
+                    reloadTable();
+                }
             });
-        }
-
-        protected virtual void OnSectionAdded(NSIndexSet indexToAdd)
-        {
-            TableView.BeginUpdates();
-            TableView.InsertSections(indexToAdd, UITableViewRowAnimation.Automatic);
-            TableView.EndUpdates();
         }
 
         private void animateSectionChangesIfPossible(NotifyCollectionChangedEventArgs args)
         {
             lock (animationLock)
             {
+                TableView.BeginUpdates();
+
                 switch (args.Action)
                 {
                     case NotifyCollectionChangedAction.Add:
+                        var addedSection = CloneCollection(observableCollection[args.NewStartingIndex]);
+                        displayedGroupedItems.Insert(args.NewStartingIndex, addedSection);
+
                         var indexToAdd = NSIndexSet.FromIndex(args.NewStartingIndex);
-                        OnSectionAdded(indexToAdd);
+                        TableView.InsertSections(indexToAdd, UITableViewRowAnimation.Automatic);
                         break;
 
                     case NotifyCollectionChangedAction.Remove:
+                        displayedGroupedItems.RemoveAt(args.OldStartingIndex);
+
                         var indexToRemove = NSIndexSet.FromIndex(args.OldStartingIndex);
-                        TableView.BeginUpdates();
                         TableView.DeleteSections(indexToRemove, UITableViewRowAnimation.Automatic);
-                        TableView.EndUpdates();
                         break;
 
                     case NotifyCollectionChangedAction.Move when args.NewItems.Count == 1 && args.OldItems.Count == 1:
-                        TableView.BeginUpdates();
+                        var movedSection = CloneCollection(observableCollection[args.NewStartingIndex]);
+                        displayedGroupedItems.RemoveAt(args.OldStartingIndex);
+                        displayedGroupedItems.Insert(args.NewStartingIndex, movedSection);
+
                         TableView.MoveSection(args.OldStartingIndex, args.NewStartingIndex);
-                        TableView.EndUpdates();
                         break;
 
                     case NotifyCollectionChangedAction.Replace when args.NewItems.Count == args.OldItems.Count:
-                        var indexSet = NSIndexSet.FromIndex(args.NewStartingIndex);
+                        var replacedSection = CloneCollection(observableCollection[args.NewStartingIndex]);
+                        displayedGroupedItems[args.NewStartingIndex] = replacedSection;
 
-                        TableView.BeginUpdates();
+                        var indexSet = NSIndexSet.FromIndex(args.NewStartingIndex);
                         TableView.ReloadSections(indexSet, ReplaceAnimation);
-                        TableView.EndUpdates();
                         break;
 
                     default:
-                        TableView.ReloadData();
+                        reloadTable();
                         break;
                 }
+
+                TableView.EndUpdates();
             }
         }
 
@@ -209,6 +230,8 @@ namespace Toggl.Daneel.ViewSources
         {
             lock (animationLock)
             {
+                TableView.BeginUpdates();
+                        
                 switch (args.Action)
                 {
                     case NotifyCollectionChangedAction.Add:
@@ -216,9 +239,10 @@ namespace Toggl.Daneel.ViewSources
                             .Select(row => NSIndexPath.FromRowSection(row, args.CollectionIndex))
                             .ToArray();
 
-                        TableView.BeginUpdates();
+                        foreach (var indexPath in indexPathsToAdd)
+                            displayedGroupedItems[indexPath.Section].Insert(indexPath.Row, observableCollection[indexPath.Section][indexPath.Row]);
+
                         TableView.InsertRows(indexPathsToAdd, AddAnimation);
-                        TableView.EndUpdates();
                         break;
 
                     case NotifyCollectionChangedAction.Remove:
@@ -226,9 +250,10 @@ namespace Toggl.Daneel.ViewSources
                             .Select(row => NSIndexPath.FromRowSection(row, args.CollectionIndex))
                             .ToArray();
 
-                        TableView.BeginUpdates();
+                        foreach (var indexPath in indexPathsToRemove)
+                            displayedGroupedItems[indexPath.Section].RemoveAt(indexPath.Row);
+
                         TableView.DeleteRows(indexPathsToRemove, RemoveAnimation);
-                        TableView.EndUpdates();
                         break;
 
                     case NotifyCollectionChangedAction.Replace:
@@ -236,25 +261,43 @@ namespace Toggl.Daneel.ViewSources
                             .Select(row => NSIndexPath.FromRowSection(row, args.CollectionIndex))
                             .ToArray();
 
-                        TableView.BeginUpdates();
+                        foreach (var indexPath in indexPathsToUpdate)
+                            displayedGroupedItems[indexPath.Section][indexPath.Row] = observableCollection[indexPath.Section][indexPath.Row];
+
                         TableView.ReloadRows(indexPathsToUpdate, ReplaceAnimation);
-                        TableView.EndUpdates();
                         break;
 
                     default:
-                        TableView.ReloadData();
+                        reloadTable();
                         break;
                 }
+
+                TableView.EndUpdates();
             }
+        }
+
+        private void reloadTable()
+        {
+            cloneCollection();
+            ReloadTableData();
+        }
+
+        private void cloneCollection()
+        {
+            displayedGroupedItems.Clear();
+            displayedGroupedItems.AddRange(observableCollection.Select(CloneCollection));
         }
 
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
 
-            if (!disposing || AnimatableCollection == null) return;
+            if (!disposing || ObservableCollection == null) return;
 
-            AnimatableCollection.OnChildCollectionChanged -= OnChildCollectionChanged;
+            ObservableCollection.CollectionChanged -= OnCollectionChanged;
+            ObservableCollection.OnChildCollectionChanged -= OnChildCollectionChanged;
         }
+
+        protected abstract TCollection CloneCollection(TCollection collection);
     }
 }

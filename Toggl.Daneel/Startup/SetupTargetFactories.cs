@@ -30,6 +30,11 @@ namespace Toggl.Daneel
             );
 
             registry.RegisterCustomBindingFactory<UIButton>(
+                ButtonAnimatedTitleTargetBinding.BindingName,
+                view => new ButtonAnimatedTitleTargetBinding(view)
+            );
+
+            registry.RegisterCustomBindingFactory<UIButton>(
                 ButtonImageTargetBinding.BindingName,
                 view => new ButtonImageTargetBinding(view)
             );
@@ -37,6 +42,11 @@ namespace Toggl.Daneel
             registry.RegisterCustomBindingFactory<UIDatePicker>(
                 DatePickerDateTimeOffsetTargetBinding.BindingName,
                 view => new DatePickerDateTimeOffsetTargetBinding(view)
+            );
+
+            registry.RegisterCustomBindingFactory<UIImageView>(
+                ImageViewAnimatedImageTargetBinding.BindingName,
+                view => new ImageViewAnimatedImageTargetBinding(view)
             );
 
             registry.RegisterCustomBindingFactory<NSLayoutConstraint>(
@@ -47,6 +57,11 @@ namespace Toggl.Daneel
             registry.RegisterCustomBindingFactory<NSLayoutConstraint>(
                 LayoutConstraintConstantTargetBinding.BindingName,
                 view => new LayoutConstraintConstantTargetBinding(view)
+            );
+
+            registry.RegisterCustomBindingFactory<LoginTextField>(
+                LoginTextFieldFirstResponderTargetBinding.BindingName,
+                view => new LoginTextFieldFirstResponderTargetBinding(view)
             );
 
             registry.RegisterCustomBindingFactory<UINavigationItem>(
@@ -107,6 +122,11 @@ namespace Toggl.Daneel
             registry.RegisterCustomBindingFactory<UIView>(
                 ViewAnimatedVisibilityTargetBinding.BindingName,
                 view => new ViewAnimatedVisibilityTargetBinding(view)
+            );
+
+            registry.RegisterCustomBindingFactory<UIView>(
+                ViewVisibilityWithFadeTargetBinding.BindingName,
+                view => new ViewVisibilityWithFadeTargetBinding(view)
             );
         }
     }

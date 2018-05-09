@@ -6,7 +6,7 @@ namespace Toggl.Giskard.Autocomplete
     public sealed class ProjectTokenSpan : TokenSpan
     {
         public ProjectTokenSpan(Color projectColor)
-            : base(new Color(ColorUtils.SetAlphaComponent(projectColor.ToArgb(), 30)), projectColor, false)
+            : base(Color.White, projectColor, false)
         {
         }
     }

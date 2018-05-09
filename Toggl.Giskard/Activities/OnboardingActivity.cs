@@ -2,6 +2,7 @@ using Android.App;
 using Android.Content.PM;
 using Android.Graphics;
 using Android.OS;
+using Android.Support.V4.Content;
 using MvvmCross.Droid.Support.V7.AppCompat;
 using MvvmCross.Droid.Views.Attributes;
 using Toggl.Foundation.MvvmCross.ViewModels;
@@ -17,10 +18,12 @@ namespace Toggl.Giskard.Activities
     {
         protected override void OnCreate(Bundle bundle)
         {
-            this.ChangeStatusBarColor(Color.White, true);
+            var statusBarColor = new Color(ContextCompat.GetColor(this, Resource.Color.onboardingStatusBarColor));
+            this.ChangeStatusBarColor(statusBarColor);
 
             base.OnCreate(bundle);
             SetContentView(Resource.Layout.OnboardingActivity);
+            OverridePendingTransition(Resource.Animation.abc_fade_in, Resource.Animation.abc_fade_out);
         }
     }
 }

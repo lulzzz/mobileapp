@@ -15,6 +15,7 @@ using Toggl.Foundation.MvvmCross.Services;
 using Toggl.Foundation.MvvmCross.ViewModels;
 using Toggl.Foundation.Tests.Generators;
 using Toggl.PrimeRadiant.Models;
+using Toggl.Foundation.Analytics;
 using Xunit;
 using static Toggl.Foundation.Helper.Constants;
 using static Toggl.Multivac.Extensions.StringExtensions;
@@ -31,6 +32,8 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             protected readonly TimeSpan Duration = TimeSpan.FromHours(1);
 
             protected IDatabaseTimeEntry TheTimeEntry;
+
+            protected IAnalyticsService AnalyticsService { get; } = Substitute.For<IAnalyticsService>();
 
             protected void ConfigureEditedTimeEntry(DateTimeOffset now, bool isRunning = false)
             {
@@ -55,28 +58,32 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             }
 
             protected override EditTimeEntryViewModel CreateViewModel()
-                => new EditTimeEntryViewModel(TimeService, DataSource, InteractorFactory, NavigationService, DialogService);
+            => new EditTimeEntryViewModel(TimeService, DataSource, InteractorFactory, NavigationService, OnboardingStorage, DialogService, AnalyticsService);
         }
 
         public sealed class TheConstructor : EditTimeEntryViewModelTest
         {
             [Theory, LogIfTooSlow]
-            [ClassData(typeof(FiveParameterConstructorTestData))]
+            [ClassData(typeof(SevenParameterConstructorTestData))]
             public void ThrowsIfAnyOfTheArgumentsIsNull(
-                bool useDataSource, 
-                bool useNavigationService, 
+                bool useDataSource,
+                bool useNavigationService,
                 bool useTimeService,
                 bool useInteractorFactory,
-                bool useDialogService)
+                bool useOnboardingStorage,
+                bool useDialogService,
+                bool useAnalyticsService)
             {
                 var dataSource = useDataSource ? DataSource : null;
                 var timeService = useTimeService ? TimeService : null;
                 var dialogService = useDialogService ? DialogService : null;
                 var navigationService = useNavigationService ? NavigationService : null;
+                var onboardingStorage = useOnboardingStorage ? OnboardingStorage : null;
                 var interactorFactory = useInteractorFactory ? InteractorFactory : null;
+                var analyticsService = useAnalyticsService ? AnalyticsService : null;
 
                 Action tryingToConstructWithEmptyParameters =
-                    () => new EditTimeEntryViewModel(timeService, dataSource, interactorFactory, navigationService, dialogService);
+                    () => new EditTimeEntryViewModel(timeService, dataSource, interactorFactory, navigationService, onboardingStorage, dialogService, analyticsService);
 
                 tryingToConstructWithEmptyParameters.ShouldThrow<ArgumentNullException>();
             }
@@ -412,8 +419,17 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
         public sealed class TheConfirmCommand : EditTimeEntryViewModelTest
         {
             [Fact, LogIfTooSlow]
+            public void SetsTheOnboardingStorageFlag()
+            {
+                ViewModel.ConfirmCommand.Execute();
+
+                OnboardingStorage.Received().EditedTimeEntry();
+            }
+
+            [Fact, LogIfTooSlow]
             public async Task InitiatesPushSync()
             {
+                ViewModel.IsEditingDescription = false;
                 ViewModel.ConfirmCommand.Execute();
 
                 await DataSource.SyncManager.Received().PushSync();
@@ -425,6 +441,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 DataSource.TimeEntries.Update(Arg.Any<EditTimeEntryDto>())
                     .Returns(Observable.Throw<IDatabaseTimeEntry>(new Exception()));
 
+                ViewModel.IsEditingDescription = false;
                 ViewModel.ConfirmCommand.Execute();
 
                 await DataSource.SyncManager.DidNotReceive().PushSync();
@@ -453,6 +470,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                     .Returns(parameter);
                 await ViewModel.SelectProjectCommand.ExecuteAsync();
 
+                ViewModel.IsEditingDescription = false;
                 ViewModel.ConfirmCommand.Execute();
 
                 await DataSource.TimeEntries.Received().Update(
@@ -482,6 +500,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                     .Returns(SelectProjectParameter.WithIds(newProjectId, null, workspaceId));
                 await ViewModel.SelectProjectCommand.ExecuteAsync();
 
+                ViewModel.IsEditingDescription = false;
                 ViewModel.ConfirmCommand.Execute();
 
                 await DataSource.TimeEntries.Received().Update(
@@ -489,7 +508,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             }
 
             [Fact, LogIfTooSlow]
-            public async Task UpdatewWorkspaceIdIfNoProjectWasSelected()
+            public async Task UpdatesWorkspaceIdIfNoProjectWasSelected()
             {
                 var oldWorkspaceId = 11;
                 var newWorkspaceId = 21;
@@ -506,10 +525,45 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                     .Returns(SelectProjectParameter.WithIds(null, null, newWorkspaceId));
                 await ViewModel.SelectProjectCommand.ExecuteAsync();
 
+                ViewModel.IsEditingDescription = false;
                 ViewModel.ConfirmCommand.Execute();
 
                 await DataSource.TimeEntries.Received().Update(
                     Arg.Is<EditTimeEntryDto>(dto => dto.WorkspaceId == newWorkspaceId));
+            }
+
+            [Fact, LogIfTooSlow]
+            public async Task InvertsTheFlagIfDescriptionWasBeingEdited()
+            {
+                var timeEntry = Substitute.For<IDatabaseTimeEntry>();
+                timeEntry.Id.Returns(1);
+                DataSource.TimeEntries.GetById(Arg.Is(timeEntry.Id))
+                  .Returns(Observable.Return(timeEntry));
+                ViewModel.Prepare(timeEntry.Id);
+                await ViewModel.Initialize();
+
+                ViewModel.IsEditingDescription = true;
+                ViewModel.ConfirmCommand.Execute();
+
+                ViewModel.IsEditingDescription.Should().Be(false);
+            }
+
+            [Fact, LogIfTooSlow]
+            public async Task DidNotCallUpdateIfDescriptionWasBeingEdited()
+            {
+                var timeEntry = Substitute.For<IDatabaseTimeEntry>();
+                timeEntry.Id.Returns(1);
+                DataSource.TimeEntries.GetById(Arg.Is(timeEntry.Id))
+                  .Returns(Observable.Return(timeEntry));
+                ViewModel.Prepare(timeEntry.Id);
+                await ViewModel.Initialize();
+
+                ViewModel.IsEditingDescription = true;
+                ViewModel.ConfirmCommand.Execute();
+
+                ViewModel.IsEditingDescription.Should().Be(false);
+
+                await DataSource.TimeEntries.DidNotReceive().Update(Arg.Any<EditTimeEntryDto>());
             }
 
             [Theory, LogIfTooSlow]
@@ -523,6 +577,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             {
                 ViewModel.Description = description;
 
+                ViewModel.IsEditingDescription = false;
                 ViewModel.ConfirmCommand.Execute();
 
                 await DataSource.TimeEntries.Received().Update(Arg.Is<EditTimeEntryDto>(dto =>
@@ -541,6 +596,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             {
                 ViewModel.Description = description;
 
+                ViewModel.IsEditingDescription = false;
                 ViewModel.ConfirmCommand.Execute();
 
                 await DataSource.TimeEntries.Received().Update(Arg.Is<EditTimeEntryDto>(dto =>
@@ -647,6 +703,14 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 });
             }
 
+            [Fact, LogIfTooSlow]
+            public async Task TracksTagSelectorOpens()
+            {
+                await ViewModel.SelectTagsCommand.ExecuteAsync();
+
+                AnalyticsService.Received().TrackEditOpensTagSelector();
+            }
+
             private IDatabaseTag createTag(long id)
             {
                 var tag = Substitute.For<IDatabaseTag>();
@@ -740,6 +804,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
 
                 viewModel.Prepare(id);
                 viewModel.Initialize().Wait();
+                viewModel.IsEditingDescription = false;
                 viewModel.ConfirmCommand.Execute();
 
                 DataSource.TimeEntries.Received().Update(Arg.Is<EditTimeEntryDto>(
@@ -876,6 +941,17 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                     }).ToList();
 
             [Fact, LogIfTooSlow]
+            public async Task SetsTheOnboardingStorageFlag()
+            {
+                var projectName = "Some other project";
+                await prepare(projectId: 11, projectName: projectName);
+
+                await ViewModel.SelectProjectCommand.ExecuteAsync();
+
+                OnboardingStorage.Received().SelectsProject();
+            }
+
+            [Fact, LogIfTooSlow]
             public async Task SetsTheProject()
             {
                 var projectName = "Some other project";
@@ -959,6 +1035,16 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 await ViewModel.SelectProjectCommand.ExecuteAsync();
 
                 ViewModel.Tags.Should().HaveCount(0);
+            }
+
+            [Fact, LogIfTooSlow]
+            public async Task TracksProjectSelectorOpens()
+            {
+                await prepare(11, "Some project");
+
+                await ViewModel.SelectProjectCommand.ExecuteAsync();
+
+                AnalyticsService.Received().TrackEditOpensProjectSelector();
             }
         }
 

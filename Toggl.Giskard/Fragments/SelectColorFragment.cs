@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Android.Content;
 using Android.OS;
 using Android.Runtime;
@@ -33,8 +32,8 @@ namespace Toggl.Giskard.Fragments
             view.FindViewById<RecyclerView>(Resource.Id.SelectColorRecyclerView)
                 .SetLayoutManager(new GridLayoutManager(Context, 5));
 
-            customColorEnabledHeight = (int)425.DpToPixels(Context);
-            customColorDisabledHeight = (int)270.DpToPixels(Context);
+            customColorEnabledHeight = 425.DpToPixels(Context);
+            customColorDisabledHeight = 270.DpToPixels(Context);
 
             return view;
         }
@@ -43,15 +42,9 @@ namespace Toggl.Giskard.Fragments
         {
             base.OnResume();
 
-            var displayMetrics = new DisplayMetrics();
-            Activity.WindowManager.DefaultDisplay.GetMetrics(displayMetrics);
-            var screenWidth = displayMetrics.WidthPixels;
-            var isLargeScreen = screenWidth > 360.DpToPixels(Context);
-
-            var width = (int)(isLargeScreen ? screenWidth - 72.DpToPixels(Context) : 312.DpToPixels(Context));
             var height = ViewModel.AllowCustomColors ? customColorEnabledHeight : customColorDisabledHeight;
 
-            Dialog.Window.SetLayout(width, height);
+            Dialog.Window.SetDefaultDialogLayout(Activity, Context, heightDp: height);
         }
 
         public override void OnCancel(IDialogInterface dialog)

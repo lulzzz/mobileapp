@@ -15,6 +15,8 @@ namespace Toggl.Foundation.Services
 
         public string ErrorMessage { get; }
 
+        public static MailResult Ok { get; } = new MailResult(true, null, null);
+
         public MailResult(bool success, string errorTitle, string errorMessage)
         {
             Success = success;

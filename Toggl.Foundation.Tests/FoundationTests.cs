@@ -28,11 +28,11 @@ namespace Toggl.Foundation.Tests
                 bool useTimeService,
                 bool useMailService,
                 bool useGoogleService,
+                bool useLicenseProvider,
                 bool useAnalyticsService,
                 bool usePlatformConstants,
                 bool useApplicationShortcutCreator,
-                bool useSuggestionProviderContainer,
-                bool useOnboardingService)
+                bool useSuggestionProviderContainer)
             {
                 var version = useVersion ? "1.0" : null;
                 var clientName = useClientName ? "Some Client" : null;
@@ -41,11 +41,11 @@ namespace Toggl.Foundation.Tests
                 var timeService = useTimeService ? Substitute.For<ITimeService>() : null;
                 var mailService = useMailService ? Substitute.For<IMailService>() : null;
                 var googleService = useGoogleService ? Substitute.For<IGoogleService>() : null;
+                var licenseProvider = useLicenseProvider ? Substitute.For<ILicenseProvider>() : null;
                 var analyticsService = useAnalyticsService ? Substitute.For<IAnalyticsService>() : null;
                 var platformConstants = usePlatformConstants ? Substitute.For<IPlatformConstants>() : null;
                 var applicationShortcutCreator = useApplicationShortcutCreator ? Substitute.For<IApplicationShortcutCreator>() : null;
                 var suggestionProviderContainer = useSuggestionProviderContainer ? Substitute.For<ISuggestionProviderContainer>() : null;
-                var onboardingService = useOnboardingService ? Substitute.For<IOnboardingService>() : null;
 
                 Action tryingToConstructWithEmptyParameters =
                     () => Foundation.Create(
@@ -57,11 +57,11 @@ namespace Toggl.Foundation.Tests
                         mailService,
                         googleService,
                         ApiEnvironment.Staging,
+                        licenseProvider,
                         analyticsService,
                         platformConstants,
                         applicationShortcutCreator,
-                        suggestionProviderContainer,
-                        onboardingService
+                        suggestionProviderContainer
                     );
 
                 tryingToConstructWithEmptyParameters

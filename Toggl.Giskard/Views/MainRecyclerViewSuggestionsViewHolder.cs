@@ -31,7 +31,7 @@ namespace Toggl.Giskard.Views
         static MainRecyclerViewSuggestionsViewHolder()
         {
             var context = Mvx.Resolve<IMvxAndroidGlobals>().ApplicationContext;
-            containerHeightInPixels = (int)130.DpToPixels(context);
+            containerHeightInPixels = 130.DpToPixels(context);
         }
 
         public MainRecyclerViewSuggestionsViewHolder(View itemView, IMvxAndroidBindingContext context)

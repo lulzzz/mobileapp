@@ -47,13 +47,13 @@ namespace Toggl.Foundation.Tests.Sync
                 SyncManager = new SyncManager(Queue, Orchestrator, analyticsService);
             }
 
-            protected StateResult PreparePullTransitions(byte n)
+            protected StateResult PreparePullTransitions(int n)
                 => PrepareTransitions(EntryPoints.StartPullSync, n);
 
-            protected StateResult PreparePushTransitions(byte n)
+            protected StateResult PreparePushTransitions(int n)
                 => PrepareTransitions(EntryPoints.StartPushSync, n);
 
-            protected StateResult PrepareTransitions(StateResult entryPoint, byte n)
+            protected StateResult PrepareTransitions(StateResult entryPoint, int n)
             {
                 var lastResult = entryPoint;
                 for (byte i = 0; i < n; i++)
@@ -61,7 +61,7 @@ namespace Toggl.Foundation.Tests.Sync
                     var nextResult = new StateResult();
                     Func<IObservable<ITransition>> transition = () => Observable.Create<ITransition>(async observer =>
                     {
-                        await Task.Delay(1);
+                        await Task.Delay(1).ConfigureAwait(false);
                         observer.OnNext(new Transition(nextResult));
                         observer.OnCompleted();
                     });
@@ -103,8 +103,11 @@ namespace Toggl.Foundation.Tests.Sync
                 isLocked.Should().BeFalse();
             }
 
-            [Property]
-            public void DoesNotGetStuckInADeadlockWhenThereAreSomeTransitionHandlersForFullSync(byte n)
+            [Theory]
+            [InlineData(3)]
+            [InlineData(5)]
+            [InlineData(10)]
+            public void DoesNotGetStuckInADeadlockWhenThereAreSomeTransitionHandlersForFullSync(int n)
             {
                 Reset();
                 PreparePullTransitions(n);
@@ -115,8 +118,11 @@ namespace Toggl.Foundation.Tests.Sync
                 isLocked.Should().BeFalse();
             }
 
-            [Property]
-            public void DoesNotGetStuckInADeadlockWhenThereAreSomeTransitionHandlersForPushSync(byte n)
+            [Theory]
+            [InlineData(3)]
+            [InlineData(5)]
+            [InlineData(10)]
+            public void DoesNotGetStuckInADeadlockWhenThereAreSomeTransitionHandlersForPushSync(int n)
             {
                 Reset();
                 PreparePushTransitions(n);
@@ -126,8 +132,11 @@ namespace Toggl.Foundation.Tests.Sync
                 isLocked.Should().BeFalse();
             }
 
-            [Property]
-            public void DoesNotGetStuckInADeadlockWhenSomeTransitionFailsForFullSync(byte n)
+            [Theory]
+            [InlineData(3)]
+            [InlineData(5)]
+            [InlineData(10)]
+            public void DoesNotGetStuckInADeadlockWhenSomeTransitionFailsForFullSync(int n)
             {
                 Reset();
                 var lastResult = PreparePullTransitions(n);
@@ -138,8 +147,11 @@ namespace Toggl.Foundation.Tests.Sync
                 isLocked.Should().BeFalse();
             }
 
-            [Property]
-            public void DoesNotGetStuckInADeadlockWhenSomeTransitionFailsForPushSync(byte n)
+            [Theory]
+            [InlineData(3)]
+            [InlineData(5)]
+            [InlineData(10)]
+            public void DoesNotGetStuckInADeadlockWhenSomeTransitionFailsForPushSync(int n)
             {
                 Reset();
                 var lastResult = PreparePushTransitions(n);
@@ -184,8 +196,11 @@ namespace Toggl.Foundation.Tests.Sync
                 secondStart.ShouldNotThrow<InvalidOperationException>();
             }
 
-            [Property]
-            public void DoesNotGetStuckInADeadlockWhenThereAreSomeTransitionHandlers(byte n)
+            [Theory]
+            [InlineData(3)]
+            [InlineData(5)]
+            [InlineData(10)]
+            public void DoesNotGetStuckInADeadlockWhenThereAreSomeTransitionHandlers(int n)
             {
                 Reset();
                 var someResult = new StateResult();
@@ -196,8 +211,11 @@ namespace Toggl.Foundation.Tests.Sync
                 secondStart.ShouldNotThrow<InvalidOperationException>();
             }
 
-            [Property]
-            public void DoesNotGetStuckInADeadlockWhenATransitionHandlerFails(byte n)
+            [Theory]
+            [InlineData(3)]
+            [InlineData(5)]
+            [InlineData(10)]
+            public void DoesNotGetStuckInADeadlockWhenATransitionHandlerFails(int n)
             {
                 Reset();
                 var someResult = new StateResult();
@@ -210,7 +228,7 @@ namespace Toggl.Foundation.Tests.Sync
             }
 
             [Property(Skip = "there is currently no timeout")]
-            public void DoesNotGetStuckInADeadlockWhenSomeTransitionTimeOuts(byte n)
+            public void DoesNotGetStuckInADeadlockWhenSomeTransitionTimeOuts(int n)
             {
                 Reset();
                 var someResult = new StateResult();

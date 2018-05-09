@@ -1,33 +1,45 @@
-﻿using Toggl.Multivac;
+﻿using System;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using Toggl.Multivac;
 using Toggl.PrimeRadiant.Settings;
 
 namespace Toggl.PrimeRadiant.Onboarding
 {
     public sealed class DismissableOnboardingStep : IDismissable, IOnboardingStep
     {
-        private readonly IOnboardingStep onboardingStep;
-        private readonly IOnboardingStorage storage;
+        private readonly ISubject<bool> wasDismissedSubject;
+        private readonly IOnboardingStorage onboardingStorage;
 
-        public bool ShouldBeVisible
-            => storage.WasDismissed(this) == false && onboardingStep.ShouldBeVisible;
+        public IObservable<bool> ShouldBeVisible { get; }
 
         public string Key { get; }
 
-        public DismissableOnboardingStep(IOnboardingStep onboardingStep, string key, IOnboardingStorage storage)
+        public DismissableOnboardingStep(IOnboardingStep onboardingStep, string key, IOnboardingStorage onboardingStorage)
         {
             Ensure.Argument.IsNotNull(onboardingStep, nameof(onboardingStep));
             Ensure.Argument.IsNotNullOrWhiteSpaceString(key, nameof(key));
-            Ensure.Argument.IsNotNull(storage, nameof(storage));
+            Ensure.Argument.IsNotNull(onboardingStorage, nameof(onboardingStorage));
 
-            this.onboardingStep = onboardingStep;
-            this.storage = storage;
+            this.onboardingStorage = onboardingStorage;
 
             Key = key;
+
+            wasDismissedSubject = new BehaviorSubject<bool>(
+                onboardingStorage.WasDismissed(this)
+            );
+
+            ShouldBeVisible = onboardingStep
+                .ShouldBeVisible
+                .CombineLatest(
+                    wasDismissedSubject.AsObservable(),
+                    (shouldBeVisible, wasDismissed) => shouldBeVisible && !wasDismissed);
         }
 
         public void Dismiss()
         {
-            storage.Dismiss(this);
+            onboardingStorage.Dismiss(this);
+            wasDismissedSubject.OnNext(true);
         }
     }
 }

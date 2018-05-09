@@ -105,10 +105,11 @@ namespace Toggl.Foundation.MvvmCross
             Mvx.RegisterSingleton(self.Database);
             Mvx.RegisterSingleton(browserService);
             Mvx.RegisterSingleton(self.UserAgent);
-            Mvx.RegisterSingleton(self.TimeService);
             Mvx.RegisterSingleton(self.Scheduler);
-            Mvx.RegisterSingleton(self.ShortcutCreator);
+            Mvx.RegisterSingleton(self.TimeService);
             Mvx.RegisterSingleton(self.MailService);
+            Mvx.RegisterSingleton(self.ShortcutCreator);
+            Mvx.RegisterSingleton(self.LicenseProvider);
             Mvx.RegisterSingleton(self.ShortcutCreator);
             Mvx.RegisterSingleton(self.AnalyticsService);
             Mvx.RegisterSingleton(self.PlatformConstants);
@@ -119,9 +120,6 @@ namespace Toggl.Foundation.MvvmCross
             Mvx.RegisterSingleton(accessRestrictionStorage);
             Mvx.RegisterSingleton<IApiErrorHandlingService>(apiErrorHandlingService);
             Mvx.RegisterSingleton(passwordManagerService ?? new StubPasswordManagerService());
-            Mvx.RegisterSingleton(self.OnboardingService);
-
-            Mvx.LazyConstructAndRegisterSingleton<IInteractorFactory, InteractorFactory>();
 
             return new FoundationMvvmCross(
                 self.ApiFactory,
@@ -159,11 +157,19 @@ namespace Toggl.Foundation.MvvmCross
                 TogglSyncManager.CreateSyncManager(self.Database, api, dataSource, self.TimeService, self.AnalyticsService, retryDelayLimit, scheduler);
 
             ITogglDataSource createDataSource(ITogglApi api)
-                => new TogglDataSource(api, self.Database, self.TimeService, self.ApiErrorHandlingService, self.BackgroundService, createSyncManager(api), TimeSpan.FromMinutes(5), self.ShortcutCreator)
+            {
+                var dataSource = new TogglDataSource(api, self.Database, self.TimeService, self.ApiErrorHandlingService, self.BackgroundService, createSyncManager(api), TimeSpan.FromMinutes(5), self.ShortcutCreator)
                     .RegisterServices();
+
+                Mvx.ConstructAndRegisterSingleton<IInteractorFactory, InteractorFactory>();
+
+                return dataSource;
+            }
 
             var loginManager =
                 new LoginManager(self.ApiFactory, self.Database, self.GoogleService, self.ShortcutCreator, self.AccessRestrictionStorage, createDataSource, scheduler);
+
+            Mvx.RegisterSingleton<ILoginManager>(loginManager);
 
             app.Initialize(loginManager, self.NavigationService, self.AccessRestrictionStorage);
         }

@@ -21,6 +21,7 @@ using static Toggl.Foundation.Helper.Constants;
 using Toggl.Foundation.MvvmCross.ViewModels;
 using Toggl.Foundation;
 using Toggl.PrimeRadiant.Settings;
+using Toggl.Foundation.Analytics;
 
 [assembly: MvxNavigation(typeof(StartTimeEntryViewModel), ApplicationUrls.StartTimeEntry)]
 namespace Toggl.Foundation.MvvmCross.ViewModels
@@ -35,6 +36,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         private readonly IUserPreferences userPreferences;
         private readonly IInteractorFactory interactorFactory;
         private readonly IMvxNavigationService navigationService;
+        private readonly IAnalyticsService analyticsService;
         private readonly Subject<TextFieldInfo> infoSubject = new Subject<TextFieldInfo>();
         private readonly Subject<AutocompleteSuggestionType> queryByTypeSubject = new Subject<AutocompleteSuggestionType>();
 
@@ -148,12 +150,16 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         public TimeSpan? Duration { get; private set; }
 
-        public MvxObservableCollection<WorkspaceGroupedCollection<AutocompleteSuggestion>> Suggestions { get; }
-            = new MvxObservableCollection<WorkspaceGroupedCollection<AutocompleteSuggestion>>();
+        public NestableObservableCollection<WorkspaceGroupedCollection<AutocompleteSuggestion>, AutocompleteSuggestion> Suggestions { get; }
+            = new NestableObservableCollection<WorkspaceGroupedCollection<AutocompleteSuggestion>, AutocompleteSuggestion>();
+
+        public ITogglDataSource DataSource => dataSource;
 
         public IMvxAsyncCommand BackCommand { get; }
 
         public IMvxAsyncCommand DoneCommand { get; }
+
+        public IMvxAsyncCommand<string> SelectTimeCommand { get; }
 
         public IMvxAsyncCommand SetStartDateCommand { get; }
 
@@ -171,20 +177,27 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         public IMvxCommand<ProjectSuggestion> ToggleTaskSuggestionsCommand { get; }
 
+        public IOnboardingStorage OnboardingStorage { get; }
+
         public StartTimeEntryViewModel(
             ITimeService timeService,
             ITogglDataSource dataSource,
             IDialogService dialogService,
             IUserPreferences userPreferences,
+            IOnboardingStorage onboardingStorage,
             IInteractorFactory interactorFactory,
-            IMvxNavigationService navigationService)
+            IMvxNavigationService navigationService,
+            IAnalyticsService analyticsService
+        )
         {
             Ensure.Argument.IsNotNull(dataSource, nameof(dataSource));
             Ensure.Argument.IsNotNull(timeService, nameof(timeService));
             Ensure.Argument.IsNotNull(dialogService, nameof(dialogService));
             Ensure.Argument.IsNotNull(userPreferences, nameof(userPreferences));
             Ensure.Argument.IsNotNull(interactorFactory, nameof(interactorFactory));
+            Ensure.Argument.IsNotNull(onboardingStorage, nameof(onboardingStorage));
             Ensure.Argument.IsNotNull(navigationService, nameof(navigationService));
+            Ensure.Argument.IsNotNull(analyticsService, nameof(analyticsService));
 
             this.dataSource = dataSource;
             this.timeService = timeService;
@@ -192,6 +205,9 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             this.userPreferences = userPreferences;
             this.navigationService = navigationService;
             this.interactorFactory = interactorFactory;
+            this.analyticsService = analyticsService;
+
+            OnboardingStorage = onboardingStorage;
 
             BackCommand = new MvxAsyncCommand(back);
             DoneCommand = new MvxAsyncCommand(done);
@@ -203,6 +219,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             ToggleProjectSuggestionsCommand = new MvxCommand(toggleProjectSuggestions);
             SelectSuggestionCommand = new MvxAsyncCommand<AutocompleteSuggestion>(selectSuggestion);
             ToggleTaskSuggestionsCommand = new MvxCommand<ProjectSuggestion>(toggleTaskSuggestions);
+            SelectTimeCommand = new MvxAsyncCommand<string>(selectTime);
         }
 
         public void Init()
@@ -212,6 +229,22 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
                 ? StartTimeEntryParameters.ForManualMode(now)
                 : StartTimeEntryParameters.ForTimerMode(now);
             Prepare(startTimeEntryParameters);
+        }
+
+        public override void Prepare()
+        {
+            var queryByTypeObservable = queryByTypeSubject
+                .AsObservable()
+                .SelectMany(type => dataSource.AutocompleteProvider.Query(new QueryInfo("", type)));
+
+            queryDisposable = infoSubject.AsObservable()
+                .StartWith(TextFieldInfo)
+                .Where(shouldUpdateSuggestions)
+                .Select(QueryInfo.ParseFieldInfo)
+                .Do(onParsedQuery)
+                .SelectMany(dataSource.AutocompleteProvider.Query)
+                .Merge(queryByTypeObservable)
+                .Subscribe(onSuggestions);
         }
 
         public override void Prepare(StartTimeEntryParameters parameter)
@@ -229,21 +262,6 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             {
                 elapsedTimeDisposable = timeService.CurrentDateTimeObservable.Subscribe(onCurrentTime);
             }
-
-            var queryByTypeObservable =
-                queryByTypeSubject
-                    .AsObservable()
-                    .SelectMany(type => dataSource.AutocompleteProvider.Query(new QueryInfo("", type)));
-
-            queryDisposable =
-                infoSubject.AsObservable()
-                    .StartWith(TextFieldInfo)
-                    .Where(shouldUpdateSuggestions)
-                    .Select(QueryInfo.ParseFieldInfo)
-                    .Do(onParsedQuery)
-                    .SelectMany(dataSource.AutocompleteProvider.Query)
-                    .Merge(queryByTypeObservable)
-                    .Subscribe(onSuggestions);
 
             PlaceholderText = parameter.PlaceholderText;
         }
@@ -272,6 +290,17 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             switch (suggestion)
             {
                 case QuerySymbolSuggestion querySymbolSuggestion:
+
+                    if (querySymbolSuggestion.Symbol == QuerySymbols.ProjectsString) 
+                    {
+                        analyticsService.TrackStartOpensProjectSelector(ProjectTagSuggestionSource.TableCellButton);
+                    }
+
+                    if (querySymbolSuggestion.Symbol == QuerySymbols.TagsString)
+                    {
+                        analyticsService.TrackStartOpensTagSelector(ProjectTagSuggestionSource.TableCellButton);
+                    }
+
                     TextFieldInfo = TextFieldInfo.WithTextAndCursor(querySymbolSuggestion.Symbol, 1);
                     break;
 
@@ -438,6 +467,8 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
                 return;
             }
 
+            analyticsService.TrackStartOpensTagSelector(ProjectTagSuggestionSource.ButtonOverKeyboard);
+            OnboardingStorage.ProjectOrTagWasAdded();
             appendSymbol(QuerySymbols.TagsString);
         }
 
@@ -449,6 +480,9 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
                 IsSuggestingProjects = false;
                 return;
             }
+
+            analyticsService.TrackStartOpensProjectSelector(ProjectTagSuggestionSource.ButtonOverKeyboard);
+            OnboardingStorage.ProjectOrTagWasAdded();
 
             if (TextFieldInfo.ProjectId != null)
             {
@@ -493,6 +527,26 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             IsBillable = !IsBillable;
         }
 
+        private async Task selectTime(string bindingString) 
+        {
+            IsEditingTime = true;
+
+            var parameters = SelectTimeParameters.CreateFromBindingString(bindingString, StartTime);
+            var result = await navigationService
+                .Navigate<SelectTimeViewModel, SelectTimeParameters, SelectTimeResultsParameters>(parameters)
+                .ConfigureAwait(false);
+
+            if (result == null)
+                return;
+
+            StartTime = result.Start;
+
+            if (result.Stop.HasValue) 
+                updateDurationAfterEditing(result.Stop - result.Start);
+
+            IsEditingTime = false;
+        }
+
         private async Task changeTime()
         {
             IsEditingTime = true;
@@ -505,15 +559,18 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             StartTime = selectedDuration.Start;
 
             if (selectedDuration.Duration.HasValue)
-            {
-                Duration = selectedDuration.Duration;
-                displayedTime = selectedDuration.Duration.Value;
-                elapsedTimeDisposable?.Dispose();
-                elapsedTimeDisposable = null;
-                RaisePropertyChanged(nameof(DisplayedTime));
-            }
+                updateDurationAfterEditing(selectedDuration.Duration);
 
             IsEditingTime = false;
+        }
+
+        private void updateDurationAfterEditing(TimeSpan? duration) 
+        { 
+            Duration = duration;
+            displayedTime = duration.Value;
+            elapsedTimeDisposable?.Dispose();
+            elapsedTimeDisposable = null;
+            RaisePropertyChanged(nameof(DisplayedTime));
         }
 
         private async Task setStartDate()
@@ -566,8 +623,21 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         private void onParsedQuery(QueryInfo parsedQuery)
         {
             CurrentQuery = parsedQuery.Text?.Trim() ?? "";
-            IsSuggestingTags = parsedQuery.SuggestionType == AutocompleteSuggestionType.Tags;
-            IsSuggestingProjects = parsedQuery.SuggestionType == AutocompleteSuggestionType.Projects;
+            bool suggestsTags = parsedQuery.SuggestionType == AutocompleteSuggestionType.Tags;
+            bool suggestsProjects = parsedQuery.SuggestionType == AutocompleteSuggestionType.Projects;
+
+            if (!IsSuggestingTags && suggestsTags) 
+            {
+                analyticsService.TrackStartOpensTagSelector(ProjectTagSuggestionSource.TextField);
+            }
+
+            if (!IsSuggestingProjects && suggestsProjects)
+            {
+                analyticsService.TrackStartOpensProjectSelector(ProjectTagSuggestionSource.TextField);
+            }
+
+            IsSuggestingTags = suggestsTags;
+            IsSuggestingProjects = suggestsProjects;
         }
 
         private void onSuggestions(IEnumerable<AutocompleteSuggestion> suggestions)

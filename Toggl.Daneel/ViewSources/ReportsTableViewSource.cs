@@ -12,7 +12,7 @@ namespace Toggl.Daneel.ViewSources
 {
     public sealed class ReportsTableViewSource : MvxTableViewSource
     {
-        private const int headerHeight = 535;
+        private const int summaryHeight = 175;
         private const string cellIdentifier = nameof(ReportsLegendViewCell);
         private const string headerCellIdentifier = nameof(ReportsHeaderView);
 
@@ -20,9 +20,12 @@ namespace Toggl.Daneel.ViewSources
 
         public event EventHandler<CGPoint> OnScroll;
 
+        private readonly nfloat headerHeight;
+
         public ReportsTableViewSource(UITableView tableView)
             : base(tableView)
         {
+            headerHeight = summaryHeight + UIScreen.MainScreen.Bounds.Width;
             tableView.TableHeaderView = new UIView(new CGRect(0, 0, tableView.Bounds.Size.Width, headerHeight));
             tableView.ContentInset = new UIEdgeInsets(-headerHeight, 0, 0, 0);
             tableView.SeparatorStyle = UITableViewCellSeparatorStyle.None;

@@ -24,13 +24,6 @@
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Tse-EW-y6C">
-                        <rect key="frame" x="0.0" y="43" width="320" height="1"/>
-                        <color key="backgroundColor" red="0.90980392160000001" green="0.90980392160000001" blue="0.90980392160000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        <constraints>
-                            <constraint firstAttribute="height" constant="1" id="oNg-b3-hPm"/>
-                        </constraints>
-                    </view>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icCheckBoxChecked" translatesAutoresizingMaskIntoConstraints="NO" id="TX4-NT-OS8">
                         <rect key="frame" x="290" y="15" width="14" height="14"/>
                         <constraints>
@@ -38,6 +31,13 @@
                             <constraint firstAttribute="height" constant="14" id="s8M-P5-euS"/>
                         </constraints>
                     </imageView>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Tse-EW-y6C" userLabel="Bottom Separator">
+                        <rect key="frame" x="0.0" y="43" width="320" height="1"/>
+                        <color key="backgroundColor" red="0.90980392160000001" green="0.90980392160000001" blue="0.90980392160000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="1" id="oNg-b3-hPm"/>
+                        </constraints>
+                    </view>
                 </subviews>
                 <constraints>
                     <constraint firstItem="GEV-zL-iAt" firstAttribute="centerY" secondItem="YTl-1W-gDM" secondAttribute="centerY" id="AST-gh-ODJ"/>

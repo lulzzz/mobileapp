@@ -52,7 +52,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.Combiners
                 [MemberData(nameof(DateFormats))]
                 public void WorksForValidFormats(DateFormat format)
                 {
-                    var now = DateTimeOffset.Now;
+                    var now = DateTimeOffset.UtcNow;
                     var combiner = new DateTimeOffsetDateFormatValueCombiner(TimeZoneInfo.Utc, true);
                     var successful = tryGetValue(combiner, now, format, out var convertedValue);
 

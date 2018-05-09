@@ -19,12 +19,22 @@ namespace Toggl.Foundation.Analytics
         private const string signupEventName = "SignUp";
         private const string resetPasswordEventName = "ResetPassword";
 
+        private const string logoutEventName = "Logout";
+        private const string logoutSourceParameter = "Source";
+
         private const string passwordManagerButtonClicked = "PasswordManagerButtonClicked";
         private const string passwordManagerContainsValidEmail = "PasswordManagerContainsValidEmail";
         private const string passwordManagerContainsValidPassword = "PasswordManagerContainsValidPassword";
 
         private const string appShortcutEventName = "ApplicationShortcut";
         private const string appShortcutParameter = "ApplicationShortcutType";
+
+        private const string editEntrySelectProjectEventName = "EditEntrySelectProject";
+        private const string editEntrySelectTagEventName = "EditEntrySelectTag";
+
+        private const string startEntrySelectProjectEventName = "StartEntrySelectProject";
+        private const string startEntrySelectTagEventName = "StartEntrySelectTag";
+        private const string suggestionSourceParameter = "Source";
 
         public void TrackOnboardingSkipEvent(string pageName)
         {
@@ -50,6 +60,11 @@ namespace Toggl.Foundation.Analytics
         public void TrackSignUpEvent(AuthenticationMethod authenticationMethod)
         {
             track(signupEventName, authenticationMethodParameter, authenticationMethod.ToString());
+        }
+
+        public void TrackLogoutEvent(LogoutSource source)
+        {
+            track(loginEventName, logoutSourceParameter, source.ToString());
         }
 
         public void TrackResetPassword()
@@ -84,6 +99,27 @@ namespace Toggl.Foundation.Analytics
         public void TrackAppShortcut(string shortcut)
         {
             track(appShortcutEventName, appShortcutParameter, shortcut);
+        }
+
+        public void TrackEditOpensProjectSelector()
+        {
+            track(editEntrySelectProjectEventName);
+        }
+
+        public void TrackEditOpensTagSelector()
+        {
+            track(editEntrySelectTagEventName);
+        }
+
+        public void TrackStartOpensProjectSelector(ProjectTagSuggestionSource source)
+        {
+            track(startEntrySelectProjectEventName, suggestionSourceParameter, source.ToString());
+
+        }
+
+        public void TrackStartOpensTagSelector(ProjectTagSuggestionSource source)
+        {
+            track(startEntrySelectTagEventName, suggestionSourceParameter, source.ToString());
         }
 
         private void track(string eventName)

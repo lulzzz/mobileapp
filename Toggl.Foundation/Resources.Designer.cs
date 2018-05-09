@@ -113,6 +113,12 @@ namespace Toggl.Foundation {
             }
         }
         
+        public static string LoginGetHelpLoggingIn {
+            get {
+                return ResourceManager.GetString("LoginGetHelpLoggingIn", resourceCulture);
+            }
+        }
+        
         public static string Today {
             get {
                 return ResourceManager.GetString("Today", resourceCulture);
@@ -317,9 +323,21 @@ namespace Toggl.Foundation {
             }
         }
         
+        public static string PrivacyPolicyUrl {
+            get {
+                return ResourceManager.GetString("PrivacyPolicyUrl", resourceCulture);
+            }
+        }
+        
         public static string TermsOfService {
             get {
                 return ResourceManager.GetString("TermsOfService", resourceCulture);
+            }
+        }
+        
+        public static string TermsOfServiceUrl {
+            get {
+                return ResourceManager.GetString("TermsOfServiceUrl", resourceCulture);
             }
         }
         
@@ -389,15 +407,15 @@ namespace Toggl.Foundation {
             }
         }
         
-        public static string AddTags {
+        public static string EnterTag {
             get {
-                return ResourceManager.GetString("AddTags", resourceCulture);
+                return ResourceManager.GetString("EnterTag", resourceCulture);
             }
         }
         
-        public static string AddProject {
+        public static string EnterProject {
             get {
-                return ResourceManager.GetString("AddProject", resourceCulture);
+                return ResourceManager.GetString("EnterProject", resourceCulture);
             }
         }
         
@@ -634,7 +652,7 @@ namespace Toggl.Foundation {
                 return ResourceManager.GetString("DiscardEditingChanges", resourceCulture);
             }
         }
-
+        
         public static string DurationFormatClassic {
             get {
                 return ResourceManager.GetString("DurationFormatClassic", resourceCulture);
@@ -680,6 +698,36 @@ namespace Toggl.Foundation {
         public static string TryLoggingInInstead {
             get {
                 return ResourceManager.GetString("TryLoggingInInstead", resourceCulture);
+            }
+        }
+        
+        public static string About {
+            get {
+                return ResourceManager.GetString("About", resourceCulture);
+            }
+        }
+        
+        public static string Licenses {
+            get {
+                return ResourceManager.GetString("Licenses", resourceCulture);
+            }
+        }
+        
+        public static string Save {
+            get {
+                return ResourceManager.GetString("Save", resourceCulture);
+            }
+        }
+        
+        public static string Done {
+            get {
+                return ResourceManager.GetString("Done", resourceCulture);
+            }
+        }
+        
+        public static string SignUpCountryRequired {
+            get {
+                return ResourceManager.GetString("SignUpCountryRequired", resourceCulture);
             }
         }
     }

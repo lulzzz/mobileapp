@@ -42,7 +42,7 @@ namespace Toggl.Giskard.Fragments
             var localTime = ViewModel.CurrentDateTime.ToLocalTime();
 
             var dialog = new DatePickerDialog(
-                Activity, onDateSet,
+                Activity, Resource.Style.TogglDialog, onDateSet,
                 localTime.Year, localTime.Month - 1, localTime.Day);
 
             dialog.DatePicker.MinDate = ViewModel.MinDate.ToUnixTimeMilliseconds();

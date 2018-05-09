@@ -20,6 +20,19 @@ namespace Toggl.Ultrawave.Models
     }
 
     [Preserve(AllMembers = true)]
+    internal sealed partial class Country
+    {
+        public Country() { }
+
+        public Country(ICountry entity)
+        {
+            Id = entity.Id;
+            Name = entity.Name;
+            CountryCode = entity.CountryCode;
+        }
+    }
+
+    [Preserve(AllMembers = true)]
     internal sealed partial class Preferences
     {
         public Preferences() { }

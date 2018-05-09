@@ -4,6 +4,7 @@ using Android.Graphics;
 using Android.OS;
 using Android.Support.V4.Content;
 using Android.Support.V7.Widget;
+using Android.Views;
 using MvvmCross.Droid.Support.V7.AppCompat;
 using MvvmCross.Droid.Views.Attributes;
 using Toggl.Foundation.MvvmCross.ViewModels;
@@ -24,32 +25,20 @@ namespace Toggl.Giskard.Activities
             this.ChangeStatusBarColor(new Color(ContextCompat.GetColor(this, Resource.Color.blueStatusBarBackground)));
             
             base.OnCreate(bundle);
-            SetContentView(Resource.Layout.EditActivity);
+            SetContentView(Resource.Layout.EditTimeEntryActivity);
 
             OverridePendingTransition(Resource.Animation.abc_fade_in, Resource.Animation.abc_fade_out);
-
-            setupToolbar();
         }
 
-        private void setupToolbar()
+        public override bool OnKeyDown(Keycode keyCode, KeyEvent e)
         {
-            var toolbar = FindViewById<Toolbar>(Resource.Id.Toolbar);
+            if (keyCode == Keycode.Back)
+            {
+                ViewModel.CloseCommand.ExecuteAsync();
+                return true;
+            }
 
-            toolbar.Title = Resources.GetString(Resource.String.Edit);
-
-            SetSupportActionBar(toolbar);
-            SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-            SupportActionBar.SetDisplayShowHomeEnabled(true);
-            var closeDrawable = GetDrawable(Resource.Drawable.close);
-            closeDrawable.SetColorFilter(Color.White, PorterDuff.Mode.SrcIn);
-            SupportActionBar.SetHomeAsUpIndicator(closeDrawable);
-
-            toolbar.NavigationClick += onNavigateBack;
-        }
-
-        private void onNavigateBack(object sender, NavigationClickEventArgs e)
-        {
-            ViewModel.CloseCommand.Execute();
+            return base.OnKeyDown(keyCode, e);
         }
     }
 }

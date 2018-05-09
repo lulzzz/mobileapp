@@ -91,11 +91,11 @@ namespace Toggl.Daneel
                 new MailService((ITopViewControllerProvider)Presenter),
                 new GoogleService(),
                 environment,
+                new LicenseProvider(),
                 analyticsService,
                 new PlatformConstants(),
                 new ApplicationShortcutCreator(),
-                suggestionProviderContainer,
-                new DaneelOnboardingService(settingsStorage)
+                suggestionProviderContainer
             );
 
             foundation

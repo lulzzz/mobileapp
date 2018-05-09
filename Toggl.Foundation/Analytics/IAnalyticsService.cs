@@ -9,6 +9,7 @@ namespace Toggl.Foundation.Analytics
 
         void TrackLoginEvent(AuthenticationMethod authenticationMethod);
         void TrackSignUpEvent(AuthenticationMethod authenticationMethod);
+        void TrackLogoutEvent(LogoutSource source);
         void TrackResetPassword();
 
         void TrackPasswordManagerButtonClicked();
@@ -24,5 +25,11 @@ namespace Toggl.Foundation.Analytics
         void TrackSyncError(Exception exception);
 
         void TrackAppShortcut(string shortcut);
+
+        void TrackEditOpensProjectSelector();
+        void TrackEditOpensTagSelector();
+
+        void TrackStartOpensProjectSelector(ProjectTagSuggestionSource source);
+        void TrackStartOpensTagSelector(ProjectTagSuggestionSource source);
     }
 }

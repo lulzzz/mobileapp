@@ -17,6 +17,8 @@ namespace Toggl.Foundation.DataSources
     {
         private readonly ISingleObjectStorage<IDatabasePreferences> storage;
         private readonly ISubject<IDatabasePreferences> currentPreferencesSubject;
+
+        private IDisposable initializationDisposable;
     
         public IObservable<IDatabasePreferences> Current { get; }
 
@@ -26,10 +28,14 @@ namespace Toggl.Foundation.DataSources
 
             this.storage = storage;
 
-            currentPreferencesSubject = new ReplaySubject<IDatabasePreferences>(1);
+            currentPreferencesSubject = new BehaviorSubject<IDatabasePreferences>(Preferences.DefaultPreferences);
 
             Current = currentPreferencesSubject.AsObservable();
-            Get().Do(currentPreferencesSubject.OnNext);
+
+            // right after login/signup the database does not contain the preferences and retreiving
+            // it will fail we can ignore this error because it will be immediately fetched and until
+            // then the default preferences will be used
+            initializationDisposable = Get().Subscribe(currentPreferencesSubject.OnNext, (Exception _) => { });
         }
 
         public IObservable<IDatabasePreferences> Get()

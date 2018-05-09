@@ -4,6 +4,7 @@ using Toggl.Multivac;
 
 namespace Toggl.Foundation.MvvmCross.ViewModels.Calendar.QuickSelectShortcuts
 {
+    [Preserve(AllMembers = true)]
     public abstract class CalendarBaseQuickSelectShortcut : MvxNotifyPropertyChanged
     {
         protected ITimeService TimeService { get; private set; }

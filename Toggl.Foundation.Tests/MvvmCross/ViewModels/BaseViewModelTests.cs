@@ -18,6 +18,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
         protected IMailService MailService { get; } = Substitute.For<IMailService>();
         protected ITogglDatabase Database { get; } = Substitute.For<ITogglDatabase>();
         protected IDialogService DialogService { get; } = Substitute.For<IDialogService>();
+        protected ILicenseProvider LicenseProvider { get; } = Substitute.For<ILicenseProvider>();
         protected IPlatformConstants PlatformConstants { get; } = Substitute.For<IPlatformConstants>();
         protected IOnboardingStorage OnboardingStorage { get; } = Substitute.For<IOnboardingStorage>();
         protected ISuggestionProviderContainer SuggestionProviderContainer { get; } = Substitute.For<ISuggestionProviderContainer>();
@@ -33,19 +34,6 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
 
         private void Setup()
         {
-            Ioc.RegisterSingleton(Api);
-            Ioc.RegisterSingleton(Database);
-            Ioc.RegisterSingleton(DataSource);
-            Ioc.RegisterSingleton(TimeService);
-            Ioc.RegisterSingleton(MailService);
-            Ioc.RegisterSingleton(DialogService);
-            Ioc.RegisterSingleton(AnalyticsService);
-            Ioc.RegisterSingleton(InteractorFactory);
-            Ioc.RegisterSingleton(PlatformConstants);
-            Ioc.RegisterSingleton(OnboardingStorage);
-            Ioc.RegisterSingleton(NavigationService);
-            Ioc.RegisterSingleton(SuggestionProviderContainer);
-
             AdditionalSetup();
 
             ViewModel = CreateViewModel();

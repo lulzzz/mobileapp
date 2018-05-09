@@ -24,7 +24,7 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>XSAppIconAssets</key>
-	<string>Assets.xcassets/AppIcon.appiconset</string>
+	<string>Assets.xcassets/AppIcon-debug.appiconset</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>LSApplicationQueriesSchemes</key>
@@ -34,7 +34,7 @@
 	<key>CFBundleName</key>
 	<string>Toggl for Devs</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.4.1</string>
+	<string>1.4.3</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

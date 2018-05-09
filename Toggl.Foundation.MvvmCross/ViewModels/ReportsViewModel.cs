@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -12,7 +11,6 @@ using Toggl.Foundation;
 using Toggl.Foundation.DataSources;
 using Toggl.Foundation.MvvmCross.Parameters;
 using Toggl.Foundation.MvvmCross.ViewModels;
-using Toggl.Foundation.MvvmCross.ViewModels.Calendar;
 using Toggl.Foundation.MvvmCross.ViewModels.Hints;
 using Toggl.Foundation.Reports;
 using Toggl.Multivac;

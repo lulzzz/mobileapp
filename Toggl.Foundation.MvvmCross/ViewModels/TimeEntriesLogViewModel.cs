@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -7,7 +8,6 @@ using MvvmCross.Core.Navigation;
 using MvvmCross.Core.ViewModels;
 using PropertyChanged;
 using Toggl.Foundation.DataSources;
-using Toggl.Foundation.DTOs;
 using Toggl.Foundation.Interactors;
 using Toggl.Foundation.MvvmCross.Collections;
 using Toggl.Foundation.MvvmCross.ViewModels.Hints;
@@ -76,17 +76,17 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         {
             await base.Initialize();
 
-            IsWelcome = onboardingStorage.IsNewUser();
+            IsWelcome = await onboardingStorage.IsNewUser.FirstAsync();
 
-            await reset();
+            await fetchSectionedTimeEntries();
 
             var deleteDisposable =
                 dataSource.TimeEntries.TimeEntryDeleted
-                          .Subscribe(safeRemoveTimeEntry);
+                    .Subscribe(safeRemoveTimeEntry);
 
             var updateDisposable =
                 dataSource.TimeEntries.TimeEntryUpdated
-                          .Subscribe(onTimeEntryUpdated);
+                    .Subscribe(onTimeEntryUpdated);
 
             var createDisposable =
                 dataSource.TimeEntries.TimeEntryCreated
@@ -108,30 +108,23 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             disposeBag.Add(preferencesDisposable);
         }
 
-        private async Task reset()
+        private async Task fetchSectionedTimeEntries()
         {
-            TimeEntries.Clear();
-
             var timeEntries = await dataSource.TimeEntries.GetAll();
+            if (timeEntries == null) 
+            {
+                TimeEntries.Clear();
+                return;
+            }
 
-            if (timeEntries == null) return;
-
-            timeEntries
+            var groupedEntries = timeEntries
                 .Where(isNotRunning)
                 .OrderByDescending(te => te.Start)
                 .Select(te => new TimeEntryViewModel(te, durationFormat))
                 .GroupBy(te => te.StartTime.LocalDateTime.Date)
-                .Select(grouping => new TimeEntryViewModelCollection(grouping.Key, grouping, durationFormat))
-                .ForEach(addTimeEntries);
-        }
+                .Select(grouping => new TimeEntryViewModelCollection(grouping.Key, grouping, durationFormat));
 
-        private void addTimeEntries(TimeEntryViewModelCollection collection)
-        {
-            IsWelcome = false;
-
-            TimeEntries.Add(collection);
-
-            RaisePropertyChanged(nameof(IsEmpty));
+            TimeEntries.ReplaceWith(groupedEntries);
         }
 
         private void onTimeEntryUpdated((long Id, IDatabaseTimeEntry Entity) tuple)
@@ -169,21 +162,33 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             IsWelcome = false;
 
             var indexDate = timeEntry.Start.LocalDateTime.Date;
-            var timeEntryViewModel = new TimeEntryViewModel(timeEntry, durationFormat);
-
-            var collectionIndex = TimeEntries.IndexOf(x => x.Date == indexDate);
-            if (collectionIndex >= 0)
+            var collectionIndex = TimeEntries.IndexOf(x => x.Date.LocalDateTime == indexDate);
+            var groupExists = collectionIndex >= 0;
+            if (groupExists)
             {
-                TimeEntries.InsertInChildCollection(collectionIndex, timeEntryViewModel);
-                return;
+                insertTimeEntryInGroup(timeEntry, collectionIndex);
+            }
+            else
+            {
+                insertNewTimeEntryGroup(timeEntry, indexDate);
             }
 
-            var newCollection = new TimeEntryViewModelCollection(indexDate, new[] { timeEntryViewModel }, durationFormat);
+            RaisePropertyChanged(nameof(IsEmpty));
+        }
+
+        private void insertTimeEntryInGroup(IDatabaseTimeEntry timeEntry, int collectionIndex)
+        {
+            var timeEntryViewModel = new TimeEntryViewModel(timeEntry, durationFormat);
+            TimeEntries.InsertInChildCollection(collectionIndex, timeEntryViewModel);
+        }
+
+        private void insertNewTimeEntryGroup(IDatabaseTimeEntry timeEntry, DateTime indexDate)
+        {
+            var timeEntryToAdd = new TimeEntryViewModel(timeEntry, durationFormat);
+            var newCollection = new TimeEntryViewModelCollection(indexDate, new[] { timeEntryToAdd }, durationFormat);
             var foundIndex = TimeEntries.IndexOf(TimeEntries.FirstOrDefault(x => x.Date < indexDate));
             var indexToInsert = foundIndex == -1 ? TimeEntries.Count : foundIndex;
             TimeEntries.Insert(indexToInsert, newCollection);
-
-            RaisePropertyChanged(nameof(IsEmpty));
         }
 
         private void safeRemoveTimeEntry(long id)
@@ -219,7 +224,11 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         private bool isNotRunning(IDatabaseTimeEntry timeEntry) => !timeEntry.IsRunning();
 
         private Task edit(TimeEntryViewModel timeEntryViewModel)
-            => navigationService.Navigate<EditTimeEntryViewModel, long>(timeEntryViewModel.Id);
+        {
+            onboardingStorage.TimeEntryWasTapped();
+
+            return navigationService.Navigate<EditTimeEntryViewModel, long>(timeEntryViewModel.Id);
+        }
 
         private async Task delete(TimeEntryViewModel timeEntryViewModel)
         {

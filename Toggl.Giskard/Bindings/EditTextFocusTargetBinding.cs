@@ -4,6 +4,10 @@ using Android.Widget;
 using MvvmCross.Binding;
 using MvvmCross.Binding.Droid.Target;
 using Toggl.Giskard.Extensions;
+using MvvmCross.Platform.WeakSubscription;
+using System.ComponentModel;
+using static Android.Views.View;
+using Android.App;
 
 namespace Toggl.Giskard.Bindings
 {
@@ -11,16 +15,33 @@ namespace Toggl.Giskard.Bindings
     {
         public const string BindingName = "Focus";
 
-        public override MvxBindingMode DefaultMode => MvxBindingMode.Default;
+        public override MvxBindingMode DefaultMode => MvxBindingMode.TwoWay;
 
-        public EditTextFocusTargetBinding(EditText target)
-                : base(target)
+        private IDisposable subscription;
+
+        public EditTextFocusTargetBinding(EditText target) : base(target)
         {
+            subscription = target.WeakSubscribe<EditText, FocusChangeEventArgs>(nameof(target.FocusChange), onIsFocusedChanged);
+        }
+
+        private void onIsFocusedChanged(object sender, FocusChangeEventArgs args)
+        {
+            FireValueChanged(args.HasFocus);
         }
 
         protected override void SetValueImpl(EditText target, bool value)
         {
-            target.RequestFocus();
+            if (value) target.SetFocus();
+            else target.RemoveFocus();
+        }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            base.Dispose(isDisposing);
+
+            if (!isDisposing) return;
+
+            subscription?.Dispose();
         }
     }
 }

@@ -23,12 +23,12 @@ namespace Toggl.Foundation
         public IMailService MailService { get; internal set; }
         public IGoogleService GoogleService { get; internal set; }
         public ApiEnvironment ApiEnvironment { get; internal set; }
+        public ILicenseProvider LicenseProvider { get; internal set; }
         public IAnalyticsService AnalyticsService { get; internal set; }
         public IApplicationShortcutCreator ShortcutCreator { get; internal set; }
         public IBackgroundService BackgroundService { get; internal set; }
         public IPlatformConstants PlatformConstants { get; internal set; }
         public ISuggestionProviderContainer SuggestionProviderContainer { get; internal set; }
-        public IOnboardingService OnboardingService { get; internal set; }
 
         public static Foundation Create(
             string clientName,
@@ -39,11 +39,11 @@ namespace Toggl.Foundation
             IMailService mailService,
             IGoogleService googleService,
             ApiEnvironment apiEnvironment,
+            ILicenseProvider licenseProvider,
             IAnalyticsService analyticsService,
             IPlatformConstants platformConstants,
             IApplicationShortcutCreator shortcutCreator,
-            ISuggestionProviderContainer suggestionProviderContainer,
-            IOnboardingService onboardingService)
+            ISuggestionProviderContainer suggestionProviderContainer)
         {
             Ensure.Argument.IsNotNull(version, nameof(version));
             Ensure.Argument.IsNotNull(database, nameof(database));
@@ -52,11 +52,11 @@ namespace Toggl.Foundation
             Ensure.Argument.IsNotNull(scheduler, nameof(scheduler));
             Ensure.Argument.IsNotNull(mailService, nameof(mailService));
             Ensure.Argument.IsNotNull(googleService, nameof(googleService));
+            Ensure.Argument.IsNotNull(licenseProvider, nameof(licenseProvider));
             Ensure.Argument.IsNotNull(shortcutCreator, nameof(shortcutCreator));
             Ensure.Argument.IsNotNull(analyticsService, nameof(analyticsService));
             Ensure.Argument.IsNotNull(platformConstants, nameof(platformConstants));
             Ensure.Argument.IsNotNull(suggestionProviderContainer, nameof(suggestionProviderContainer));
-            Ensure.Argument.IsNotNull(onboardingService, nameof(onboardingService));
 
             var userAgent = new UserAgent(clientName, version.ToString());
 
@@ -69,14 +69,14 @@ namespace Toggl.Foundation
                 MailService = mailService,
                 GoogleService = googleService,
                 ApiEnvironment = apiEnvironment,
+                LicenseProvider = licenseProvider,
                 Version = Version.Parse(version),
                 ShortcutCreator = shortcutCreator,
                 AnalyticsService = analyticsService,
                 PlatformConstants = platformConstants,
                 BackgroundService = new BackgroundService(timeService),
                 ApiFactory = new ApiFactory(apiEnvironment, userAgent),
-                SuggestionProviderContainer = suggestionProviderContainer,
-                OnboardingService = onboardingService
+                SuggestionProviderContainer = suggestionProviderContainer
             };
 
             return foundation;

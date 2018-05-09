@@ -14,6 +14,8 @@ using Toggl.Foundation.MvvmCross.Services;
 using Toggl.Multivac;
 using Toggl.Multivac.Extensions;
 using Toggl.PrimeRadiant.Models;
+using Toggl.PrimeRadiant.Settings;
+using Toggl.Foundation.Analytics;
 using static Toggl.Foundation.Helper.Constants;
 
 namespace Toggl.Foundation.MvvmCross.ViewModels
@@ -28,6 +30,8 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         private readonly IDialogService dialogService;
         private readonly IInteractorFactory interactorFactory;
         private readonly IMvxNavigationService navigationService;
+        private readonly IOnboardingStorage onboardingStorage;
+        private readonly IAnalyticsService analyticsService;
 
         private readonly HashSet<long> tagIds = new HashSet<long>();
         private IDisposable deleteDisposable;
@@ -54,9 +58,16 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
                    && originalTimeEntry.Duration != (long)Duration.TotalSeconds)
                || originalTimeEntry.Billable != Billable;
 
+        public IOnboardingStorage OnboardingStorage => onboardingStorage;
+
         public long Id { get; set; }
 
         public string Description { get; set; }
+
+        [DependsOn(nameof(IsEditingDescription))]
+        public string ConfirmButtonText => IsEditingDescription ? Resources.Done : Resources.Save;
+
+        public bool IsEditingDescription { get; set; }
 
         [DependsOn(nameof(Description))]
         public int DescriptionRemainingLength
@@ -74,7 +85,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         public string Task { get; set; }
 
-        public bool AllowsBillableRates { get; private set; }
+        public bool IsBillableAvailable { get; private set; }
 
         [DependsOn(nameof(StartTime), nameof(StopTime))]
         public TimeSpan Duration
@@ -132,7 +143,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             }
         }
 
-        public List<string> Tags { get; private set; } = new List<string>();
+        public MvxObservableCollection<string> Tags { get; private set; } = new MvxObservableCollection<string>();
 
         [DependsOn(nameof(Tags))]
         public bool HasTags => Tags?.Any() ?? false;
@@ -149,11 +160,15 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         public IMvxCommand StopCommand { get; }
 
+        public IMvxAsyncCommand<string> StopTimeEntryCommand { get; }
+
         public IMvxAsyncCommand DeleteCommand { get; }
 
         public IMvxAsyncCommand CloseCommand { get; }
 
         public IMvxAsyncCommand EditDurationCommand { get; }
+
+        public IMvxAsyncCommand<string> SelectTimeCommand { get; }
 
         public IMvxAsyncCommand SelectStartTimeCommand { get; }
 
@@ -172,25 +187,32 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             ITogglDataSource dataSource,
             IInteractorFactory interactorFactory,
             IMvxNavigationService navigationService,
-            IDialogService dialogService)
+            IOnboardingStorage onboardingStorage,
+            IDialogService dialogService,
+            IAnalyticsService analyticsService)
         {
             Ensure.Argument.IsNotNull(dataSource, nameof(dataSource));
             Ensure.Argument.IsNotNull(timeService, nameof(timeService));
             Ensure.Argument.IsNotNull(dialogService, nameof(dialogService));
             Ensure.Argument.IsNotNull(interactorFactory, nameof(interactorFactory));
+            Ensure.Argument.IsNotNull(onboardingStorage, nameof(onboardingStorage));
             Ensure.Argument.IsNotNull(navigationService, nameof(navigationService));
+            Ensure.Argument.IsNotNull(analyticsService, nameof(analyticsService));
 
             this.dataSource = dataSource;
             this.timeService = timeService;
             this.dialogService = dialogService;
             this.interactorFactory = interactorFactory;
             this.navigationService = navigationService;
+            this.onboardingStorage = onboardingStorage;
+            this.analyticsService = analyticsService;
 
             DeleteCommand = new MvxAsyncCommand(delete);
             ConfirmCommand = new MvxCommand(confirm);
             CloseCommand = new MvxAsyncCommand(closeWithConfirmation);
             EditDurationCommand = new MvxAsyncCommand(editDuration);
             StopCommand = new MvxCommand(stopTimeEntry, () => IsTimeEntryRunning);
+            StopTimeEntryCommand = new MvxAsyncCommand<string>(onStopTimeEntryCommand);
 
             SelectStartTimeCommand = new MvxAsyncCommand(selectStartTime);
             SelectEndTimeCommand = new MvxAsyncCommand(selectEndTime);
@@ -200,6 +222,8 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             SelectTagsCommand = new MvxAsyncCommand(selectTags);
             DismissSyncErrorMessageCommand = new MvxCommand(dismissSyncErrorMessageCommand);
             ToggleBillableCommand = new MvxCommand(toggleBillable);
+
+            SelectTimeCommand = new MvxAsyncCommand<string>(selectTime);
         }
 
         public override void Prepare(long parameter)
@@ -267,6 +291,19 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         private void confirm()
         {
+            if (IsEditingDescription)
+            {
+                IsEditingDescription = false;
+                return;
+            }
+
+            save();
+        }
+
+        private void save()
+        {
+            onboardingStorage.EditedTimeEntry();
+
             var dto = new EditTimeEntryDto
             {
                 Id = Id,
@@ -314,9 +351,37 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
                 .ConfigureAwait(false);
         }
 
+        private async Task selectTime(string bindingParameter)
+        {
+            var parameters = 
+                SelectTimeParameters
+                .CreateFromBindingString(bindingParameter, StartTime, StopTime);
+
+            var data = await navigationService
+                .Navigate<SelectTimeViewModel, SelectTimeParameters, SelectTimeResultsParameters>(parameters)
+                .ConfigureAwait(false);
+
+            if (data == null)
+                return;
+
+            StartTime = data.Start;
+            StopTime = data.Stop;
+        }
+
         private void stopTimeEntry()
         {
             StopTime = timeService.CurrentDateTime;
+        }
+
+        private async Task onStopTimeEntryCommand(string bindingParameter)
+        {
+            if (IsTimeEntryRunning)
+            {
+                StopTime = timeService.CurrentDateTime;
+                return;
+            }
+
+            await SelectTimeCommand.ExecuteAsync(bindingParameter);
         }
 
         private async Task selectEndTime()
@@ -361,6 +426,10 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         private async Task selectProject()
         {
+            analyticsService.TrackEditOpensProjectSelector();
+
+            onboardingStorage.SelectsProject();
+
             var returnParameter = await navigationService
                 .Navigate<SelectProjectViewModel, SelectProjectParameter, SelectProjectParameter>(
                     SelectProjectParameter.WithIds(projectId, taskId, workspaceId));
@@ -378,6 +447,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
                 Project = Task = Client = ProjectColor = "";
                 clearTagsIfNeeded(workspaceId, returnParameter.WorkspaceId);
                 workspaceId = returnParameter.WorkspaceId;
+                await updateFeaturesAvailability();
                 return;
             }
 
@@ -410,6 +480,8 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         private async Task selectTags()
         {
+            analyticsService.TrackEditOpensTagSelector();
+
             var tagsToPass = tagIds.ToArray();
             var returnedTags = await navigationService
                 .Navigate<SelectTagsViewModel, (long[], long), long[]>(
@@ -479,7 +551,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         private async Task updateFeaturesAvailability()
         {
-            AllowsBillableRates = await interactorFactory.WorkspaceAllowsBillableRates(workspaceId).Execute();
+            IsBillableAvailable = await interactorFactory.IsBillableAvailableForWorkspace(workspaceId).Execute();
         }
     }
 }

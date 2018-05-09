@@ -38,7 +38,7 @@ namespace Toggl.Daneel.Services
             mailComposeViewController.Finished += (sender, e) => {
                 mailComposeViewController.DismissViewController(true, null);
                 var mailResult = e.Result == MFMailComposeResult.Sent
-                                  ? new MailResult(true, null, null)
+                                  ? MailResult.Ok
                                   : new MailResult(false, null, null);
                 tcs.SetResult(mailResult);
             };

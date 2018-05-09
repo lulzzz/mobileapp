@@ -1,4 +1,5 @@
-﻿using MvvmCross.Binding.BindingContext;
+﻿using CoreAnimation;
+using MvvmCross.Binding.BindingContext;
 using MvvmCross.Binding.iOS;
 using MvvmCross.iOS.Views;
 using MvvmCross.iOS.Views.Presenters.Attributes;
@@ -6,6 +7,8 @@ using MvvmCross.Plugins.Color;
 using MvvmCross.Plugins.Visibility;
 using Toggl.Daneel.Extensions;
 using Toggl.Foundation;
+using Toggl.Foundation.MvvmCross.Converters;
+using Toggl.Foundation.MvvmCross.Helper;
 using Toggl.Foundation.MvvmCross.ViewModels;
 using UIKit;
 
@@ -45,6 +48,14 @@ namespace Toggl.Daneel.ViewControllers
             var colorConverter = new MvxNativeColorValueConverter();
             var bindingSet = this.CreateBindingSet<OnboardingViewController, OnboardingViewModel>();
 
+            var pagedBackgroundImageColorConverter = new PaginationValueConverter<UIImage>(new[]
+            {
+                UIImage.FromBundle("bgNoiseBlue"),
+                UIImage.FromBundle("bgNoisePurple"),
+                UIImage.FromBundle("bgNoiseYellow"),
+                UIImage.FromBundle("bgNoiseBlue")
+            });
+
             //Commands
             bindingSet.Bind(Skip).To(vm => vm.SkipCommand);
             bindingSet.Bind(Next).To(vm => vm.NextCommand);
@@ -62,6 +73,12 @@ namespace Toggl.Daneel.ViewControllers
                       .For(v => v.BindAnimatedBackground())
                       .To(vm => vm.BorderColor)
                       .WithConversion(colorConverter);
+
+            //Noise image
+            bindingSet.Bind(BackgroundImage)
+                      .For(v => v.BindAnimatedImage())
+                      .To(vm => vm.CurrentPage)
+                      .WithConversion(pagedBackgroundImageColorConverter);
 
             //Visibility
             bindingSet.Bind(PhoneContents)

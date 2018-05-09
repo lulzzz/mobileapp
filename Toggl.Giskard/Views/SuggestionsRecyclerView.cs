@@ -31,7 +31,7 @@ namespace Toggl.Giskard.Views
         {
             SetLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.Horizontal, false));
 
-            var snapMargin = (int)16.DpToPixels(context);
+            var snapMargin = 16.DpToPixels(context);
             snapHelper = new SuggestionsRecyclerViewSnapHelper(snapMargin);
             snapHelper.AttachToRecyclerView(this);
         }

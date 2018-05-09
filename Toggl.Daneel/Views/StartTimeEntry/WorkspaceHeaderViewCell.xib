@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -31,7 +31,7 @@
                             <constraint firstAttribute="height" constant="1" id="Lm5-Ki-eAm"/>
                         </constraints>
                     </view>
-                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Dts-Kl-oCD">
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Dts-Kl-oCD" userLabel="Bottom Separator">
                         <rect key="frame" x="0.0" y="39" width="320" height="0.5"/>
                         <color key="backgroundColor" red="0.90980392156862744" green="0.90980392156862744" blue="0.90980392156862744" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
@@ -57,41 +57,4 @@
             </connections>
         </tableViewCell>
     </objects>
-    <resources>
-        <image name="icArrowUp" width="10" height="6"/>
-        <image name="icBillable" width="8" height="16"/>
-        <image name="icClose" width="10" height="10"/>
-        <image name="icContinue" width="10" height="11"/>
-        <image name="icDatetime" width="14" height="14"/>
-        <image name="icDone" width="16" height="12"/>
-        <image name="icDownS" width="8" height="5"/>
-        <image name="icProjects" width="16" height="12"/>
-        <image name="icRefresh" width="20" height="14"/>
-        <image name="icReports" width="16" height="18"/>
-        <image name="icSettings" width="16" height="16"/>
-        <image name="icSyncerror" width="16" height="16"/>
-        <image name="icTags" width="14" height="13"/>
-        <image name="icUpS" width="8" height="5"/>
-        <image name="playIcon" width="50" height="50"/>
-        <image name="stopIcon" width="34" height="34"/>
-        <image name="togglLogoWhite" width="111" height="35"/>
-        <image name="notebook" width="95" height="85"/>
-        <image name="togglCronometer" width="126" height="140"/>
-        <image name="icOnePassword" width="15" height="15"/>
-        <image name="icPassword" width="15" height="10"/>
-        <image name="togglLogo" width="63" height="19"/>
-        <image name="line" width="2" height="14"/>
-        <image name="icLoader" width="24" height="24"/>
-        <image name="icAdd" width="10" height="10"/>
-        <image name="icProjectDot" width="6" height="6"/>
-        <image name="icIllustrationTimer" width="89" height="90"/>
-        <image name="icIllustrationPaws" width="112" height="41"/>
-        <image name="duration" width="13" height="16"/>
-        <image name="icIllustrationSpider" width="60" height="205"/>
-        <image name="icDoneSmall" width="12" height="9"/>
-        <image name="icSearch" width="13" height="12"/>
-        <image name="icCheckBoxChecked" width="14" height="14"/>
-        <image name="icCheckBoxUnchecked" width="14" height="14"/>
-        <image name="icUnsynced" width="16" height="14"/>
-    </resources>
 </document>

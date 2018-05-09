@@ -67,7 +67,7 @@ namespace Toggl.Giskard.Views
         public HueSaturationPickerView(Context context, IAttributeSet attrs, int defStyle)
             : base(context, attrs, defStyle)
         {
-            circleDiameter = (int)30.DpToPixels(context);
+            circleDiameter = 30.DpToPixels(context);
             circleRadius = circleDiameter / 2;
 
             circleFillPaint = new Paint();

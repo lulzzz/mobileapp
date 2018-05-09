@@ -1,8 +1,11 @@
 ﻿using System;
 using Foundation;
 using MvvmCross.Binding.BindingContext;
+using MvvmCross.Binding.iOS;
 using MvvmCross.Binding.iOS.Views;
 using MvvmCross.Plugins.Color;
+using MvvmCross.Plugins.Visibility;
+using Toggl.Daneel.Extensions;
 using Toggl.Foundation.MvvmCross.Combiners;
 using Toggl.Foundation.Reports;
 using UIKit;
@@ -28,14 +31,23 @@ namespace Toggl.Daneel.Views.Reports
         {
             base.AwakeFromNib();
 
+            FadeView.FadeRight = true;
+
             this.DelayBind(() =>
             {
                 var colorConverter = new MvxRGBValueConverter();
                 var durationCombiner = new DurationValueCombiner();
+                var visibilityConverter = new MvxVisibilityValueConverter();
                 var bindingSet = this.CreateBindingSet<ReportsLegendViewCell, ChartSegment>();
+
+                ProjectLabel.SetKerning(-0.2);
+                ClientLabel.SetKerning(-0.2);
+                TotalTimeLabel.SetKerning(-0.2);
+                PercentageLabel.SetKerning(-0.2);
 
                 //Text
                 bindingSet.Bind(ProjectLabel).To(vm => vm.ProjectName);
+                bindingSet.Bind(ClientLabel).To(vm => vm.ClientName);
                 bindingSet.Bind(PercentageLabel)
                           .For(v => v.Text)
                           .ByCombining("Format", "'{0:0.00}%'", nameof(ChartSegment.Percentage));
@@ -44,6 +56,11 @@ namespace Toggl.Daneel.Views.Reports
                           .ByCombining(durationCombiner,
                               vm => vm.TrackedTime,
                               vm => vm.DurationFormat);
+
+                bindingSet.Bind(ClientLabel)
+                          .For(v => v.BindVisibility())
+                          .To(vm => vm.HasClient)
+                          .WithConversion(visibilityConverter);
 
                 // Color
                 bindingSet.Bind(ProjectLabel)

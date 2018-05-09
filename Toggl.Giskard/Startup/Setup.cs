@@ -1,6 +1,7 @@
 using System;
 using System.Reactive.Concurrency;
 using Android.Content;
+using MvvmCross.Binding;
 using MvvmCross.Core.Navigation;
 using MvvmCross.Core.ViewModels;
 using MvvmCross.Droid.Support.V7.AppCompat;
@@ -38,9 +39,11 @@ namespace Toggl.Giskard
         {
         }
 
+        protected override IMvxApplication CreateApp() => new App();
+
         protected override IMvxTrace CreateDebugTrace() => new DebugTrace();
 
-        protected override IMvxApplication CreateApp() => new App();
+        protected override MvxBindingBuilder CreateBindingBuilder() => new TogglBindingBuilder();
 
         protected override IMvxNavigationService InitializeNavigationService(IMvxViewModelLocatorCollection collection)
         {
@@ -82,14 +85,14 @@ namespace Toggl.Giskard
                 database,
                 timeService,
                 scheduler,
-                new MailService(),
+                new MailService(ApplicationContext),
                 new GoogleService(),
                 environment,
+                new LicenseProvider(),
                 analyticsService,
                 new PlatformConstants(),
-                new ApplicationShortcutCreator(),
-                suggestionProviderContainer,
-                new GiskardOnboardingService()
+                new ApplicationShortcutCreator(ApplicationContext),
+                suggestionProviderContainer
             );
 
             foundation

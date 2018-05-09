@@ -10,4 +10,10 @@ namespace Toggl.Giskard.Helper
         public static bool AreNotAvailable
             => Build.VERSION.SdkInt < BuildVersionCodes.M;
     }
+
+    public static class NougatApis
+    {
+        public static bool AreNotAvailable
+            => Build.VERSION.SdkInt < BuildVersionCodes.NMr1;
+    }
 }

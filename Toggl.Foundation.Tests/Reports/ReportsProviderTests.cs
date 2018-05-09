@@ -32,6 +32,8 @@ namespace Toggl.Foundation.Tests.Reports
             protected IProjectsSummaryApi ProjectsSummaryApi { get; } = Substitute.For<IProjectsSummaryApi>();
             protected IRepository<IDatabaseProject> ProjectsRepository { get; } =
                 Substitute.For<IRepository<IDatabaseProject>>();
+            protected IRepository<IDatabaseClient> ClientsRepository { get; } =
+                Substitute.For<IRepository<IDatabaseClient>>();
 
             protected IReportsProvider ReportsProvider { get; }
 
@@ -41,6 +43,7 @@ namespace Toggl.Foundation.Tests.Reports
                 Api.ProjectsSummary.Returns(ProjectsSummaryApi);
 
                 Database.Projects.Returns(ProjectsRepository);
+                Database.Clients.Returns(ClientsRepository);
 
                 ReportsProvider = new ReportsProvider(Api, Database);
             }

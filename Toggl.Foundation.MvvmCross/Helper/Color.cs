@@ -36,7 +36,9 @@ namespace Toggl.Foundation.MvvmCross.Helper
 
         public static class Login
         {
-            public static readonly MvxColor DisabledButtonColor = new MvxColor(255, 255, 255, 128);
+            public static readonly MvxColor DisabledButtonColor = new MvxColor(255, 255, 255, 122);
+            public static readonly MvxColor TextViewPlaceholder = pinkishGrey;
+            public static readonly MvxColor ForgotPassword = new MvxColor(94, 91, 91);
         }
 
         public static class NavigationBar
@@ -188,7 +190,7 @@ namespace Toggl.Foundation.MvvmCross.Helper
 
         public static class Suggestions
         {
-            public static readonly MvxColor ClientColor = new MvxColor(163, 163, 163);
+            public static readonly MvxColor ClientColor = new MvxColor(94, 91, 91);
             public static readonly MvxColor HeaderText = new MvxColor(94, 91, 91);
         }
 
@@ -201,6 +203,7 @@ namespace Toggl.Foundation.MvvmCross.Helper
         {
             public static readonly MvxColor PlaceholderText = pinkishGrey;
             public static readonly MvxColor Transparent = new MvxColor(rgb: 0, alpha: 0);
+            public static readonly MvxColor LightGray = pinkishGrey;
         }
 
         public sealed class Calendar
@@ -227,9 +230,13 @@ namespace Toggl.Foundation.MvvmCross.Helper
 
             public static readonly MvxColor PercentageActivated = new MvxColor(0, 171, 252);
 
-            public static readonly MvxColor PercentageDisabled = new MvxColor(6, 170, 245, 62);
+            public static readonly MvxColor PercentageActivatedBackground = new MvxColor(6, 170, 245, 61);
+
+            public static readonly MvxColor PercentageDisabled = new MvxColor(181, 188, 192, 30);
 
             public static readonly MvxColor TotalTimeActivated = new MvxColor(76, 217, 100);
+
+            public static readonly MvxColor DayNotInMonth = new MvxColor(149, 149, 149);
 
             public static readonly MvxColor Disabled = new MvxColor(181, 188, 192);
 
@@ -239,6 +246,11 @@ namespace Toggl.Foundation.MvvmCross.Helper
 
                 public static readonly MvxColor DarkColor = new MvxColor(236, 240, 242);
             }
+        }
+
+        public static class Licenses
+        {
+            public static readonly MvxColor Border = new MvxColor(232, 232, 232);
         }
       
         public static readonly MvxColor[] DefaultProjectColors =

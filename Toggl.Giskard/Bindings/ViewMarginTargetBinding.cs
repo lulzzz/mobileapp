@@ -29,7 +29,7 @@ namespace Toggl.Giskard.Bindings
                 var marginParams = Target.LayoutParameters as ViewGroup.MarginLayoutParams;
                 if (marginParams == null) return;
 
-                var pixels = (int)value.Value.DpToPixels(AndroidGlobals.ApplicationContext);
+                var pixels = value.Value.DpToPixels(AndroidGlobals.ApplicationContext);
 
                 var top = boundMargin.HasFlag(BoundMargin.Top) ? (int?)pixels : null;
                 var left = boundMargin.HasFlag(BoundMargin.Left) ? (int?)pixels : null;

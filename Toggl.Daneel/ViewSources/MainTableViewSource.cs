@@ -3,14 +3,18 @@ using System.Collections;
 using Foundation;
 using MvvmCross.Binding.iOS.Views;
 using MvvmCross.Core.ViewModels;
+using Toggl.Daneel.Views;
 using Toggl.Foundation.MvvmCross.ViewModels;
 using Toggl.Foundation.Sync;
+using Toggl.Foundation.MvvmCross.Collections;
 using UIKit;
 
 namespace Toggl.Daneel.ViewSources
 {
     public sealed class MainTableViewSource : MvxTableViewSource
     {
+        public event EventHandler OnScrolled;
+
         private readonly TimeEntriesLogViewSource timeEntriesLogViewSource;
         private readonly SwipeToRefreshTableViewDelegate swipeToRefreshTableViewDelegate;
 
@@ -20,10 +24,16 @@ namespace Toggl.Daneel.ViewSources
             set => timeEntriesLogViewSource.ContinueTimeEntryCommand = value;
         }
 
+        public NestableObservableCollection<TimeEntryViewModelCollection, TimeEntryViewModel> ObservableCollection
+        {
+            get => timeEntriesLogViewSource.ObservableCollection;
+            set => timeEntriesLogViewSource.ObservableCollection = value;
+        }
+
         public override IEnumerable ItemsSource
         {
             get => timeEntriesLogViewSource.ItemsSource;
-            set => timeEntriesLogViewSource.ItemsSource = value;
+            set { throw new InvalidOperationException($"You must bind to the {nameof(ObservableCollection)} and not the {nameof(ItemsSource)}"); }
         }
 
         public SyncProgress SyncProgress
@@ -55,6 +65,8 @@ namespace Toggl.Daneel.ViewSources
             get => timeEntriesLogViewSource.IsEmptyState;
             set => timeEntriesLogViewSource.IsEmptyState = value;
         }
+
+        public IObservable<TimeEntriesLogViewCell> FirstTimeEntry => timeEntriesLogViewSource.FirstTimeEntry;
 
         public MainTableViewSource(UITableView tableView) : base(tableView)
         {
@@ -107,7 +119,10 @@ namespace Toggl.Daneel.ViewSources
             => timeEntriesLogViewSource.WillDisplayHeaderView(tableView, headerView, section);
 
         public override void Scrolled(UIScrollView scrollView)
-            => swipeToRefreshTableViewDelegate.Scrolled(scrollView);
+        {
+            swipeToRefreshTableViewDelegate.Scrolled(scrollView);
+            OnScrolled?.Invoke(scrollView, null);
+        }
 
         public override void DraggingStarted(UIScrollView scrollView)
             => swipeToRefreshTableViewDelegate.DraggingStarted(scrollView);

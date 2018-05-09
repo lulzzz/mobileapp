@@ -22,6 +22,7 @@ namespace Toggl.Foundation.Reports
         private readonly IProjectsApi projectsApi;
         private readonly IProjectsSummaryApi projectSummaryApi;
         private readonly IRepository<IDatabaseProject> projectsRepository;
+        private readonly IRepository<IDatabaseClient> clientsRepository;
 
         private readonly IList<IProject> memoryCache = new List<IProject>();
 
@@ -32,6 +33,7 @@ namespace Toggl.Foundation.Reports
 
             projectsApi = api.Projects;
             projectsRepository = database.Projects;
+            clientsRepository = database.Clients;
             projectSummaryApi = api.ProjectsSummary;
         }
 
@@ -50,22 +52,38 @@ namespace Toggl.Foundation.Reports
                     {
                         var totalSeconds = response.ProjectsSummaries.Select(s => s.TrackedSeconds).Sum();
                         return response.ProjectsSummaries
-                            .Select(summary => chartFromSummary(summary, projectsInReport, totalSeconds));
-            
+                            .Select(summary =>
+                            {
+                                var project = projectsInReport.FirstOrDefault(p => p.Id == summary.ProjectId);
+                                return findClient(project)
+                                    .Select(client => chartFromSummary(summary, project, client, totalSeconds));
+                            });
                     })
-                    .Select(segments => 
-                        new ProjectSummaryReport(segments.OrderByDescending(c => c.Percentage).ToArray()));
+                    .SelectMany(segmentsObservable => segmentsObservable.Merge())
+                    .ToArray()
+                    .Select(segments => segments.OrderByDescending(c => c.Percentage).ToArray())
+                    .Select(segments => new ProjectSummaryReport(segments));
 
-        private static ChartSegment chartFromSummary(IProjectSummary summary, 
-                                                     IList<IProject> projectsInReport,
-                                                     long totalSeconds)
+        private IObservable<IClient> findClient(IProject project)
+            => project != null && project.ClientId.HasValue
+                ? clientsRepository.GetAll()
+                    .SelectMany(clients => clients)
+                    .Where(c => c.Id == project.ClientId.Value)
+                    .FirstOrDefaultAsync()
+                : Observable.Return<IClient>(null);
+
+        private ChartSegment chartFromSummary(
+            IProjectSummary summary, 
+            IProject project,
+            IClient client,
+            long totalSeconds)
         {
             var percentage = totalSeconds == 0 ? 0 : (summary.TrackedSeconds / (float)totalSeconds) * 100;
             var billableSeconds = summary.BillableSeconds ?? 0;
-            var project = projectsInReport.FirstOrDefault(p => p.Id == summary.ProjectId);
+
             return project == null
-                ? new ChartSegment(Resources.NoProject, percentage,  summary.TrackedSeconds, billableSeconds, Color.NoProject)
-                : new ChartSegment(project.Name, percentage, summary.TrackedSeconds, billableSeconds, project.Color);
+                ? new ChartSegment(Resources.NoProject, null, percentage,  summary.TrackedSeconds, billableSeconds, Color.NoProject)
+                : new ChartSegment(project.Name, client?.Name, percentage, summary.TrackedSeconds, billableSeconds, project.Color);
         }
 
         private IObservable<IList<IProject>> searchProjects(long workspaceId, long[] projectIds) =>

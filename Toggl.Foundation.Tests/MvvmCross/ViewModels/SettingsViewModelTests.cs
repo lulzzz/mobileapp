@@ -10,6 +10,7 @@ using NSubstitute;
 using Toggl.Foundation.DTOs;
 using Toggl.Foundation.MvvmCross.Parameters;
 using Toggl.Foundation.MvvmCross.ViewModels;
+using Toggl.Foundation.MvvmCross.ViewModels.Settings;
 using Toggl.Foundation.Services;
 using Toggl.Foundation.Sync;
 using Toggl.Foundation.Tests.Generators;
@@ -43,13 +44,15 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                     InteractorFactory,
                     PlatformConstants,
                     UserPreferences,
-                    NavigationService);
+                    OnboardingStorage,
+                    NavigationService,
+                    AnalyticsService);
         }
 
         public sealed class TheConstructor : SettingsViewModelTest
         {
             [Theory, LogIfTooSlow]
-            [ClassData(typeof(EightParameterConstructorTestData))]
+            [ClassData(typeof(TenParameterConstructorTestData))]
             public void ThrowsIfAnyOfTheArgumentsIsNull(
                 bool useUserAgent,
                 bool useDataSource,
@@ -58,16 +61,21 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 bool useInteractorFactory,
                 bool usePlatformConstants,
                 bool useUserPreferences,
-                bool useNavigationService)
+                bool useOnboardingStorage,
+                bool useNavigationService,
+                bool useAnalyticsService
+            )
             {
                 var userAgent = useUserAgent ? UserAgent : null;
                 var dataSource = useDataSource ? DataSource : null;
                 var mailService = useMailService ? MailService : null;
                 var dialogService = useDialogService ? DialogService : null;
                 var userPreferences = useUserPreferences ? UserPreferences : null;
+                var onboardingStorage = useOnboardingStorage ? OnboardingStorage : null;
                 var navigationService = useNavigationService ? NavigationService : null;
                 var platformConstants = usePlatformConstants ? PlatformConstants : null;
                 var interactorFactory = useInteractorFactory ? InteractorFactory : null;
+                var analyticsService = useAnalyticsService ? AnalyticsService : null;
 
                 Action tryingToConstructWithEmptyParameters =
                     () => new SettingsViewModel(
@@ -78,7 +86,9 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                         interactorFactory,
                         platformConstants,
                         userPreferences,
-                        navigationService);
+                        onboardingStorage,
+                        navigationService,
+                        analyticsService);
 
                 tryingToConstructWithEmptyParameters
                     .ShouldThrow<ArgumentNullException>();
@@ -192,6 +202,15 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
             }
 
             [Fact, LogIfTooSlow]
+            public async Task ResetsOnboarding()
+            {
+                doNotShowConfirmationDialog();
+                await ViewModel.LogoutCommand.ExecuteAsync();
+
+                OnboardingStorage.Received().Reset();
+            }
+
+            [Fact, LogIfTooSlow]
             public async Task NavigatesToTheOnboardingScreen()
             {
                 doNotShowConfirmationDialog();
@@ -300,6 +319,15 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 ViewModel.IsLoggingOut.Should().BeTrue();
                 await DataSource.Received().Logout();
                 await NavigationService.Received().Navigate<OnboardingViewModel>();
+            }
+
+            [Fact, LogIfTooSlow]
+            public async Task TracksLogoutEvent()
+            {
+                doNotShowConfirmationDialog();
+                await ViewModel.LogoutCommand.ExecuteAsync();
+
+                AnalyticsService.Received().TrackLogoutEvent(Analytics.LogoutSource.Settings);
             }
 
             private void doNotShowConfirmationDialog()
@@ -576,6 +604,14 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 ViewModel.DateFormat.Should().Be(preferences.DateFormat);
                 ViewModel.UseTwentyFourHourClock.Should().Be(preferences.TimeOfDayFormat.IsTwentyFourHoursFormat);
                 ViewModel.DurationFormat.Should().Be(preferences.DurationFormat);
+            }
+
+            [Fact, LogIfTooSlow]
+            public async Task InitializesVersion()
+            {
+                await ViewModel.Initialize();
+
+                ViewModel.Version.Should().Be(UserAgent.Version);
             }
 
             private IDatabasePreferences createPreferences()
@@ -884,6 +920,17 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 await ViewModel.SelectBeginningOfWeekCommand.ExecuteAsync();
 
                 ViewModel.BeginningOfWeek.Should().Be(newBeginningOfWeek);
+            }
+        }
+
+        public sealed class TheAboutCommand : SettingsViewModelTest
+        {
+            [Fact, LogIfTooSlow]
+            public async Task NavigatesToTheAboutPage()
+            {
+                await ViewModel.AboutCommand.ExecuteAsync();
+
+                await NavigationService.Received().Navigate<AboutViewModel>();
             }
         }
     }

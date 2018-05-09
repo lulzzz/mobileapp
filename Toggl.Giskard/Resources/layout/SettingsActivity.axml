@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:tools="http://schemas.android.com/tools"
+<?xml version="1.0" encoding="UTF-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:tools="http://schemas.android.com/tools"
     xmlns:local="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="@color/lightGray"
@@ -86,43 +87,6 @@
                 android:layout_height="0.5dp"
                 android:layout_width="match_parent" />
             <FrameLayout
-                local:MvxBind="Click SelectDateFormatCommand"
-                android:clickable="true"
-                android:background="?attr/selectableItemBackground"
-                android:layout_height="56dp"
-                android:layout_width="match_parent">
-                <TextView
-                    local:MvxBind="Text DateFormat.Localized"
-                    tools:text="MM/DD/YYYY"
-                    android:textSize="15sp"
-                    android:lineSpacingExtra="5sp"
-                    android:textColor="@android:color/black"
-                    android:layout_marginTop="9dp"
-                    android:layout_marginLeft="16dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:textSize="12sp"
-                    android:lineSpacingExtra="4sp"
-                    android:text="@string/DateFormat"
-                    android:textColor="@color/defaultText"
-                    android:layout_gravity="bottom"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginBottom="9dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <ImageView
-                    android:src="@drawable/dropdown"
-                    android:layout_marginRight="16dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right|center_vertical" />
-            </FrameLayout>
-            <View
-                android:background="@color/separator"
-                android:layout_height="0.5dp"
-                android:layout_width="match_parent" />
-            <FrameLayout
                 local:MvxBind="Click SelectBeginningOfWeekCommand"
                 android:clickable="true"
                 android:background="?attr/selectableItemBackground"
@@ -154,72 +118,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right|center_vertical" />
-            </FrameLayout>
-            <View
-                android:background="@color/separator"
-                android:layout_height="0.5dp"
-                android:layout_width="match_parent" />
-            <FrameLayout
-                local:MvxBind="Click SelectDurationFormatCommand"
-                android:clickable="true"
-                android:layout_height="56dp"
-                android:layout_width="match_parent"
-                android:background="?attr/selectableItemBackground">
-                <TextView
-                    local:MvxBind="Text DurationFormatToString(DurationFormat)"
-                    android:textSize="15sp"
-                    android:lineSpacingExtra="5sp"
-                    android:textColor="@android:color/black"
-                    tools:text="Improved (0:47:06)"
-                    android:layout_marginTop="9dp"
-                    android:layout_marginLeft="16dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:textSize="12sp"
-                    android:lineSpacingExtra="4sp"
-                    android:text="@string/DurationFormat"
-                    android:textColor="@color/defaultText"
-                    android:layout_gravity="bottom"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginBottom="9dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <ImageView
-                    android:src="@drawable/dropdown"
-                    android:layout_marginRight="16dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right|center_vertical" />
-            </FrameLayout>
-            <View
-                android:background="@color/separator"
-                android:layout_height="0.5dp"
-                android:layout_width="match_parent" />
-            <FrameLayout
-                local:MvxBind="Click ToggleUseTwentyFourHourClockCommand"
-                android:clickable="true"
-                android:background="?attr/selectableItemBackground"
-                android:layout_height="48dp"
-                android:layout_width="match_parent">
-                <TextView
-                    android:textSize="15sp"
-                    android:paddingLeft="16dp"
-                    android:textAllCaps="false"
-                    android:gravity="center_vertical"
-                    android:text="@string/Use24HourClock"
-                    android:textColor="@android:color/black"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent" />
-                <Switch
-                    local:MvxBind="Checked UseTwentyFourHourClock"
-                    android:clickable="false"
-                    android:thumbTint="@color/switchTint"
-                    android:layout_marginRight="18dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical|right"
-                    android:layout_alignTop="@id/EditProjectPrivateProjectImage" />
             </FrameLayout>
             <View
                 android:background="@color/separator"
@@ -271,35 +169,6 @@
                 android:background="@color/separator"
                 android:layout_height="0.5dp"
                 android:layout_width="match_parent" />
-            <FrameLayout
-                android:background="?attr/selectableItemBackground"
-                android:layout_height="48dp"
-                android:layout_width="match_parent">
-                <Button
-                    local:MvxBind="Click AboutCommand"
-                    android:textSize="15sp"
-                    android:paddingLeft="16dp"
-                    android:textAllCaps="false"
-                    android:text="@string/About"
-                    android:gravity="center_vertical"
-                    android:textColor="@android:color/black"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    tools:text="1.3.4"
-                    android:textSize="15sp"
-                    android:lineSpacingExtra="5sp"
-                    android:textColor="@android:color/black"
-                    android:layout_marginRight="16dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical|right" />
-            </FrameLayout>
-            <View
-                android:layout_marginTop="16dp"
-                android:background="@color/separator"
-                android:layout_height="0.5dp"
-                android:layout_width="match_parent" />
             <Button
                 local:MvxBind="Click LogoutCommand"
                 android:paddingLeft="16dp"
@@ -313,6 +182,7 @@
             <View
                 android:background="@color/separator"
                 android:layout_height="0.5dp"
+                android:layout_marginBottom="24dp"
                 android:layout_width="match_parent" />
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
@@ -323,25 +193,5 @@
         local:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <ImageView
-            local:MvxBind="Click BackCommand"
-            android:layout_gravity="start"
-            android:src="@drawable/logo"
-            android:layout_width="wrap_content"
-            android:layout_height="24dp" />
-        <ImageView
-            android:src="@drawable/settings_light"
-            android:layout_width="24dp"
-            android:layout_gravity="end"
-            android:layout_height="24dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp" />
-        <Button
-            local:MvxBind="Click BackCommand"
-            android:background="@drawable/timer_dark"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="end" />
-    </android.support.v7.widget.Toolbar>
+        android:layout_height="wrap_content" />
 </android.support.design.widget.CoordinatorLayout>
