@@ -96,8 +96,9 @@ namespace Toggl.Daneel.ViewControllers
             prepareOnboarding();
 
             var suggestionsView = new SuggestionsView();
+			var ratingView = RatingView.Create();
 
-            TimeEntriesLogTableView.TableHeaderView = suggestionsView;
+			TimeEntriesLogTableView.TableHeaderView = ratingView;
             TimeEntriesLogTableView.Source = source;
 
             suggestionsView.DataContext = ViewModel.SuggestionsViewModel;
