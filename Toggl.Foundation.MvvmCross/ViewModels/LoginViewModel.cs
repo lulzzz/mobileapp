@@ -23,8 +23,6 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         public const int EmailPage = 0;
         public const int PasswordPage = 1;
         public const int ForgotPasswordPage = 2;
-        public const string PrivacyPolicyUrl = "https://toggl.com/legal/privacy";
-        public const string TermsOfServiceUrl = "https://toggl.com/legal/terms";
 
         private readonly ILoginManager loginManager;
         private readonly IOnboardingStorage onboardingStorage;
@@ -61,6 +59,10 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         public Email Email { get; set; } = Email.Empty;
 
         public Password Password { get; set; } = Password.Empty;
+
+        public bool TermsAccepted { get; set; } = false;
+
+        public int? CountryId { get; set; } = null;
 
         public string InfoText { get; set; } = "";
 
@@ -196,12 +198,12 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         private void openTermsOfServiceCommand() =>
             navigationService.Navigate<BrowserViewModel, BrowserParameters>(
-                BrowserParameters.WithUrlAndTitle(TermsOfServiceUrl, Resources.TermsOfService)
+                BrowserParameters.WithUrlAndTitle(Resources.TermsOfServiceUrl, Resources.TermsOfService)
             );
 
         private void openPrivacyPolicyCommand() =>
             navigationService.Navigate<BrowserViewModel, BrowserParameters>(
-                BrowserParameters.WithUrlAndTitle(PrivacyPolicyUrl, Resources.PrivacyPolicy)
+                BrowserParameters.WithUrlAndTitle(Resources.PrivacyPolicyUrl, Resources.PrivacyPolicy)
             );
 
         private void next()
@@ -227,6 +229,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             if (IsSignUp)
             {
                 validatePassword();
+                validateCountryId();
             }
         }
 
@@ -239,6 +242,18 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
                 : Resources.SignUpPasswordRequirements;
 
             RaisePropertyChanged(nameof(InfoText));
+        }
+
+        private void validateCountryId()
+        {
+            if (!CountryId.HasValue)
+            {
+                IsErrorText = true;
+                InfoText = Resources.SignUpCountryRequired;
+
+                RaisePropertyChanged(nameof(IsErrorText));
+                RaisePropertyChanged(nameof(InfoText));
+            }
         }
 
         private void resetPassword()
@@ -331,13 +346,16 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         private void signUp()
         {
-            IsLoading = true;
+            if (CountryId != null)
+            {
+                IsLoading = true;
 
-            loginDisposable =
-                loginManager
-                    .SignUp(Email, Password)
-                    .Do(_ => analyticsService.TrackSignUpEvent(AuthenticationMethod.EmailAndPassword))
-                    .Subscribe(onDataSource, onError, onCompleted);
+                loginDisposable =
+                    loginManager
+                        .SignUp(Email, Password, TermsAccepted, CountryId.Value)
+                        .Do(_ => analyticsService.TrackSignUpEvent(AuthenticationMethod.EmailAndPassword))
+                        .Subscribe(onDataSource, onError, onCompleted);
+            }
         }
 
         private async Task startPasswordManager()

@@ -45,13 +45,14 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                     PlatformConstants,
                     UserPreferences,
                     OnboardingStorage,
-                    NavigationService);
+                    NavigationService,
+                    AnalyticsService);
         }
 
         public sealed class TheConstructor : SettingsViewModelTest
         {
             [Theory, LogIfTooSlow]
-            [ClassData(typeof(NineParameterConstructorTestData))]
+            [ClassData(typeof(TenParameterConstructorTestData))]
             public void ThrowsIfAnyOfTheArgumentsIsNull(
                 bool useUserAgent,
                 bool useDataSource,
@@ -61,7 +62,9 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 bool usePlatformConstants,
                 bool useUserPreferences,
                 bool useOnboardingStorage,
-                bool useNavigationService)
+                bool useNavigationService,
+                bool useAnalyticsService
+            )
             {
                 var userAgent = useUserAgent ? UserAgent : null;
                 var dataSource = useDataSource ? DataSource : null;
@@ -72,6 +75,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 var navigationService = useNavigationService ? NavigationService : null;
                 var platformConstants = usePlatformConstants ? PlatformConstants : null;
                 var interactorFactory = useInteractorFactory ? InteractorFactory : null;
+                var analyticsService = useAnalyticsService ? AnalyticsService : null;
 
                 Action tryingToConstructWithEmptyParameters =
                     () => new SettingsViewModel(
@@ -83,7 +87,8 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                         platformConstants,
                         userPreferences,
                         onboardingStorage,
-                        navigationService);
+                        navigationService,
+                        analyticsService);
 
                 tryingToConstructWithEmptyParameters
                     .ShouldThrow<ArgumentNullException>();
@@ -314,6 +319,15 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 ViewModel.IsLoggingOut.Should().BeTrue();
                 await DataSource.Received().Logout();
                 await NavigationService.Received().Navigate<OnboardingViewModel>();
+            }
+
+            [Fact, LogIfTooSlow]
+            public async Task TracksLogoutEvent()
+            {
+                doNotShowConfirmationDialog();
+                await ViewModel.LogoutCommand.ExecuteAsync();
+
+                AnalyticsService.Received().TrackLogoutEvent(Analytics.LogoutSource.Settings);
             }
 
             private void doNotShowConfirmationDialog()

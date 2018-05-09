@@ -379,6 +379,11 @@
     <Compile Include="Tiles\NewTimeEntryTileService.cs" />
     <Compile Include="Views\TagsListRecyclerView.cs" />
     <Compile Include="TemplateSelectors\TagsListTemplateSelector.cs" />
+    <Compile Include="Fragments\SelectTimeFragment.cs" />
+    <Compile Include="Adapters\SelectTimePagerAdapter.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Views\TogglDroidTimePicker.cs" />
+    <Compile Include="Fragments\TabHeaderUpdateManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\AndroidManifest.xml" />
@@ -679,6 +684,11 @@
     <AndroidResource Include="Resources\layout\TokenResetActivity.axml" />
     <AndroidResource Include="Resources\layout\EditTimeEntryTagCell.axml" />
     <AndroidResource Include="Resources\drawable\EditTextWhiteCursor.xml" />
+    <AndroidResource Include="Resources\layout\SelectTimeFragment.axml" />
+    <AndroidResource Include="Resources\layout\SelectTimeDurationPage.axml" />
+    <AndroidResource Include="Resources\layout\SelectStopDateTimeEditorPage.axml" />
+    <AndroidResource Include="Resources\layout\SelectDateTimeTabHeader.axml" />
+    <AndroidResource Include="Resources\layout\SelectStartDateTimeEditorPage.axml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Toggl.Foundation\Toggl.Foundation.csproj">

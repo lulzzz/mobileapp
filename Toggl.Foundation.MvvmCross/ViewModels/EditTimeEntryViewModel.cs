@@ -166,6 +166,8 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         public IMvxAsyncCommand EditDurationCommand { get; }
 
+        public IMvxAsyncCommand<string> SelectTimeCommand { get; }
+
         public IMvxAsyncCommand SelectStartTimeCommand { get; }
 
         public IMvxAsyncCommand SelectEndTimeCommand { get; }
@@ -217,6 +219,8 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             SelectTagsCommand = new MvxAsyncCommand(selectTags);
             DismissSyncErrorMessageCommand = new MvxCommand(dismissSyncErrorMessageCommand);
             ToggleBillableCommand = new MvxCommand(toggleBillable);
+
+            SelectTimeCommand = new MvxAsyncCommand<string>(selectTime);
         }
 
         public override void Prepare(long parameter)
@@ -342,6 +346,23 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             StartTime = await navigationService
                 .Navigate<SelectDateTimeViewModel, DateTimePickerParameters, DateTimeOffset>(parameters)
                 .ConfigureAwait(false);
+        }
+
+        private async Task selectTime(string bindingString)
+        {
+            var parameters = 
+                SelectTimeParameters
+                .CreateFromBindingString(bindingString, StartTime, StopTime);
+
+            var data = await navigationService
+                .Navigate<SelectTimeViewModel, SelectTimeParameters, SelectTimeResultsParameters>(parameters)
+                .ConfigureAwait(false);
+
+            if (data == null)
+                return;
+
+            StartTime = data.Start;
+            StopTime = data.Stop;
         }
 
         private void stopTimeEntry()
