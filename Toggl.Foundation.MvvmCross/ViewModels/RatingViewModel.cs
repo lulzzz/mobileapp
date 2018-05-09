@@ -11,38 +11,44 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
     [Preserve(AllMembers = true)]
     public sealed class RatingViewModel : MvxViewModel
     {
-
-        public bool GotAnswer { get; private set; }
+        public bool GotImpression { get; private set; }
 
         private readonly ITogglDataSource dataSource;
         private IDisposable emptyDatabaseDisposable;
 
-        public MvxAsyncCommand<bool> ProcessAnswerCommand { get; set; }
+        public MvxCommand<bool> RegisterImpressionCommand { get; set; }
+        public MvxCommand LeaveReviewCommand { get; set; }
+        public MvxCommand DismissViewCommand { get; set; }
 
         public RatingViewModel(ITogglDataSource dataSource)
         {
             Ensure.Argument.IsNotNull(dataSource, nameof(dataSource));
             this.dataSource = dataSource;
+            GotImpression = false;
 
-            this.GotAnswer = false;
-
-            ProcessAnswerCommand = new MvxAsyncCommand<bool>(processAnswer);
+            RegisterImpressionCommand = new MvxCommand<bool>(registerImpression);
+            LeaveReviewCommand = new MvxCommand(leaveReview);
+            DismissViewCommand = new MvxCommand(dismiss);
         }
 
         public async override Task Initialize()
         {
             await base.Initialize();
-
-            //emptyDatabaseDisposable = dataSource
-            //.TimeEntries
-            //.IsEmpty
-            //.FirstAsync()
-            //.Subscribe();
         }
 
-        private async Task processAnswer(bool answer)
+        private void registerImpression(bool isPositive)
         {
-            GotAnswer = true;
+            GotImpression = true;
+        }
+
+        private void leaveReview()
+        {
+            GotImpression = false;
+        }
+
+        private void dismiss()
+        {
+            GotImpression = true;
         }
     }
 }

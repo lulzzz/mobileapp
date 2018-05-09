@@ -15,7 +15,9 @@ namespace Toggl.Daneel
 {
     public partial class RatingView : MvxView
     {
-        public IMvxCommand<bool> AnswerTappedCommand { get; set; }
+        public IMvxCommand CTATappedCommand { get; set; }
+        public IMvxCommand DismissTappedCommand { get; set; }
+        public IMvxCommand<bool> ImpressionTappedCommand { get; set; }
 
         public RatingView (IntPtr handle) : base (handle)
         {
@@ -24,10 +26,7 @@ namespace Toggl.Daneel
         public static RatingView Create()
         {
             var arr = NSBundle.MainBundle.LoadNib(nameof(RatingView), null, null);
-            var view = Runtime.GetNSObject<RatingView>(arr.ValueAt(0));
-            view.AutoresizingMask = UIViewAutoresizing.FlexibleWidth;
-            view.TranslatesAutoresizingMaskIntoConstraints = true;
-            return view;
+            return Runtime.GetNSObject<RatingView>(arr.ValueAt(0));
         }
 
         public override void MovedToSuperview()
@@ -35,33 +34,46 @@ namespace Toggl.Daneel
             base.MovedToSuperview();
 
             var inverseBoolConverter = new BoolToConstantValueConverter<bool>(false, true);
-            var boolToHeightConverter = new BoolToConstantValueConverter<nfloat>(209, 236);
+            var boolToHeightConverter = new BoolToConstantValueConverter<nfloat>(289, 262);
             var bindingSet = this.CreateBindingSet<RatingView, RatingViewModel>();
+
+            var heightConstraint = HeightAnchor.ConstraintEqualTo(1);
+            heightConstraint.Active = true;
 
             bindingSet.Bind(QuestionView)
                       .For(v => v.BindVisibility())
-                      .To(vm => vm.GotAnswer);
+                      .To(vm => vm.GotImpression);
 
             bindingSet.Bind(CTAView)
                       .For(v => v.BindVisibility())
-                      .To(vm => vm.GotAnswer)
+                      .To(vm => vm.GotImpression)
                       .WithConversion(inverseBoolConverter);
-
-            bindingSet.Bind(HeightConstraint)
+            
+            bindingSet.Bind(heightConstraint)
                       .For(v => v.BindConstant())
-                      .To(vm => vm.GotAnswer)
+                      .To(vm => vm.GotImpression)
                       .WithConversion(boolToHeightConverter);
 
             bindingSet.Apply();
 
             YesView.AddGestureRecognizer(new UITapGestureRecognizer(() =>
             {
-                AnswerTappedCommand?.Execute(true);
+                ImpressionTappedCommand?.Execute(true);
             }));
 
             NotReallyView.AddGestureRecognizer(new UITapGestureRecognizer(() =>
             {
-                AnswerTappedCommand?.Execute(false);
+                ImpressionTappedCommand?.Execute(false);
+            }));
+
+            CTAButton.AddGestureRecognizer(new UITapGestureRecognizer(() =>
+            {
+                CTATappedCommand?.Execute();
+            }));
+
+            DismissButton.AddGestureRecognizer(new UITapGestureRecognizer(() =>
+            {
+                DismissTappedCommand?.Execute();
             }));
         }
 

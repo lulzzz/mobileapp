@@ -97,6 +97,8 @@ namespace Toggl.Daneel.ViewControllers
 
             var suggestionsView = new SuggestionsView();
 			var ratingView = RatingView.Create();
+            ratingView.AutoresizingMask = UIViewAutoresizing.FlexibleWidth;
+            ratingView.TranslatesAutoresizingMaskIntoConstraints = true;
 
 			TimeEntriesLogTableView.TableHeaderView = ratingView;
             TimeEntriesLogTableView.Source = source;
@@ -150,15 +152,15 @@ namespace Toggl.Daneel.ViewControllers
             bindingSet.Bind(CurrentTimeEntryCard)
                       .For(v => v.BindTap())
                       .To(vm => vm.EditTimeEntryCommand);
-            
+
             bindingSet.Bind(source)
                       .For(v => v.SelectionChangedCommand)
                       .To(vm => vm.TimeEntriesLogViewModel.EditCommand);
-            
+
             bindingSet.Bind(source)
                       .For(v => v.ContinueTimeEntryCommand)
                       .To(vm => vm.TimeEntriesLogViewModel.ContinueTimeEntryCommand);
-            
+
             bindingSet.Bind(source)
                       .For(v => v.RefreshCommand)
                       .To(vm => vm.RefreshCommand);
@@ -171,9 +173,17 @@ namespace Toggl.Daneel.ViewControllers
                       .For(v => v.SuggestionTappedCommad)
                       .To(vm => vm.SuggestionsViewModel.StartTimeEntryCommand);
 
+            bindingSet.Bind(ratingView)
+                      .For(v => v.ImpressionTappedCommand)
+                      .To(vm => vm.RatingViewModel.RegisterImpressionCommand);
+
+            bindingSet.Bind(ratingView)
+                      .For(v => v.CTATappedCommand)
+                      .To(vm => vm.RatingViewModel.LeaveReviewCommand);
+
 			bindingSet.Bind(ratingView)
-					  .For(v => v.AnswerTappedCommand)
-					  .To(vm => vm.RatingViewModel.ProcessAnswerCommand);
+					  .For(v => v.DismissTappedCommand)
+					  .To(vm => vm.RatingViewModel.DismissViewCommand);
 
             //Visibility
             bindingSet.Bind(WelcomeBackView)
