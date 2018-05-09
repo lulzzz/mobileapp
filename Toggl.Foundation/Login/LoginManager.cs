@@ -24,6 +24,7 @@ namespace Toggl.Foundation.Login
         private readonly IAccessRestrictionStorage accessRestrictionStorage;
         private readonly Func<ITogglApi, ITogglDataSource> createDataSource;
         private readonly IScheduler scheduler;
+        private const int NumberOfRetriesBeforeGivingUpOnFetchingAUserWithApiToken = 2;
 
         public LoginManager(
             IApiFactory apiFactory,
@@ -60,19 +61,17 @@ namespace Toggl.Foundation.Login
 
             var credentials = Credentials.WithPassword(email, password);
 
-            return database
-                .Clear()
-                .SelectMany(_ => apiFactory.CreateApiWith(credentials).User.Get())
-                .Select(User.Clean)
-                .SelectMany(database.User.Create)
-                .Select(dataSourceFromUser)
-                .Do(shortcutCreator.OnLogin)
-                .DelayedConditionalRetry(2, 
-                    attempt => TimeSpan.FromSeconds(attempt == 1 ? 2 : 10), 
-                    exception => exception is UserIsMissingApiTokenException,
-                    scheduler);
+            return retryWhenUserIsMissingApiTokenException(
+                database
+                    .Clear()
+                    .SelectMany(_ => apiFactory.CreateApiWith(credentials).User.Get())
+                    .Select(User.Clean)
+                    .SelectMany(database.User.Create)
+                    .Select(dataSourceFromUser)
+                    .Do(shortcutCreator.OnLogin)
+            );
         }
-
+      
         public IObservable<ITogglDataSource> LoginWithGoogle()
             => database
                 .Clear()
@@ -92,18 +91,15 @@ namespace Toggl.Foundation.Login
             if (!password.IsValid)
                 throw new ArgumentException($"A valid {nameof(password)} must be provided when trying to signup");
 
-            return database
-                    .Clear()
-                    .SelectMany(_ => signUp(email, password, termsAccepted, countryId))
-                    .Select(User.Clean)
-                    .SelectMany(database.User.Create)
-                    .Select(dataSourceFromUser)
-                    .Do(shortcutCreator.OnLogin)
-                    .DelayedConditionalRetry(2, 
-                        attempt => TimeSpan.FromSeconds(attempt == 1 ? 2 : 10), 
-                        exception => exception is UserIsMissingApiTokenException,
-                        scheduler);
-                
+            return retryWhenUserIsMissingApiTokenException(database
+                .Clear()
+                .SelectMany(_ => signUp(email, password, termsAccepted, countryId))
+                .Select(User.Clean)
+                .SelectMany(database.User.Create)
+                .Select(dataSourceFromUser)
+                .Do(shortcutCreator.OnLogin)
+            );
+
         }
 
         public IObservable<ITogglDataSource> SignUpWithGoogle()
@@ -163,6 +159,21 @@ namespace Toggl.Foundation.Login
                 .CreateApiWith(Credentials.None)
                 .User
                 .SignUp(email, password, termsAccepted, countryId);
+        }
+
+        private IObservable<ITogglDataSource> retryWhenUserIsMissingApiTokenException(
+            IObservable<ITogglDataSource> observable)
+        {
+            return observable.DelayedConditionalRetry(
+                NumberOfRetriesBeforeGivingUpOnFetchingAUserWithApiToken,
+                backOffStrategyForDelayedRetry(),
+                exception => exception is UserIsMissingApiTokenException,
+                scheduler);
+        }
+
+        private Func<int, TimeSpan> backOffStrategyForDelayedRetry()
+        {
+            return attempt => TimeSpan.FromSeconds(attempt * 8 - 6);
         }
     }
 }
