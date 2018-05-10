@@ -7,7 +7,7 @@ using Toggl.PrimeRadiant.Models;
 namespace Toggl.Foundation.Tests.Mocks
 {
     public sealed class MockWorkspaceFeatureCollection : IDatabaseWorkspaceFeatureCollection
-    {   
+    {
         public IDatabaseWorkspace Workspace { get; set; }
 
         public IEnumerable<IDatabaseWorkspaceFeature> DatabaseFeatures { get; set; }
