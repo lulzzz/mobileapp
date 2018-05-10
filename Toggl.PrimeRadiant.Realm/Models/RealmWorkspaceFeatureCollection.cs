@@ -8,7 +8,7 @@ using Toggl.PrimeRadiant.Models;
 namespace Toggl.PrimeRadiant.Realm
 {
     internal partial class RealmWorkspaceFeatureCollection : RealmObject, IDatabaseWorkspaceFeatureCollection
-    {   
+    {
         [Ignored]
         public RealmWorkspace RealmWorkspace
         {

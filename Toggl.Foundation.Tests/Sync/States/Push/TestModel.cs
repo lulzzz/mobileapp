@@ -2,7 +2,7 @@
 using Toggl.PrimeRadiant;
 
 namespace Toggl.Foundation.Tests.Sync.States
-{   
+{
     public sealed class TestModel : IDatabaseSyncable, IIdentifiable
     {
         public long Id { get; set; }
