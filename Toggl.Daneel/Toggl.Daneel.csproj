@@ -922,6 +922,7 @@
     <Compile Include="Views\LoginTextField.cs" />
     <Compile Include="Binding\ButtonAnimatedTitleTargetBinding.cs" />
     <Compile Include="Binding\LoginTextFieldFirstResponderTargetBinding.cs" />
+    <Compile Include="ViewControllers\SyncFailuresViewController.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Toggl.Foundation.MvvmCross\Toggl.Foundation.MvvmCross.csproj">

@@ -20,8 +20,7 @@ namespace Toggl.Daneel.ViewControllers
 
         private const int verticalSpacing = 24;
 
-        public SettingsViewController() 
-            : base(nameof(SettingsViewController), null)
+        public SettingsViewController() : base()
         {
         }
 

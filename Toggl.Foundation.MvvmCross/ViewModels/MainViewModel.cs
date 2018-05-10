@@ -105,6 +105,8 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         public IMvxAsyncCommand OpenReportsCommand { get; }
 
+        public IMvxAsyncCommand OpenSyncFailuresCommand { get; }
+
         public IMvxCommand RefreshCommand { get; }
 
         public IMvxCommand ToggleManualMode { get; }
@@ -142,6 +144,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             RefreshCommand = new MvxCommand(refresh);
             OpenReportsCommand = new MvxAsyncCommand(openReports);
             OpenSettingsCommand = new MvxAsyncCommand(openSettings);
+            OpenSyncFailuresCommand = new MvxAsyncCommand(openSyncFailures);
             EditTimeEntryCommand = new MvxAsyncCommand(editTimeEntry, () => CurrentTimeEntryId.HasValue);
             StopTimeEntryCommand = new MvxAsyncCommand(stopTimeEntry, () => isStopButtonEnabled);
             StartTimeEntryCommand = new MvxAsyncCommand(startTimeEntry, () => CurrentTimeEntryId.HasValue == false);
@@ -257,6 +260,9 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             var user = await dataSource.User.Current;
             await navigationService.Navigate<ReportsViewModel, long>(user.DefaultWorkspaceId);
         }
+
+        private Task openSyncFailures()
+            => navigationService.Navigate<SyncFailuresViewModel>();
 
         private Task startTimeEntry()
         {
