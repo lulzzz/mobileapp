@@ -2,11 +2,14 @@
 using Foundation;
 using MvvmCross.Binding.BindingContext;
 using MvvmCross.Binding.iOS.Views;
+using Toggl.Foundation.MvvmCross.ViewModels;
 using UIKit;
+using MvvmCross.Binding.iOS;
+using MvvmCross.Plugins.Visibility;
 
 namespace Toggl.Daneel.Views.CountrySelection
 {
-    public partial class CountryViewCell : MvxTableViewCell
+	public partial class CountryViewCell : MvxTableViewCell
     {
         public static readonly NSString Key = new NSString(nameof(CountryViewCell));
         public static readonly UINib Nib;
@@ -27,9 +30,16 @@ namespace Toggl.Daneel.Views.CountrySelection
 
             this.DelayBind(() =>
             {
-                var bindingSet = this.CreateBindingSet<CountryViewCell, string>();
+				var visibilityConverter = new MvxVisibilityValueConverter();
 
-                bindingSet.Bind(NameLabel).To(vm => vm);
+				var bindingSet = this.CreateBindingSet<CountryViewCell, SelectableCountryViewModel>();
+
+				bindingSet.Bind(NameLabel).To(vm => vm.Country.Name);
+
+				bindingSet.Bind(CheckBoxImageView)
+                          .For(v => v.BindVisibility())
+				          .To(vm => vm.Selected)
+                          .WithConversion(visibilityConverter);
 
                 bindingSet.Apply();
             });

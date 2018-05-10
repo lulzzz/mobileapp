@@ -9,52 +9,63 @@ using Toggl.Multivac;
 using Toggl.Multivac.Models;
 using Toggl.Multivac.Extensions;
 using static Toggl.Multivac.Extensions.StringExtensions;
-using Toggl.Ultrawave;
+using Toggl.Foundation.Interactors;
+using System.Diagnostics.Contracts;
+using System;
 
 namespace Toggl.Foundation.MvvmCross.ViewModels
 {
     [Preserve(AllMembers = true)]
-    public sealed class SelectCountryViewModel : MvxViewModel<SelectCountryParameter, ICountry>
+    public sealed class SelectCountryViewModel : MvxViewModel<SelectCountryParameter, SelectCountryParameter>
     {
-        private readonly ITogglApi togglApi;
         private readonly IMvxNavigationService navigationService;
+        private readonly IInteractorFactory interactorFactory;
 
         private IEnumerable<ICountry> allCountries;
-        private long selectedCountryId;
+        private string selectedCountryCode;
 
         public IMvxAsyncCommand CloseCommand { get; }
 
-        public IMvxAsyncCommand<ICountry> SelectCountryCommand { get; }
+        public IMvxAsyncCommand<SelectableCountryViewModel> SelectCountryCommand { get; }
 
         public MvxObservableCollection<SelectableCountryViewModel> Suggestions { get; }
             = new MvxObservableCollection<SelectableCountryViewModel>();
 
         public string Text { get; set; } = "";
 
-        public SelectCountryViewModel(ITogglApi togglApi, IMvxNavigationService navigationService)
+        public SelectCountryViewModel(IInteractorFactory interactorFactory, IMvxNavigationService navigationService)
         {
-            Ensure.Argument.IsNotNull(togglApi, nameof(togglApi));
+            Ensure.Argument.IsNotNull(interactorFactory, nameof(interactorFactory));
             Ensure.Argument.IsNotNull(navigationService, nameof(navigationService));
 
-            this.togglApi = togglApi;
+            this.interactorFactory = interactorFactory;
             this.navigationService = navigationService;
 
             CloseCommand = new MvxAsyncCommand(close);
-            SelectCountryCommand = new MvxAsyncCommand<ICountry>(selectCountry);
+            SelectCountryCommand = new MvxAsyncCommand<SelectableCountryViewModel>(selectCountry);
         }
 
         public override async Task Initialize()
         {
+            Contract.Ensures(Contract.Result<Task>() != null);
             await base.Initialize();
 
-            allCountries = await togglApi.Countries.GetAll();
+            var countries = await interactorFactory.GetAllCountries().Execute();
+            countries = countries.ToList<ICountry>();
+         
+            var selectedElement = countries.Find(c => c.CountryCode == selectedCountryCode);
+            
+            countries.Remove(selectedElement);
+            countries.Insert(0, selectedElement);
 
-            Suggestions.AddRange(allCountries.Select(country => new SelectableCountryViewModel(country, false)));
+            allCountries = countries.AsEnumerable<ICountry>();
+            
+            Suggestions.AddRange(allCountries.Select(country => new SelectableCountryViewModel(country, country.CountryCode == selectedCountryCode)));
         }
 
         public override void Prepare(SelectCountryParameter parameter)
         {
-            selectedCountryId = parameter.SelectedCountryId;
+            selectedCountryCode = parameter.SelectedCountryCode;
         }
 
         private void OnTextChanged()
@@ -64,14 +75,14 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             Suggestions.AddRange(
                 allCountries
                     .Where(c => c.Name.ContainsIgnoringCase(text))
-                    .Select(c => new SelectableCountryViewModel(c, c.Id == selectedCountryId))
+                    .Select(c => new SelectableCountryViewModel(c, c.CountryCode == selectedCountryCode))
             );
         }
 
         private Task close()
-            => navigationService.Close<ICountry>(this, null);
+            => navigationService.Close<SelectCountryParameter>(this, null);
 
-        private async Task selectCountry(ICountry country)
-            => await navigationService.Close(this, country);
+        private async Task selectCountry(SelectableCountryViewModel vm)
+            => await navigationService.Close(this, SelectCountryParameter.With(vm.Country.Name, vm.Country.CountryCode));
     }
 }

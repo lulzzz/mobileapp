@@ -1,11 +1,13 @@
 ﻿using MvvmCross.Binding.BindingContext;
 using Toggl.Daneel.ViewSources;
+using Toggl.Daneel.Presentation.Attributes;
 using Toggl.Foundation.MvvmCross.Helper;
 using Toggl.Foundation.MvvmCross.ViewModels;
 using UIKit;
 
 namespace Toggl.Daneel.ViewControllers
 {
+    [ModalCardPresentation]
     public partial class SelectCountryViewController : KeyboardAwareViewController<SelectCountryViewModel>
     {
         public SelectCountryViewController() : base(nameof(SelectCountryViewController))

@@ -1,4 +1,4 @@
-﻿// WARNING
+// WARNING
 //
 // This file has been generated automatically by Visual Studio to store outlets and
 // actions made in the UI designer. If it is removed, they will be lost.
@@ -13,6 +13,9 @@ namespace Toggl.Daneel.Views.CountrySelection
 	partial class CountryViewCell
 	{
 		[Outlet]
+		UIKit.UIImageView CheckBoxImageView { get; set; }
+
+		[Outlet]
 		UIKit.UILabel NameLabel { get; set; }
 		
 		void ReleaseDesignerOutlets ()
@@ -20,6 +23,11 @@ namespace Toggl.Daneel.Views.CountrySelection
 			if (NameLabel != null) {
 				NameLabel.Dispose ();
 				NameLabel = null;
+			}
+
+			if (CheckBoxImageView != null) {
+				CheckBoxImageView.Dispose ();
+				CheckBoxImageView = null;
 			}
 		}
 	}
