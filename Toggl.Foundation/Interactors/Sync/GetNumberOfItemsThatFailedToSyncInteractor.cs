@@ -21,17 +21,22 @@ namespace Toggl.Foundation.Interactors
 
         public IObservable<int> Execute()
         {
-            var projects = database.Projects.GetAll();
-            var clients = database.Clients.GetAll();
-            var tags = database.Tags.GetAll();
+            var projects = database.Projects.GetAll().Select(failedToSync).Select((a) => a.Count());
+            var clients = database.Clients.GetAll().Select(failedToSync).Select((a) => a.Count());
+            var tags = database.Tags.GetAll().Select(failedToSync).Select((a) => a.Count());
 
-            return Observable.Empty<int>();
-                                   
+            return Observable.CombineLatest(
+                projects,
+                clients,
+                tags,
+                (projectsCount, clientsCount, tagsCount) => projectsCount + clientsCount + tagsCount);
         }
 
         private IEnumerable<IDatabaseSyncable> failedToSync(IEnumerable<IDatabaseSyncable> items)
         {
             return items.Where(p => p.SyncStatus == SyncStatus.SyncFailed);
         }
+
+
     }
 }

@@ -59,5 +59,11 @@ namespace Toggl.Foundation.Interactors
         IInteractor<IObservable<IEnumerable<IDatabaseTag>>> GetTagsThatFailedToSync();
 
         #endregion
+
+        #region Sync
+
+        IInteractor<IObservable<int>> GetNumberOfItemsThatFailedToSync();
+
+        #endregion
     }
 }
