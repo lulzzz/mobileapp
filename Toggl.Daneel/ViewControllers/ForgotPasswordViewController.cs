@@ -22,6 +22,8 @@ namespace Toggl.Daneel.ViewControllers
         private const int resetButtonBottomSpacing = 32;
         private const int distanceFromTop = 136;
 
+        private bool viewInitialized;
+
         public ForgotPasswordViewController() : base(nameof(ForgotPasswordViewController))
         {
         }
@@ -82,9 +84,13 @@ namespace Toggl.Daneel.ViewControllers
         {
             base.ViewDidLayoutSubviews();
 
+            if (viewInitialized) return;
+
+            viewInitialized = true;
+
             if (View.Frame.Height > iPhoneSeScreenHeight)
                 TopConstraint.Constant = distanceFromTop;
-
+            
             TopConstraint.AdaptForIos10(NavigationController?.NavigationBar);
         }
 
@@ -113,6 +119,12 @@ namespace Toggl.Daneel.ViewControllers
                 Color.Login.DisabledButtonColor.ToNativeColor(),
                 UIControlState.Disabled
             );
+
+            EmailTextField.ShouldReturn = _ =>
+            {
+                ViewModel.ResetCommand.Execute();
+                return false;
+            };
 
             ActivityIndicator.StartAnimation();
         }

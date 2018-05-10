@@ -48,7 +48,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             this.analyticsService = analyticsService;
             this.navigationService = navigationService;
 
-            ResetCommand = new MvxCommand(reset, () => Email.IsValid);
+            ResetCommand = new MvxCommand(reset, () => Email.IsValid && !IsLoading);
         }
 
         public override void Prepare(EmailParameter parameter)
@@ -69,6 +69,11 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         }
 
         private void OnEmailChanged()
+        {
+            ResetCommand.RaiseCanExecuteChanged();
+        }
+
+        private void OnIsLoadingChanged()
         {
             ResetCommand.RaiseCanExecuteChanged();
         }
