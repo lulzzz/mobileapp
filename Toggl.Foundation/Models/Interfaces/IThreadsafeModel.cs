@@ -1,6 +1,8 @@
-﻿namespace Toggl.Foundation.Models.Interfaces
+﻿using Toggl.PrimeRadiant.Models;
+
+namespace Toggl.Foundation.Models.Interfaces
 {
-    public interface IThreadsafeModel
+    public interface IThreadsafeModel : IDatabaseModel
     {
     }
 }

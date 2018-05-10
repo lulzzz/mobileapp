@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using Toggl.Foundation.Models.Interfaces;
 using Toggl.PrimeRadiant;
+using Toggl.PrimeRadiant.Models;
 
 namespace Toggl.Foundation.Extensions
 {
@@ -12,12 +13,12 @@ namespace Toggl.Foundation.Extensions
         public static IObservable<IEnumerable<IConflictResolutionResult<TThreadsafe>>> ToThreadSafeResult<TThreadsafe, TDatabase>(
             this IObservable<IEnumerable<IConflictResolutionResult<TDatabase>>> resultsObservable, Func<TDatabase, TThreadsafe> from)
             where TThreadsafe : IThreadsafeModel, TDatabase
-            where TDatabase : IDatabaseSyncable
-            => resultsObservable.Select(results => results.Select(result => result.ToThreadSafeResult(from)));
+            where TDatabase : IDatabaseModel
+            => resultsObservable.Select(results => results.Select(result => result.toThreadSafeResult(from)));
 
-        public static IConflictResolutionResult<TThreadsafe> ToThreadSafeResult<TThreadsafe, TDatabase>(this IConflictResolutionResult<TDatabase> result, Func<TDatabase, TThreadsafe> from)
+        private static IConflictResolutionResult<TThreadsafe> toThreadSafeResult<TThreadsafe, TDatabase>(this IConflictResolutionResult<TDatabase> result, Func<TDatabase, TThreadsafe> from)
             where TThreadsafe : IThreadsafeModel, TDatabase
-            where TDatabase : IDatabaseSyncable
+            where TDatabase : IDatabaseModel
         {
             switch (result)
             {
