@@ -9,11 +9,12 @@ using Toggl.Foundation.Models.Interfaces;
 using Toggl.Multivac;
 using Toggl.Multivac.Models;
 using Toggl.PrimeRadiant;
+using Toggl.PrimeRadiant.Models;
 
 namespace Toggl.Foundation.DataSources
 {
     public abstract class DataSource<T, U> : IDataSource<T, U>
-        where U : IDatabaseSyncable
+        where U : IDatabaseModel
         where T : IThreadsafeModel, IIdentifiable, U
     {
         protected readonly IRepository<U> Repository;

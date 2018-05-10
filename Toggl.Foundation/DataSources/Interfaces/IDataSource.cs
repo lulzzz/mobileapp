@@ -7,7 +7,6 @@ using Toggl.PrimeRadiant;
 namespace Toggl.Foundation.DataSources.Interfaces
 {
     public interface IDataSource<TThreadsafe, TDatabase>
-        where TDatabase : IDatabaseSyncable
         where TThreadsafe : IThreadsafeModel, TDatabase
     {
         IObservable<TThreadsafe> GetById(long id);
