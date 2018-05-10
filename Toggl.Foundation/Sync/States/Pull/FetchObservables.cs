@@ -7,7 +7,7 @@ using Toggl.PrimeRadiant.Models;
 namespace Toggl.Foundation.Sync.States
 {
     internal sealed class FetchObservables
-    {   
+    {
         public IObservable<IUser> User { get; }
 
         public IObservable<List<IWorkspace>> Workspaces { get; }

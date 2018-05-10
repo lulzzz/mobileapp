@@ -42,8 +42,7 @@ namespace Toggl.Foundation.Sync.States
         public IObservable<ITransition> Start(FetchObservables fetch)
             => fetch.GetByType<TInterface>()
                 .SingleAsync()
-                .Select(entities => entities?.ToList() ?? new List<TInterface>())
-                .Select(entities => entities.Select(convertToThreadsafeEntity).ToList())
+                .Select(entities => entities?.Select(convertToThreadsafeEntity) ?? new List<TThreadsafeInterface>())
                 .SelectMany(threadsafeEntities =>
                     dataSource.BatchUpdate(threadsafeEntities)
                         .IgnoreElements()
