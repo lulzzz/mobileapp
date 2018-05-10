@@ -3,7 +3,7 @@ using Toggl.Multivac.Models;
 
 namespace Toggl.PrimeRadiant.Models
 {
-    public interface IDatabaseWorkspaceFeatureCollection : IWorkspaceFeatureCollection, IDatabaseModel, IIdentifiable
+    public interface IDatabaseWorkspaceFeatureCollection : IWorkspaceFeatureCollection, IDatabaseModel
     {
         IDatabaseWorkspace Workspace { get; }
 

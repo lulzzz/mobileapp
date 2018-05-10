@@ -9,16 +9,10 @@ namespace Toggl.Foundation.Models
     {
         public long Id => WorkspaceId;
 
-        public SyncStatus SyncStatus => SyncStatus.InSync;
-
-        public string LastSyncErrorMessage => null;
-
-        public bool IsDeleted => false;
+        public static WorkspaceFeatureCollection From(IWorkspaceFeatureCollection entity)
+            => new WorkspaceFeatureCollection(entity);
 
         public bool IsEnabled(WorkspaceFeatureId feature)
             => Features.Any(x => x.FeatureId == feature);
-
-        public static WorkspaceFeatureCollection From(IWorkspaceFeatureCollection entity)
-            => new WorkspaceFeatureCollection(entity);
     }
 }

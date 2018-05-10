@@ -25,8 +25,11 @@ namespace Toggl.Foundation.Models.Interfaces
         var className = interfaceName.Substring(1, interfaceName.Length - 1);
         
         var databaseInterfaceName = $"IDatabase{className}";
-        var databaseInterfaceFileName = Path.Combine(filePath, "../../Toggl.PrimeRadiant/Models/", databaseInterfaceName + ".cs");
+        var databaseInterfaceFileName = Path.Combine(filePath, "../../../Toggl.PrimeRadiant/Models/", databaseInterfaceName + ".cs");
         var databaseInterfaceExists = File.Exists(databaseInterfaceFileName);
+
+        if (!databaseInterfaceExists)
+            continue;
 
         var implementsIDatabaseSyncable = databaseInterfaceExists
             && File.ReadAllLines(databaseInterfaceFileName).Any(l => l.Contains("IDatabaseSyncable"));
@@ -34,7 +37,7 @@ namespace Toggl.Foundation.Models.Interfaces
         if (!isFirstClass)
             WriteLine("");
 
-        WriteLine($"    public interface IThreadsafe{className}");
+        WriteLine($"    public partial interface IThreadsafe{className}");
         WriteLine($"        : IThreadsafeModel, {databaseInterfaceName}");
         WriteLine( "    {");
         WriteLine( "    }");

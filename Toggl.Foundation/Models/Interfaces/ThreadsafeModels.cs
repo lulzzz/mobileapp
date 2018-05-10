@@ -1,53 +1,53 @@
-﻿using Toggl.PrimeRadiant.Models;
+﻿﻿using Toggl.PrimeRadiant.Models;
 
 namespace Toggl.Foundation.Models.Interfaces
 {
-    public interface IThreadsafeClient
+    public partial interface IThreadsafeClient
         : IThreadsafeModel, IDatabaseClient
     {
     }
 
-    public interface IThreadsafePreferences
+    public partial interface IThreadsafePreferences
         : IThreadsafeModel, IDatabasePreferences
     {
     }
 
-    public interface IThreadsafeProject
+    public partial interface IThreadsafeProject
         : IThreadsafeModel, IDatabaseProject
     {
     }
 
-    public interface IThreadsafeTag
+    public partial interface IThreadsafeTag
         : IThreadsafeModel, IDatabaseTag
     {
     }
 
-    public interface IThreadsafeTask
+    public partial interface IThreadsafeTask
         : IThreadsafeModel, IDatabaseTask
     {
     }
 
-    public interface IThreadsafeTimeEntry
+    public partial interface IThreadsafeTimeEntry
         : IThreadsafeModel, IDatabaseTimeEntry
     {
     }
 
-    public interface IThreadsafeUser
+    public partial interface IThreadsafeUser
         : IThreadsafeModel, IDatabaseUser
     {
     }
 
-    public interface IThreadsafeWorkspace
+    public partial interface IThreadsafeWorkspace
         : IThreadsafeModel, IDatabaseWorkspace
     {
     }
 
-    public interface IThreadsafeWorkspaceFeature
+    public partial interface IThreadsafeWorkspaceFeature
         : IThreadsafeModel, IDatabaseWorkspaceFeature
     {
     }
 
-    public interface IThreadsafeWorkspaceFeatureCollection
+    public partial interface IThreadsafeWorkspaceFeatureCollection
         : IThreadsafeModel, IDatabaseWorkspaceFeatureCollection
     {
     }
