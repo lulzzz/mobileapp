@@ -730,5 +730,11 @@ namespace Toggl.Foundation {
                 return ResourceManager.GetString("SignUpCountryRequired", resourceCulture);
             }
         }
+        
+        public static string GetPasswordResetLink {
+            get {
+                return ResourceManager.GetString("GetPasswordResetLink", resourceCulture);
+            }
+        }
     }
 }

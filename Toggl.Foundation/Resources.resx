@@ -363,4 +363,7 @@ account is not set up</value>
     <data name="SignUpCountryRequired">
         <value>Please select your country.</value>
     </data>
+    <data name="GetPasswordResetLink">
+        <value>Get password reset link</value>
+    </data>
 </root>

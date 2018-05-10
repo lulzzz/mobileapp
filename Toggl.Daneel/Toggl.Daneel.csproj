@@ -482,6 +482,10 @@
     <ImageAsset Include="Resources\Images.xcassets\icOnePassword.imageset\passwordman.png" />
     <ImageAsset Include="Resources\Images.xcassets\icOnePassword.imageset\passwordman%402x.png" />
     <ImageAsset Include="Resources\Images.xcassets\icOnePassword.imageset\passwordman%403x.png" />
+    <ImageAsset Include="Resources\Images.xcassets\confirmation.imageset\Contents.json" />
+    <ImageAsset Include="Resources\Images.xcassets\confirmation.imageset\confirmation.png" />
+    <ImageAsset Include="Resources\Images.xcassets\confirmation.imageset\confirmation%402x.png" />
+    <ImageAsset Include="Resources\Images.xcassets\confirmation.imageset\confirmation%403x.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
@@ -538,6 +542,7 @@
     <InterfaceDefinition Include="Views\Settings\LicensesViewCell.xib" />
     <InterfaceDefinition Include="Views\Log\TimeEntriesEmptyLogView.xib" />
     <InterfaceDefinition Include="Views\Log\TimeEntryMockView.xib" />
+    <InterfaceDefinition Include="ViewControllers\ForgotPasswordViewController.xib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -900,6 +905,10 @@
     <Compile Include="Views\LoginTextField.cs" />
     <Compile Include="Binding\ButtonAnimatedTitleTargetBinding.cs" />
     <Compile Include="Binding\LoginTextFieldFirstResponderTargetBinding.cs" />
+    <Compile Include="ViewControllers\ForgotPasswordViewController.cs" />
+    <Compile Include="ViewControllers\ForgotPasswordViewController.designer.cs">
+      <DependentUpon>ForgotPasswordViewController.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Toggl.Foundation.MvvmCross\Toggl.Foundation.MvvmCross.csproj">
@@ -963,6 +972,7 @@
     <Folder Include="Resources\Images.xcassets\bike.imageset\" />
     <Folder Include="Resources\Images.xcassets\togglLogoBig.imageset\" />
     <Folder Include="Resources\Images.xcassets\icGoogleColored.imageset\" />
+    <Folder Include="Resources\Images.xcassets\confirmation.imageset\" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="GoogleService-Info.plist" />

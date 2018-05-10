@@ -8,6 +8,7 @@ using Toggl.Foundation.Analytics;
 using Toggl.Foundation.DataSources;
 using Toggl.Foundation.Exceptions;
 using Toggl.Foundation.Login;
+using Toggl.Foundation.MvvmCross.Parameters;
 using Toggl.Foundation.MvvmCross.Services;
 using Toggl.Foundation.Services;
 using Toggl.Multivac;
@@ -53,9 +54,9 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         public IMvxCommand GoogleLoginCommand { get; }
 
-        public IMvxCommand ForgotPasswordCommand { get; }
-
         public IMvxCommand TogglePasswordVisibilityCommand { get; }
+
+        public IMvxAsyncCommand ForgotPasswordCommand { get; }
 
         public IMvxAsyncCommand StartPasswordManagerCommand { get; }
 
@@ -82,8 +83,8 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             this.apiErrorHandlingService = apiErrorHandlingService;
 
             GoogleLoginCommand = new MvxCommand(googleLogin);
-            ForgotPasswordCommand = new MvxCommand(forgotPassword);
             LoginCommand = new MvxCommand(login, () => LoginEnabled);
+            ForgotPasswordCommand = new MvxAsyncCommand(forgotPassword);
             TogglePasswordVisibilityCommand = new MvxCommand(togglePasswordVisibility);
             StartPasswordManagerCommand = new MvxAsyncCommand(startPasswordManager, () => IsPasswordManagerAvailable);
         }
@@ -174,8 +175,14 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         private void togglePasswordVisibility()
            => IsPasswordMasked = !IsPasswordMasked;
 
-        private void forgotPassword()
+        private Task forgotPassword()
         {
+            if (!Email.Equals(Email.Empty))
+            {
+                var parameter = EmailParameter.With(Email);
+                return navigationService.Navigate<ForgotPasswordViewModel, EmailParameter>(parameter);
+            }
+            return navigationService.Navigate<ForgotPasswordViewModel>();
         }
 
         private void googleLogin()
