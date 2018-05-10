@@ -2,56 +2,56 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using Toggl.Foundation.Sync.ConflictResolution;
 using Toggl.Multivac.Models;
 using Toggl.PrimeRadiant;
-using Toggl.PrimeRadiant.Models;
+using Toggl.Foundation.DataSources.Interfaces;
+using Toggl.Foundation.Models.Interfaces;
+using Toggl.Multivac;
 using Toggl.Ultrawave.Exceptions;
 
 namespace Toggl.Foundation.Sync.States
 {
-    internal abstract class BasePersistState<TInterface, TDatabaseInterface>
+    internal sealed class PersistState<TInterface, TDatabaseInterface, TThreadsafeInterface>
         where TDatabaseInterface : TInterface
+        where TThreadsafeInterface : TDatabaseInterface, IThreadsafeModel
     {
-        private readonly IRepository<TDatabaseInterface> repository;
+        private readonly IDataSource<TThreadsafeInterface, TDatabaseInterface> dataSource;
 
         private readonly ISinceParameterRepository sinceParameterRepository;
 
-        private readonly IConflictResolver<TDatabaseInterface> conflictResolver;
-
-        private readonly IRivalsResolver<TDatabaseInterface> rivalsResolver;
+        private readonly Func<TInterface, TThreadsafeInterface> convertToThreadsafeEntity;
 
         public StateResult<FetchObservables> FinishedPersisting { get; } = new StateResult<FetchObservables>();
 
         public StateResult<Exception> Failed { get; } = new StateResult<Exception>();
 
-        protected BasePersistState(
-            IRepository<TDatabaseInterface> repository,
+        public PersistState(
+            IDataSource<TThreadsafeInterface, TDatabaseInterface> dataSource,
             ISinceParameterRepository sinceParameterRepository,
-            IConflictResolver<TDatabaseInterface> conflictResolver,
-            IRivalsResolver<TDatabaseInterface> rivalsResolver = null)
+            Func<TInterface, TThreadsafeInterface> convertToThreadsafeEntity)
         {
-            this.repository = repository;
+            Ensure.Argument.IsNotNull(dataSource, nameof(dataSource));
+            Ensure.Argument.IsNotNull(sinceParameterRepository, nameof(sinceParameterRepository));
+            Ensure.Argument.IsNotNull(convertToThreadsafeEntity, nameof(convertToThreadsafeEntity));
+            
+            this.dataSource = dataSource;
             this.sinceParameterRepository = sinceParameterRepository;
-            this.conflictResolver = conflictResolver;
-            this.rivalsResolver = rivalsResolver;
+            this.convertToThreadsafeEntity = convertToThreadsafeEntity;
         }
 
         public IObservable<ITransition> Start(FetchObservables fetch)
-        {
-            return FetchObservable(fetch)
+            => fetch.GetByType<TInterface>()
                 .SingleAsync()
-                .Select(entities => entities ?? new List<TInterface>())
-                .Select(entities => entities.Select(ConvertToDatabaseEntity).ToList())
-                .SelectMany(databaseEntities =>
-                    repository.BatchUpdate(databaseEntities.Select(entity => (GetId(entity), entity)), conflictResolver.Resolve, rivalsResolver)
+                .Select(entities => entities?.ToList() ?? new List<TInterface>())
+                .Select(entities => entities.Select(convertToThreadsafeEntity).ToList())
+                .SelectMany(threadsafeEntities =>
+                    dataSource.BatchUpdate(threadsafeEntities)
                         .IgnoreElements()
-                        .OfType<List<TDatabaseInterface>>()
-                        .Concat(Observable.Return(databaseEntities)))
+                        .OfType<List<TThreadsafeInterface>>()
+                        .Concat(Observable.Return(threadsafeEntities)))
                 .Do(maybeUpdateSinceDates)
                 .Select(_ => FinishedPersisting.Transition(fetch))
                 .Catch((Exception exception) => processError(exception));
-        }
 
         private IObservable<ITransition> processError(Exception exception)
             => shouldRethrow(exception)
@@ -61,7 +61,7 @@ namespace Toggl.Foundation.Sync.States
         private bool shouldRethrow(Exception e)
             => e is ApiException == false || e is ApiDeprecatedException || e is ClientDeprecatedException || e is UnauthorizedException;
 
-        private void maybeUpdateSinceDates(IEnumerable<TDatabaseInterface> entities)
+        private void maybeUpdateSinceDates(IEnumerable<TThreadsafeInterface> entities)
         {
             if (sinceParameterRepository.Supports<TDatabaseInterface>())
             {   
@@ -75,11 +75,5 @@ namespace Toggl.Foundation.Sync.States
                 }
             }
         }
-
-        protected abstract long GetId(TDatabaseInterface entity);
-
-        protected abstract IObservable<IEnumerable<TInterface>> FetchObservable(FetchObservables fetch);
-
-        protected abstract TDatabaseInterface ConvertToDatabaseEntity(TInterface entity);
     }
 }
