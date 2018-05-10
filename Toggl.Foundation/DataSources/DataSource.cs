@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 using Toggl.Foundation.DataSources.Interfaces;
 using Toggl.Foundation.Extensions;
 using Toggl.Foundation.Models.Interfaces;
+using Toggl.Foundation.Sync.ConflictResolution;
 using Toggl.Multivac;
 using Toggl.Multivac.Models;
 using Toggl.PrimeRadiant;
@@ -44,7 +45,17 @@ namespace Toggl.Foundation.DataSources
 
         public virtual IObservable<Unit> Delete(long id)
             => Repository.Delete(id);
-        
+
+        public virtual IObservable<IConflictResolutionResult<T>> UpdateWithConflictResolution(
+            long id,
+            T entity,
+            IConflictResolver<U> conflictResolver = null,
+            IRivalsResolver<U> rivalsResolver = null)
+        {
+            var conflictResolution = conflictResolver != null ? (Func<U, U, ConflictResolutionMode>)conflictResolver.Resolve : ResolveConflicts;
+            return Repository.UpdateWithConflictResolution(id, entity, conflictResolution, rivalsResolver);
+        }
+
         public virtual IObservable<IEnumerable<IConflictResolutionResult<T>>> BatchUpdate(IEnumerable<T> entities)
             => Repository.BatchUpdate(
                     convertEntitiesForBatchUpdate(entities),

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reactive;
 using Toggl.Foundation.Models.Interfaces;
+using Toggl.Foundation.Sync.ConflictResolution;
 using Toggl.PrimeRadiant;
 
 namespace Toggl.Foundation.DataSources.Interfaces
@@ -23,6 +24,12 @@ namespace Toggl.Foundation.DataSources.Interfaces
         IObservable<TThreadsafe> Update(long id, TThreadsafe entity);
 
         IObservable<Unit> Delete(long id);
+
+        IObservable<IConflictResolutionResult<TThreadsafe>> UpdateWithConflictResolution(
+            long id,
+            TThreadsafe entity,
+            IConflictResolver<TDatabase> conflictResolver = null,
+            IRivalsResolver<TDatabase> rivalsResolver = null);
 
         IObservable<IEnumerable<IConflictResolutionResult<TThreadsafe>>> BatchUpdate(IEnumerable<TThreadsafe> entities);
     }
