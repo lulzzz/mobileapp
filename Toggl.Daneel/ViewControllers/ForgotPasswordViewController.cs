@@ -18,7 +18,9 @@ namespace Toggl.Daneel.ViewControllers
     public sealed partial class ForgotPasswordViewController
         : KeyboardAwareViewController<ForgotPasswordViewModel>
     {
+        private const int iPhoneSeScreenHeight = 568;
         private const int resetButtonBottomSpacing = 32;
+        private const int distanceFromTop = 136;
 
         public ForgotPasswordViewController() : base(nameof(ForgotPasswordViewController))
         {
@@ -76,6 +78,16 @@ namespace Toggl.Daneel.ViewControllers
             bindingSet.Apply();
         }
 
+        public override void ViewDidLayoutSubviews()
+        {
+            base.ViewDidLayoutSubviews();
+
+            if (View.Frame.Height > iPhoneSeScreenHeight)
+                TopConstraint.Constant = distanceFromTop;
+
+            TopConstraint.AdaptForIos10(NavigationController?.NavigationBar);
+        }
+
         public override void ViewDidAppear(bool animated)
         {
             base.ViewDidAppear(animated);
@@ -97,8 +109,6 @@ namespace Toggl.Daneel.ViewControllers
 
         private void prepareViews()
         {
-            TopConstraint.AdaptForIos10(NavigationController.NavigationBar);
-
             ResetPasswordButton.SetTitleColor(
                 Color.Login.DisabledButtonColor.ToNativeColor(),
                 UIControlState.Disabled

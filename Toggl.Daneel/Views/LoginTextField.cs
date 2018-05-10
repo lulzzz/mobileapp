@@ -23,10 +23,10 @@ namespace Toggl.Daneel.Views
 
         private readonly CGColor placeholderColor
             = Color.Login.TextViewPlaceholder.ToNativeColor().CGColor;
-
         private readonly CALayer underlineLayer = new CALayer();
-
         private readonly CATextLayer placeholderLayer = new CATextLayer();
+
+        private bool placeholderDrawn;
 
         public override string Text
         {
@@ -54,6 +54,7 @@ namespace Toggl.Daneel.Views
             underlineLayer.BackgroundColor = placeholderColor;
             VerticalAlignment = UIControlContentVerticalAlignment.Top;
             DrawPlaceholder(Frame);
+            
         }
 
         public override void LayoutSubviews()
@@ -70,6 +71,8 @@ namespace Toggl.Daneel.Views
 
         public override void DrawPlaceholder(CGRect rect)
         {
+            if (placeholderDrawn) return;
+
             placeholderLayer.String = Placeholder;
             placeholderLayer.ForegroundColor = placeholderColor;
             placeholderLayer.FontSize = bigPlaceholderSize;
@@ -82,6 +85,7 @@ namespace Toggl.Daneel.Views
             );
             //For antialiasing
             placeholderLayer.ContentsScale = UIScreen.MainScreen.Scale;
+            placeholderDrawn = true;
         }
 
         public override bool BecomeFirstResponder()
