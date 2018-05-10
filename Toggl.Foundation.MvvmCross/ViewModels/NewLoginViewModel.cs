@@ -175,14 +175,13 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         private void togglePasswordVisibility()
            => IsPasswordMasked = !IsPasswordMasked;
 
-        private Task forgotPassword()
+        private async Task forgotPassword()
         {
-            if (!Email.Equals(Email.Empty))
-            {
-                var parameter = EmailParameter.With(Email);
-                return navigationService.Navigate<ForgotPasswordViewModel, EmailParameter>(parameter);
-            }
-            return navigationService.Navigate<ForgotPasswordViewModel>();
+            var emailParameter = EmailParameter.With(Email);
+            emailParameter = await navigationService
+                .Navigate<ForgotPasswordViewModel, EmailParameter, EmailParameter>(emailParameter);
+            if (emailParameter != null)
+                Email = emailParameter.Email;
         }
 
         private void googleLogin()

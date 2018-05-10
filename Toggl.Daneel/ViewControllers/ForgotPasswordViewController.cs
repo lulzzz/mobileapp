@@ -18,6 +18,8 @@ namespace Toggl.Daneel.ViewControllers
     public sealed partial class ForgotPasswordViewController
         : KeyboardAwareViewController<ForgotPasswordViewModel>
     {
+        private const int resetButtonBottomSpacing = 32;
+
         public ForgotPasswordViewController() : base(nameof(ForgotPasswordViewController))
         {
         }
@@ -83,13 +85,13 @@ namespace Toggl.Daneel.ViewControllers
 
         protected override void KeyboardWillShow(object sender, UIKeyboardEventArgs e)
         {
-            ResetPasswordButtonBottomConstraint.Constant += e.FrameEnd.Height;
+            ResetPasswordButtonBottomConstraint.Constant = e.FrameEnd.Height + resetButtonBottomSpacing;
             UIView.Animate(Animation.Timings.EnterTiming, () => View.LayoutIfNeeded());
         }
 
         protected override void KeyboardWillHide(object sender, UIKeyboardEventArgs e)
         {
-            ResetPasswordButtonBottomConstraint.Constant -= e.FrameBegin.Height;
+            ResetPasswordButtonBottomConstraint.Constant = resetButtonBottomSpacing;
             UIView.Animate(Animation.Timings.EnterTiming, () => View.LayoutIfNeeded());
         }
 

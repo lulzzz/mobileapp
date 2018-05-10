@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reactive.Linq;
+using MvvmCross.Core.Navigation;
 using MvvmCross.Core.ViewModels;
 using Toggl.Foundation.Analytics;
 using Toggl.Foundation.Login;
@@ -10,10 +11,14 @@ using Toggl.Ultrawave.Exceptions;
 namespace Toggl.Foundation.MvvmCross.ViewModels
 {
     [Preserve(AllMembers = true)]
-    public sealed class ForgotPasswordViewModel : MvxViewModel<EmailParameter>
+    public sealed class ForgotPasswordViewModel : MvxViewModel<EmailParameter, EmailParameter>
     {
+        private readonly ITimeService timeService;
         private readonly ILoginManager loginManager;
         private readonly IAnalyticsService analyticsService;
+        private readonly IMvxNavigationService navigationService;
+
+        private readonly TimeSpan delayAfterPassordReset = TimeSpan.FromSeconds(4);
 
         public Email Email { get; set; } = Email.Empty;
 
@@ -28,13 +33,20 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         public IMvxCommand ResetCommand { get; }
 
         public ForgotPasswordViewModel(
-            ILoginManager loginManager, IAnalyticsService analyticsService)
+            ITimeService timeService,
+            ILoginManager loginManager,
+            IAnalyticsService analyticsService,
+            IMvxNavigationService navigationService)
         {
+            Ensure.Argument.IsNotNull(timeService, nameof(timeService));
             Ensure.Argument.IsNotNull(loginManager, nameof(loginManager));
             Ensure.Argument.IsNotNull(analyticsService, nameof(analyticsService));
+            Ensure.Argument.IsNotNull(navigationService, nameof(navigationService));
 
+            this.timeService = timeService;
             this.loginManager = loginManager;
             this.analyticsService = analyticsService;
+            this.navigationService = navigationService;
 
             ResetCommand = new MvxCommand(reset, () => Email.IsValid);
         }
@@ -65,6 +77,13 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         {
             IsLoading = false;
             PasswordResetSuccessful = true;
+
+            timeService.RunAfterDelay(delayAfterPassordReset, returnEmail);
+        }
+
+        private void returnEmail()
+        {
+            navigationService.Close(this, EmailParameter.With(Email));
         }
 
         private void onPasswordResetError(Exception exception)
