@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\Xamarin.Build.Download.0.4.9\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.9\build\Xamarin.Build.Download.props')" />
   <PropertyGroup>
@@ -39,7 +39,8 @@
     <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     <AndroidSupportedAbis>armeabi-v7a;armeabi;x86_64;x86;arm64-v8a</AndroidSupportedAbis>
-    <DebugType></DebugType>
+    <DebugType>
+    </DebugType>
     <OutputPath>..\bin</OutputPath>
     <DefineConstants>
     </DefineConstants>
@@ -61,7 +62,8 @@
     <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     <AndroidSupportedAbis>armeabi-v7a;armeabi;x86_64;x86;arm64-v8a</AndroidSupportedAbis>
-    <DebugType></DebugType>
+    <DebugType>
+    </DebugType>
     <DefineConstants>USE_ANALYTICS;USE_PRODUCTION_API</DefineConstants>
     <AndroidKeyStore>True</AndroidKeyStore>
     <AndroidSigningKeyStore>../giskard.keystore</AndroidSigningKeyStore>
@@ -635,7 +637,10 @@
     <AndroidResource Include="Resources\layout\MainLogFooter.axml" />
     <AndroidResource Include="Resources\drawable\TopShadow.xml" />
     <AndroidResource Include="Resources\layout\StartTimeEntryActivity.axml" />
-    <AndroidResource Include="Resources\layout\StartTimeEntryActivityTimeEntryCell.axml" />
+    <AndroidResource Include="Resources\layout\StartTimeEntryActivityTimeEntryCell.axml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:UpdateGeneratedFiles</Generator>
+    </AndroidResource>
     <AndroidResource Include="Resources\layout\StartTimeEntryActivityProjectCell.axml" />
     <AndroidResource Include="Resources\layout\StartTimeEntryActivityTagCell.axml" />
     <AndroidResource Include="Resources\layout\StartTimeEntryActivityTaskCell.axml" />
@@ -735,6 +740,12 @@
     <AndroidResource Include="Resources\drawable-xhdpi\add_white.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\add_white.png" />
     <AndroidResource Include="Resources\drawable-xxxhdpi\add_white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\StartTimeEntryActivityTimeEntryWithPartialContentCell.axml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:UpdateGeneratedFiles</Generator>
+    </AndroidResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="..\packages\Fody.2.2.0\build\netstandard1.2\Fody.targets" Condition="Exists('..\packages\Fody.2.2.0\build\netstandard1.2\Fody.targets')" />
