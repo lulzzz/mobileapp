@@ -21,9 +21,5 @@ namespace Toggl.Foundation.DataSources
         IObservable<IThreadsafeTimeEntry> Stop(DateTimeOffset stopTime);
 
         IObservable<IThreadsafeTimeEntry> Update(EditTimeEntryDto dto);
-
-        IObservable<IEnumerable<IThreadsafeTimeEntry>> GetAllNonDeleted();
-
-        IObservable<IEnumerable<IThreadsafeTimeEntry>> GetAllNonDeleted(Func<IDatabaseTimeEntry, bool> predicate);
     }
 }

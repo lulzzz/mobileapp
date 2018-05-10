@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reactive;
 using Toggl.Foundation.Analytics;
 using Toggl.Foundation.Models;
@@ -51,5 +52,8 @@ namespace Toggl.Foundation.Interactors
         
         public IInteractor<IObservable<Unit>> DeleteTimeEntry(long id)
             => new DeleteTimeEntryInteractor(dataSource.TimeEntries, id);
+        
+        public IInteractor<IObservable<IEnumerable<IThreadsafeTimeEntry>>> GetAllNonDeletedTimeEntries()
+            => new GetAllNonDeletedInteractor(dataSource.TimeEntries);
     }
 }

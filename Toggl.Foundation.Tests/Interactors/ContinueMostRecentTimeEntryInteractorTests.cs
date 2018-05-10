@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -47,9 +48,6 @@ namespace Toggl.Foundation.Tests.Interactors
 
             public TheExecuteMethod()
             {
-                interactor = new ContinueMostRecentTimeEntryInteractor(
-                    IdProvider, TimeService, DataSource, AnalyticsService);
-
                 now = new DateTimeOffset(1973, 1, 2, 3, 4, 5, TimeSpan.Zero);
                 TimeService.CurrentDateTime.Returns(now);
 
@@ -69,7 +67,12 @@ namespace Toggl.Foundation.Tests.Interactors
                         TagIds = new long[] { 100, 101, 100 + i }
                     });
                 mostRecentTimeEntry = timeEntries.Last();
-                DataSource.TimeEntries.GetAllNonDeleted().Returns(Observable.Return(timeEntries));
+                
+                DataSource.TimeEntries.GetAll(Arg.Any<Func<IDatabaseTimeEntry, bool>>())
+                    .Returns(Observable.Return(timeEntries));
+
+                interactor = new ContinueMostRecentTimeEntryInteractor(
+                    IdProvider, TimeService, DataSource, AnalyticsService);
             }
 
             [Fact, LogIfTooSlow]

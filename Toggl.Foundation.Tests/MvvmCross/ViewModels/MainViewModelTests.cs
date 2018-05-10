@@ -520,9 +520,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                     .Range(0, timeEntryCount)
                     .Select(createTimeEntry)
                     .ToArray();
-                DataSource
-                    .TimeEntries
-                    .GetAllNonDeleted()
+                InteractorFactory.GetAllNonDeletedTimeEntries().Execute()
                     .Returns(Observable.Return(timeEntries));
                 DataSource
                     .TimeEntries
@@ -571,9 +569,7 @@ namespace Toggl.Foundation.Tests.MvvmCross.ViewModels
                 timeEntry.Id.Returns(123);
                 timeEntry.Start.Returns(DateTimeOffset.Now);
                 timeEntry.Duration.Returns(100);
-                DataSource
-                    .TimeEntries
-                    .GetAllNonDeleted()
+                InteractorFactory.GetAllNonDeletedTimeEntries().Execute()
                     .Returns(Observable.Return(new[] { timeEntry }));
                 DataSource
                     .TimeEntries

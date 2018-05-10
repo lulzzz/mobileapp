@@ -13,6 +13,7 @@ using Toggl.Foundation.Exceptions;
 using Toggl.Foundation.Interactors;
 using Toggl.Foundation.Models;
 using Toggl.Foundation.Models.Interfaces;
+using Toggl.Foundation.MvvmCross.ViewModels;
 using Toggl.Foundation.Tests.Generators;
 using Toggl.Foundation.Tests.Mocks;
 using Toggl.Multivac.Models;
@@ -101,19 +102,21 @@ namespace Toggl.Foundation.Tests.DataSources
                     .Select(i =>
                     {
                         var isDeleted = i % 2 == 0;
-                        var timeEntry = Substitute.For<IDatabaseTimeEntry>();
+                        var timeEntry = Substitute.For<IThreadsafeTimeEntry>();
                         timeEntry.Id.Returns(i);
                         timeEntry.IsDeleted.Returns(isDeleted);
                         return timeEntry;
                     });
-                Repository
+                DataSource
+                    .TimeEntries
                     .GetAll(Arg.Any<Func<IDatabaseTimeEntry, bool>>())
                     .Returns(callInfo =>
                         Observable
                              .Return(result)
-                             .Select(x => x.Where(callInfo.Arg<Func<IDatabaseTimeEntry, bool>>())));
+                             .Select(x => x.Where(callInfo.Arg<Func<IThreadsafeTimeEntry, bool>>())));
 
-                var timeEntries = await TimeEntriesSource.GetAllNonDeleted(x => x.Id > 10);
+                var timeEntries = await InteractorFactory.GetAllNonDeletedTimeEntries().Execute()
+                    .Select(tes => tes.Where(x => x.Id > 10));
 
                 timeEntries.Should().HaveCount(5);
             }

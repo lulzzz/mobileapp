@@ -112,7 +112,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         private async Task fetchSectionedTimeEntries()
         {
-            var timeEntries = await dataSource.TimeEntries.GetAllNonDeleted();
+            var timeEntries = await interactorFactory.GetAllNonDeletedTimeEntries().Execute();
             if (timeEntries == null) 
             {
                 TimeEntries.Clear();

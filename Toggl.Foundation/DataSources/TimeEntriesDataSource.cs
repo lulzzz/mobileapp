@@ -12,6 +12,7 @@ using Toggl.PrimeRadiant;
 using Toggl.PrimeRadiant.Models;
 using Toggl.Foundation.DTOs;
 using Toggl.Foundation.Exceptions;
+using Toggl.Foundation.Interactors;
 using Toggl.Foundation.Models.Interfaces;
 using Toggl.Foundation.Sync.ConflictResolution;
 
@@ -42,8 +43,8 @@ namespace Toggl.Foundation.DataSources
 
             this.timeService = timeService;
 
-            CurrentlyRunningTimeEntry =
-                GetAllNonDeleted(te => te.Duration == null)
+            CurrentlyRunningTimeEntry = 
+                GetAll(te => te.IsDeleted == false && te.Duration == null)
                     .Select(tes => tes.SingleOrDefault())
                     .StartWith()
                     .Merge(Created.Where(te => te.IsRunning()))
@@ -58,7 +59,7 @@ namespace Toggl.Foundation.DataSources
                     .StartWith()
                     .Merge(Updated.Select(tuple => tuple.Entity))
                     .Merge(Created)
-                    .SelectMany(_ => GetAllNonDeleted())
+                    .SelectMany(_ => GetAll(te => te.IsDeleted == false))
                     .Select(timeEntries => !timeEntries.Any());
             
             RivalsResolver = new TimeEntryRivalsResolver(timeService);
@@ -71,14 +72,8 @@ namespace Toggl.Foundation.DataSources
                 .Select(Convert)
                 .Do(CreatedSubject.OnNext);
 
-        public IObservable<IEnumerable<IThreadsafeTimeEntry>> GetAllNonDeleted()
-            => GetAll(te => !te.IsDeleted);
-
-        public IObservable<IEnumerable<IThreadsafeTimeEntry>> GetAllNonDeleted(Func<IDatabaseTimeEntry, bool> predicate)
-            => GetAll(predicate).Select(tes => tes.Where(te => !te.IsDeleted));
-
         public IObservable<IThreadsafeTimeEntry> Stop(DateTimeOffset stopTime)
-            => GetAllNonDeleted(te => te.Duration == null)
+            => GetAll(te => te.IsDeleted == false && te.Duration == null)
                 .Select(timeEntries => timeEntries.SingleOrDefault() ?? throw new NoRunningTimeEntryException())
                 .SelectMany(timeEntry => timeEntry
                     .With((long)(stopTime - timeEntry.Start).TotalSeconds)

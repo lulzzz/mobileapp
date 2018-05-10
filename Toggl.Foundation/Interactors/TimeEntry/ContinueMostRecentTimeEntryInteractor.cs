@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Linq;
 using System.Reactive.Linq;
 using Toggl.Foundation.Analytics;
 using Toggl.Foundation.DataSources;
 using Toggl.Foundation.Models;
 using Toggl.Foundation.Models.Interfaces;
 using Toggl.Multivac;
+using Toggl.Multivac.Extensions;
 using Toggl.PrimeRadiant;
 using Toggl.PrimeRadiant.Models;
-using static Toggl.Multivac.Extensions.EnumerableExtensions;
 
 namespace Toggl.Foundation.Interactors
 {
@@ -37,9 +36,8 @@ namespace Toggl.Foundation.Interactors
         }
 
         public IObservable<IDatabaseTimeEntry> Execute()
-            => dataSource
-                .TimeEntries
-                .GetAllNonDeleted()
+            => dataSource.TimeEntries
+                .GetAll(te => !te.IsDeleted)
                 .Select(timeEntries => timeEntries.MaxBy(te => te.Start))
                 .Select(newTimeEntry)
                 .SelectMany(dataSource.TimeEntries.Create)
