@@ -4,7 +4,7 @@ using Toggl.Foundation.Models.Interfaces;
 using Toggl.Multivac.Models;
 using Toggl.PrimeRadiant;
 
-namespace Toggl.Foundation.Sync.States
+namespace Toggl.Foundation.Sync.States.Push
 {
     internal sealed class PushOneEntityState<TThreadsafeModel>
         where TThreadsafeModel : class, IIdentifiable, IDatabaseSyncable, IThreadsafeModel

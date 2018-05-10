@@ -6,7 +6,7 @@ using Toggl.Foundation.Models.Interfaces;
 using Toggl.Multivac.Models;
 using Toggl.PrimeRadiant;
 
-namespace Toggl.Foundation.Sync.States
+namespace Toggl.Foundation.Sync.States.Push
 {
     internal sealed class DeleteLocalEntityState<TThreadsafeModel, TDatabaseModel>
         where TDatabaseModel : class, IDatabaseSyncable

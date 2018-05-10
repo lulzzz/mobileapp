@@ -7,7 +7,7 @@ using Toggl.Multivac.Models;
 using Toggl.PrimeRadiant;
 using Toggl.Ultrawave.Exceptions;
 
-namespace Toggl.Foundation.Sync.States
+namespace Toggl.Foundation.Sync.States.Push
 {
     internal sealed class UnsyncableEntityState<TThreadsafeModel, TDatabaseModel>
         where TDatabaseModel : IDatabaseSyncable
