@@ -15,6 +15,7 @@ namespace Toggl.Giskard.TemplateSelectors
         public const int TaskSuggestion = 5;
         public const int WorkspaceHeader = 6;
         public const int CreateEntity = 7;
+        public const int TimeEntrySuggestionWithPartialContent = 8;
 
         public int GetItemLayoutId(int fromViewType)
         {
@@ -36,6 +37,8 @@ namespace Toggl.Giskard.TemplateSelectors
                     return Resource.Layout.StartTimeEntryActivityWorkspaceHeader;
                 case CreateEntity:
                     return Resource.Layout.AbcCreateEntityCell;
+                case TimeEntrySuggestionWithPartialContent:
+                    return Resource.Layout.StartTimeEntryActivityTimeEntryWithPartialContentCell;
             }
 
             throw new ArgumentOutOfRangeException(nameof(fromViewType));
@@ -55,8 +58,10 @@ namespace Toggl.Giskard.TemplateSelectors
                     return NoEntityFound;
                 case ProjectSuggestion _: 
                     return ProjectSuggestion;
-                case TimeEntrySuggestion _: 
+                case TimeEntrySuggestion timeEntrySuggestion when !string.IsNullOrEmpty(timeEntrySuggestion.Description) && timeEntrySuggestion.HasProject: 
                     return TimeEntrySuggestion;
+                case TimeEntrySuggestion timeEntrySuggestion when string.IsNullOrEmpty(timeEntrySuggestion.Description) || !timeEntrySuggestion.HasProject: 
+                    return TimeEntrySuggestionWithPartialContent;
                 case WorkspaceGroupedCollection<AutocompleteSuggestion> _: 
                     return WorkspaceHeader;
                 case string _:
