@@ -11,6 +11,8 @@ using System.Reactive.Linq;
 using System.Reactive;
 using System.Reactive.Subjects;
 using Toggl.Foundation.Analytics;
+using Toggl.Foundation.Models;
+using Toggl.Foundation.Models.Interfaces;
 
 namespace Toggl.Foundation
 {
@@ -69,15 +71,16 @@ namespace Toggl.Foundation
             var statusDelay = new RetryDelayService(rnd);
 
             var fetchAllSince = new FetchAllSinceState(database, api, timeService);
-            var persistWorkspaces = new PersistWorkspacesState(database.Workspaces, database.SinceParameters);
-            var persistWorkspaceFeatures = new PersistWorkspacesFeaturesState(database.WorkspaceFeatures, database.SinceParameters);
-            var persistUser = new PersistUserState(database.User, database.SinceParameters);
-            var persistTags = new PersistTagsState(database.Tags, database.SinceParameters);
-            var persistClients = new PersistClientsState(database.Clients, database.SinceParameters);
-            var persistPreferences = new PersistPreferencesState(database.Preferences, database.SinceParameters);
-            var persistProjects = new PersistProjectsState(database.Projects, database.SinceParameters);
-            var persistTimeEntries = new PersistTimeEntriesState(database.TimeEntries, database.SinceParameters, timeService);
-            var persistTasks = new PersistTasksState(database.Tasks, database.SinceParameters);
+            var persistWorkspaces = new PersistState<IWorkspace, IDatabaseWorkspace, IThreadsafeWorkspace>(dataSource.Workspaces, database.SinceParameters, Workspace.Clean);
+            var persistWorkspaceFeatures = new PersistState<IWorkspaceFeatureCollection, IDatabaseWorkspaceFeatureCollection, IThreadsafeWorkspaceFeatureCollection>(
+                dataSource.WorkspaceFeatures, database.SinceParameters, WorkspaceFeatureCollection.From);
+            var persistUser = new PersistState<IUser, IDatabaseUser, IThreadsafeUser>(dataSource.User, database.SinceParameters, User.Clean);
+            var persistTags = new PersistState<ITag, IDatabaseTag, IThreadsafeTag>(dataSource.Tags, database.SinceParameters, Tag.Clean);
+            var persistClients = new PersistState<IClient, IDatabaseClient, IThreadsafeClient>(dataSource.Clients, database.SinceParameters, Client.Clean);
+            var persistPreferences = new PersistState<IPreferences, IDatabasePreferences, IThreadsafePreferences>(dataSource.Preferences, database.SinceParameters, Preferences.Clean);
+            var persistProjects = new PersistState<IProject, IDatabaseProject, IThreadsafeProject>(dataSource.Projects, database.SinceParameters, Project.Clean);
+            var persistTimeEntries = new PersistState<ITimeEntry, IDatabaseTimeEntry, IThreadsafeTimeEntry>(dataSource.TimeEntries, database.SinceParameters, TimeEntry.Clean);
+            var persistTasks = new PersistState<ITask, IDatabaseTask, IThreadsafeTask>(dataSource.Tasks, database.SinceParameters, Task.Clean);
             var checkServerStatus = new CheckServerStatusState(api, scheduler, apiDelay, statusDelay, delayCancellation);
             var finished = new ResetAPIDelayState(apiDelay);
 
