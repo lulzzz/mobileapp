@@ -212,6 +212,24 @@
     <Reference Include="MvvmCross.Plugins.Visibility.iOS">
       <HintPath>..\packages\MvvmCross.Plugin.Visibility.5.5.2\lib\Xamarin.iOS10\MvvmCross.Plugins.Visibility.iOS.dll</HintPath>
     </Reference>
+    <Reference Include="Firebase.Analytics">
+      <HintPath>..\packages\Xamarin.Firebase.iOS.Analytics.4.0.4\lib\Xamarin.iOS10\Firebase.Analytics.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.Core">
+      <HintPath>..\packages\Xamarin.Firebase.iOS.Core.4.0.8\lib\Xamarin.iOS10\Firebase.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.CrashReporting">
+      <HintPath>..\packages\Xamarin.Firebase.iOS.CrashReporting.2.0.0\lib\Xamarin.iOS10\Firebase.CrashReporting.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.InstanceID">
+      <HintPath>..\packages\Xamarin.Firebase.iOS.InstanceID.2.0.4\lib\Xamarin.iOS10\Firebase.InstanceID.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Core">
+      <HintPath>..\packages\Xamarin.Google.iOS.Core.3.1.0\lib\Xamarin.iOS10\Google.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.SignIn">
+      <HintPath>..\packages\Xamarin.Google.iOS.SignIn.4.1.0\lib\Xamarin.iOS10\Google.SignIn.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
@@ -482,6 +500,10 @@
     <ImageAsset Include="Resources\Images.xcassets\icOnePassword.imageset\passwordman.png" />
     <ImageAsset Include="Resources\Images.xcassets\icOnePassword.imageset\passwordman%402x.png" />
     <ImageAsset Include="Resources\Images.xcassets\icOnePassword.imageset\passwordman%403x.png" />
+    <ImageAsset Include="Resources\Images.xcassets\icWarning.imageset\Contents.json" />
+    <ImageAsset Include="Resources\Images.xcassets\icWarning.imageset\icWarning%403x.png" />
+    <ImageAsset Include="Resources\Images.xcassets\icWarning.imageset\icWarning%402x.png" />
+    <ImageAsset Include="Resources\Images.xcassets\icWarning.imageset\icWarning.png" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="LaunchScreen.storyboard" />
@@ -963,6 +985,7 @@
     <Folder Include="Resources\Images.xcassets\bike.imageset\" />
     <Folder Include="Resources\Images.xcassets\togglLogoBig.imageset\" />
     <Folder Include="Resources\Images.xcassets\icGoogleColored.imageset\" />
+    <Folder Include="Resources\Images.xcassets\icWarning.imageset\" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="GoogleService-Info.plist" />

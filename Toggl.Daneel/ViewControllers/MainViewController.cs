@@ -49,6 +49,9 @@ namespace Toggl.Daneel.ViewControllers
         private readonly SpiderOnARopeView spiderBroView = new SpiderOnARopeView();
         private readonly UIButton reportsButton = new UIButton(new CGRect(0, 0, 40, 40));
         private readonly UIButton settingsButton = new UIButton(new CGRect(0, 0, 40, 40));
+#if DEBUG
+        private readonly UIButton warningButton = new UIButton(new CGRect(0, 0, 40, 40));
+#endif
         private readonly UIImageView titleImage = new UIImageView(UIImage.FromBundle("togglLogo"));
         private readonly TimeEntriesEmptyLogView emptyStateView = TimeEntriesEmptyLogView.Create();
 
@@ -141,6 +144,9 @@ namespace Toggl.Daneel.ViewControllers
             //Commands
             bindingSet.Bind(reportsButton).To(vm => vm.OpenReportsCommand);
             bindingSet.Bind(settingsButton).To(vm => vm.OpenSettingsCommand);
+#if DEBUG
+            bindingSet.Bind(warningButton).To(vm => vm.OpenSyncFailuresCommand);
+#endif
             bindingSet.Bind(StopTimeEntryButton).To(vm => vm.StopTimeEntryCommand);
             bindingSet.Bind(StartTimeEntryButton).To(vm => vm.StartTimeEntryCommand);
             bindingSet.Bind(EditTimeEntryButton).To(vm => vm.EditTimeEntryCommand);
@@ -240,6 +246,12 @@ namespace Toggl.Daneel.ViewControllers
                 new UIBarButtonItem(settingsButton),
                 new UIBarButtonItem(reportsButton)
             };
+#if DEBUG
+            NavigationItem.LeftBarButtonItems = new[]
+            {
+                new UIBarButtonItem(warningButton)
+            };
+#endif
         }
 
         protected override void Dispose(bool disposing)
@@ -295,6 +307,9 @@ namespace Toggl.Daneel.ViewControllers
             //Prepare Navigation bar images
             reportsButton.SetImage(UIImage.FromBundle("icReports"), UIControlState.Normal);
             settingsButton.SetImage(UIImage.FromBundle("icSettings"), UIControlState.Normal);
+#if DEBUG
+            warningButton.SetImage(UIImage.FromBundle("icWarning"), UIControlState.Normal);
+#endif
 
             RunningEntryDescriptionFadeView.FadeLeft = true;
             RunningEntryDescriptionFadeView.FadeRight = true;
