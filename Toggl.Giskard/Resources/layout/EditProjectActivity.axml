@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<android.support.design.widget.CoordinatorLayout
-    xmlns:tools="http://schemas.android.com/tools"
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:tools="http://schemas.android.com/tools"
     xmlns:local="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="@android:color/white"
@@ -248,7 +247,9 @@
         android:layout_height="wrap_content">
         <TextView
             local:MvxBind="Click DoneCommand; TextColor CreateProjectButtonColor(SaveEnabled)"
+            android:padding="16dp"
             android:textSize="14sp"
+            android:gravity="center"
             android:textStyle="normal"
             android:textAllCaps="true"
             android:letterSpacing="0.04"
@@ -256,8 +257,7 @@
             android:fontFamily="sans-serif-medium"
             android:background="?attr/selectableItemBackground"
             android:layout_gravity="end"
-            android:layout_marginRight="16dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="?attr/actionBarSize" />
     </android.support.v7.widget.Toolbar>
 </android.support.design.widget.CoordinatorLayout>

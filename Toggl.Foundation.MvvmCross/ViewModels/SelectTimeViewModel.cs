@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Globalization;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using MvvmCross.Core.Navigation;
 using MvvmCross.Core.ViewModels;
 using PropertyChanged;
+using Toggl.Foundation.MvvmCross.Combiners;
 using Toggl.Foundation.MvvmCross.Converters;
 using Toggl.Foundation.MvvmCross.Parameters;
 using Toggl.Multivac;
@@ -14,10 +16,18 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
     public sealed class SelectTimeViewModel
         : MvxViewModel<SelectTimeParameters, SelectTimeResultsParameters>
     {
+        public const int StartTimeTab = 0;
+        public const int StopTimeTab = 1;
+        public const int DurationTab = 2;
+
         private readonly IMvxNavigationService navigationService;
         private readonly ITimeService timeService;
+        private IDisposable timeServiceDisposable;
 
         private readonly TimeSpanToDurationValueConverter durationConverter = new TimeSpanToDurationValueConverter();
+
+        private readonly DateTimeOffsetTimeFormatValueCombiner timeFormatValueCombiner;
+        private readonly DateTimeOffsetDateFormatValueCombiner dateFormatValueCombiner;
 
         public DateTimeOffset CurrentDateTime { get; set; }
 
@@ -25,8 +35,13 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         public int StartingTabIndex { get; private set; }
 
+        public DateFormat DateFormat { get; set; }
+        public TimeFormat TimeFormat { get; set; }
+
         [DependsOn(nameof(CurrentDateTime))]
         public DateTimeOffset? StopTime { get; set; }
+
+        public DateTimeOffset StopTimeOrCurrent => StopTime ?? CurrentDateTime;
 
         [DependsOn(nameof(StartTime))]
         public DateTime StartDatePart
@@ -162,23 +177,11 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         public bool IsCalendarView { get; set; }
 
-        [DependsOn(nameof(StartTime))]
-        public string StartTimeText => $"{StartTime:HH:mm}";
+        public int CurrentTab { get; set; }
 
-        [DependsOn(nameof(StartTime))]
-        public string StartDateText => $"{StartTime:MM/dd}";
-
-        [DependsOn(nameof(IsTimeEntryStopped))]
-        public string StopTimeText
-            => IsTimeEntryStopped
-            ? $"{StopTime:HH:mm}"
-            : $"{CurrentDateTime:HH:mm}";
-
-        [DependsOn(nameof(IsTimeEntryStopped))]
-        public string StopDateText
-            => IsTimeEntryStopped
-            ? $"{StopTime:MM/dd}"
-            : $"{CurrentDateTime:MM/dd}";
+        public bool IsOnStartTimeTab => CurrentTab == StartTimeTab;
+        public bool IsOnStopTimeTab => CurrentTab == StopTimeTab;
+        public bool IsOnDurationTab => CurrentTab == DurationTab;
 
         public bool IsDurationVisible { get; set; }
 
@@ -235,12 +238,18 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
             StopTimeEntryCommand = new MvxCommand(stopTimeEntry);
 
             ToggleClockCalendarModeCommand = new MvxCommand(togglClockCalendarMode);
+
+            timeFormatValueCombiner = new DateTimeOffsetTimeFormatValueCombiner(TimeZoneInfo.Local);
+            dateFormatValueCombiner = new DateTimeOffsetDateFormatValueCombiner(TimeZoneInfo.Local);
         }
 
         public override void Prepare(SelectTimeParameters parameter)
         {
             StartTime = parameter.Start;
             StopTime = parameter.Stop;
+
+            DateFormat = parameter.DateFormat;
+            TimeFormat = parameter.TimeFormat;
 
             StartingTabIndex = parameter.StartingTabIndex;
             IsCalendarView = parameter.ShouldStartOnCalendar;
@@ -250,7 +259,8 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         {
             await base.Initialize();
 
-            timeService.CurrentDateTimeObservable
+            timeServiceDisposable = timeService.CurrentDateTimeObservable
+                       .StartWith(timeService.CurrentDateTime)
                        .Subscribe(currentDateTime => CurrentDateTime = currentDateTime);
         }
 

@@ -10,6 +10,7 @@
         tools:visibility="gone"
         android:scrollbars="vertical"
         local:MvxTemplateSelector="@string/StartTimeEntrySuggestionsTemplateSelector"
+        android:layout_marginBottom="64dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="@dimen/expandedToolbarHeight" />
@@ -92,7 +93,7 @@
             android:layout_height="?attr/actionBarSize" />
         <EditText
             android:id="@+id/StartTimeEntryDescriptionTextField"
-            local:MvxBind="TextFieldInfo TextFieldInfo"
+            local:MvxBind="TextFieldInfo TextFieldInfo; Hint PlaceholderText"
             android:maxLines="1"
             android:textSize="19sp"
             android:singleLine="true"
@@ -100,7 +101,6 @@
             android:lineSpacingExtra="5sp"
             android:scrollHorizontally="true"
             android:textColor="@android:color/white"
-            android:hint="@string/StartTimeEntryHint"
             android:background="@color/blueToolbarBackground"
             android:inputType="textNoSuggestions|textVisiblePassword"
             android:textCursorDrawable="@drawable/EditTextWhiteCursor"
