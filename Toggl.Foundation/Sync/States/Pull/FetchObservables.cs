@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reactive.Linq;
 using Toggl.Multivac.Models;
 using Toggl.PrimeRadiant.Models;
 
@@ -44,6 +45,56 @@ namespace Toggl.Foundation.Sync.States
             Tags = tags;
             Tasks = tasks;
             Preferences = preferences;
+        }
+
+        public IObservable<List<T>> GetByType<T>()
+        {
+            if (typeof(T) == typeof(IWorkspace))
+            {
+                return (IObservable<List<T>>)Workspaces;
+            }
+
+            if (typeof(T) == typeof(IWorkspaceFeatureCollection))
+            {
+                return (IObservable<List<T>>)WorkspaceFeatures;
+            }
+
+            if (typeof(T) == typeof(IClient))
+            {
+                return (IObservable<List<T>>)Clients;
+            }
+
+            if (typeof(T) == typeof(IProject))
+            {
+                return (IObservable<List<T>>)Projects;
+            }
+
+            if (typeof(T) == typeof(ITag))
+            {
+                return (IObservable<List<T>>)Tags;
+            }
+
+            if (typeof(T) == typeof(ITask))
+            {
+                return (IObservable<List<T>>)Tasks;
+            }
+            
+            if (typeof(T) == typeof(IUser))
+            {
+                return (IObservable<List<T>>)User.Select(user => new List<IUser> { user });
+            }
+
+            if (typeof(T) == typeof(IPreferences))
+            {
+                return (IObservable<List<T>>)Preferences.Select(preferences => new List<IPreferences> { preferences });
+            }
+
+            if (typeof(T) == typeof(ITimeEntry))
+            {
+                return (IObservable<List<T>>)TimeEntries;
+            }
+
+            throw new ArgumentException($"Type {typeof(T).FullName} is not supported by the {nameof(FetchObservables)} class.");
         }
     }
 }
