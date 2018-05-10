@@ -58,10 +58,10 @@ namespace Toggl.Giskard.TemplateSelectors
                     return NoEntityFound;
                 case ProjectSuggestion _: 
                     return ProjectSuggestion;
-                case TimeEntrySuggestion timeEntrySuggestion when !string.IsNullOrEmpty(timeEntrySuggestion.Description) && timeEntrySuggestion.HasProject: 
-                    return TimeEntrySuggestion;
-                case TimeEntrySuggestion timeEntrySuggestion when string.IsNullOrEmpty(timeEntrySuggestion.Description) || !timeEntrySuggestion.HasProject: 
-                    return TimeEntrySuggestionWithPartialContent;
+                case TimeEntrySuggestion timeEntrySuggestion:
+                    return timeEntrySuggestionHasPartialContent(timeEntrySuggestion)
+                        ? TimeEntrySuggestionWithPartialContent
+                        : TimeEntrySuggestion;
                 case WorkspaceGroupedCollection<AutocompleteSuggestion> _: 
                     return WorkspaceHeader;
                 case string _:
@@ -70,5 +70,8 @@ namespace Toggl.Giskard.TemplateSelectors
 
             throw new ArgumentException(nameof(forItemObject));
         }
+
+        private bool timeEntrySuggestionHasPartialContent(TimeEntrySuggestion timeEntrySuggestion) 
+            => string.IsNullOrEmpty(timeEntrySuggestion.Description) || !timeEntrySuggestion.HasProject;
     }
 }
