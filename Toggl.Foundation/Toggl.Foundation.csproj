@@ -49,5 +49,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Analytics\" />
+    <Folder Include="Interactors\Country\" />
+    <Folder Include="Serialization\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="countries.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
