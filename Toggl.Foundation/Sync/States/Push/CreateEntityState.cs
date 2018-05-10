@@ -9,7 +9,7 @@ using Toggl.Ultrawave;
 using Toggl.Ultrawave.ApiClients;
 using Toggl.Ultrawave.Exceptions;
 
-namespace Toggl.Foundation.Sync.States
+namespace Toggl.Foundation.Sync.States.Push
 {
     internal sealed class CreateEntityState<TModel, TDatabaseModel, TThreadsafeModel>
         : BasePushEntityState<TModel, TDatabaseModel, TThreadsafeModel>
