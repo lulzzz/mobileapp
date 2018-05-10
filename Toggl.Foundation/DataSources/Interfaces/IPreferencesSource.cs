@@ -7,12 +7,8 @@ using Toggl.PrimeRadiant.Models;
 
 namespace Toggl.Foundation.DataSources
 {
-    public interface IPreferencesSource : IDataSource<IThreadsafePreferences, IDatabasePreferences>
+    public interface IPreferencesSource : ISingleObjectDataSource<IThreadsafePreferences, IDatabasePreferences>
     {
-        IObservable<IThreadsafePreferences> Current { get; }
-
-        IObservable<IThreadsafePreferences> Get();
-
         IObservable<IThreadsafePreferences> Update(EditPreferencesDTO dto);
     }
 }

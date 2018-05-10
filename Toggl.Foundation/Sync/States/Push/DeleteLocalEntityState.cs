@@ -8,7 +8,7 @@ using Toggl.PrimeRadiant;
 
 namespace Toggl.Foundation.Sync.States.Push
 {
-    internal sealed class DeleteLocalEntityState<TThreadsafeModel, TDatabaseModel>
+    internal sealed class DeleteLocalEntityState<TDatabaseModel, TThreadsafeModel>
         where TDatabaseModel : class, IDatabaseSyncable
         where TThreadsafeModel : TDatabaseModel, IThreadsafeModel, IIdentifiable
     {

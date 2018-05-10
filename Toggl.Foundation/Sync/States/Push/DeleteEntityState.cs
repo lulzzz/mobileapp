@@ -11,7 +11,7 @@ using Toggl.Ultrawave.ApiClients.Interfaces;
 
 namespace Toggl.Foundation.Sync.States.Push
 {
-    internal abstract class DeleteEntityState<TModel, TDatabaseModel, TThreadsafeModel>
+    internal sealed class DeleteEntityState<TModel, TDatabaseModel, TThreadsafeModel>
         : BasePushEntityState<TModel, TDatabaseModel, TThreadsafeModel>
         where TModel : IIdentifiable
         where TDatabaseModel : class, TModel, IDatabaseSyncable
@@ -21,10 +21,12 @@ namespace Toggl.Foundation.Sync.States.Push
 
         public StateResult DeletingFinished { get; } = new StateResult();
 
-        public DeleteEntityState(ITogglApi api, IDataSource<TThreadsafeModel, TDatabaseModel> dataSource)
+        public DeleteEntityState(IDeletingApiClient<TModel> api, IDataSource<TThreadsafeModel, TDatabaseModel> dataSource)
             : base(dataSource)
         {
             Ensure.Argument.IsNotNull(api, nameof(api));
+
+            this.api = api;
         }
 
         public override IObservable<ITransition> Start(TThreadsafeModel entity)

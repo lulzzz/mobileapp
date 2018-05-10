@@ -9,9 +9,9 @@ using Toggl.PrimeRadiant;
 
 namespace Toggl.Foundation.Sync.States.Push
 {
-    internal sealed class PushState<TThreadsafeModel, TDatabaseModel>
+    internal sealed class PushState<TDatabaseModel, TThreadsafeModel>
         where TDatabaseModel : IDatabaseSyncable
-        where TThreadsafeModel : class, TDatabaseModel, IIdentifiable, ILastChangedDatable, IThreadsafeModel
+        where TThreadsafeModel : class, TDatabaseModel, ILastChangedDatable, IThreadsafeModel
     {
         private readonly IDataSource<TThreadsafeModel, TDatabaseModel> dataSource;
 
