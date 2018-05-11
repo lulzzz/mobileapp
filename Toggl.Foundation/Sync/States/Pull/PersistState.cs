@@ -21,7 +21,7 @@ namespace Toggl.Foundation.Sync.States
 
         private readonly Func<TInterface, TThreadsafeInterface> convertToThreadsafeEntity;
 
-        public StateResult<FetchObservables> FinishedPersisting { get; } = new StateResult<FetchObservables>();
+        public StateResult<IFetchObservables> FinishedPersisting { get; } = new StateResult<IFetchObservables>();
 
         public StateResult<Exception> Failed { get; } = new StateResult<Exception>();
 
@@ -39,8 +39,8 @@ namespace Toggl.Foundation.Sync.States
             this.convertToThreadsafeEntity = convertToThreadsafeEntity;
         }
 
-        public IObservable<ITransition> Start(FetchObservables fetch)
-            => fetch.GetByType<TInterface>()
+        public IObservable<ITransition> Start(IFetchObservables fetch)
+            => fetch.Get<TInterface>()
                 .SingleAsync()
                 .Select(entities => entities?.Select(convertToThreadsafeEntity) ?? new List<TThreadsafeInterface>())
                 .SelectMany(threadsafeEntities =>

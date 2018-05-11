@@ -15,7 +15,7 @@ namespace Toggl.Foundation.Sync.States
         private readonly ITimeService timeService;
         private const int SinceDateLimitMonths = 2;
 
-        public StateResult<FetchObservables> FetchStarted { get; } = new StateResult<FetchObservables>();
+        public StateResult<IFetchObservables> FetchStarted { get; } = new StateResult<IFetchObservables>();
 
         public FetchAllSinceState(ITogglDatabase database, ITogglApi api, ITimeService timeService)
         {

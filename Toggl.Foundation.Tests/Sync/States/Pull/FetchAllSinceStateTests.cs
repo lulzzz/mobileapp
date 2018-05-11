@@ -161,15 +161,15 @@ namespace Toggl.Foundation.Tests.Sync.States
                 api.Tasks.GetAll().Returns(Observable.Return<List<ITask>>(null));
                 api.Tags.GetAll().Returns(Observable.Return<List<ITag>>(null));
 
-                var transition = (Transition<FetchObservables>)state.Start().SingleAsync().Wait();
+                var transition = (Transition<IFetchObservables>)state.Start().SingleAsync().Wait();
 
                 var observables = transition.Parameter;
-                observables.Workspaces.SingleAsync().Wait().Should().BeNull();
-                observables.Clients.SingleAsync().Wait().Should().BeNull();
-                observables.Projects.SingleAsync().Wait().Should().BeNull();
-                observables.TimeEntries.SingleAsync().Wait().Should().BeNull();
-                observables.Tasks.SingleAsync().Wait().Should().BeNull();
-                observables.Tags.SingleAsync().Wait().Should().BeNull();
+                observables.Get<IWorkspace>().SingleAsync().Wait().Should().BeNull();
+                observables.Get<IClient>().SingleAsync().Wait().Should().BeNull();
+                observables.Get<IProject>().SingleAsync().Wait().Should().BeNull();
+                observables.Get<ITimeEntry>().SingleAsync().Wait().Should().BeNull();
+                observables.Get<ITask>().SingleAsync().Wait().Should().BeNull();
+                observables.Get<ITag>().SingleAsync().Wait().Should().BeNull();
             }
         }
     }
