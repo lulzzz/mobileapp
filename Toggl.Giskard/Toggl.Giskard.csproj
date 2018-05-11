@@ -635,8 +635,8 @@
     <AndroidResource Include="Resources\layout\MainLogFooter.axml" />
     <AndroidResource Include="Resources\drawable\TopShadow.xml" />
     <AndroidResource Include="Resources\layout\StartTimeEntryActivity.axml" />
-    <AndroidResource Include="Resources\layout\StartTimeEntryActivityTimeEntryCell.axml"/>
-    <AndroidResource Include="Resources\layout\StartTimeEntryActivityTimeEntryWithPartialContentCell.axml"/>
+    <AndroidResource Include="Resources\layout\StartTimeEntryActivityTimeEntryCell.axml" />
+    <AndroidResource Include="Resources\layout\StartTimeEntryActivityTimeEntryWithPartialContentCell.axml" />
     <AndroidResource Include="Resources\layout\StartTimeEntryActivityProjectCell.axml" />
     <AndroidResource Include="Resources\layout\StartTimeEntryActivityTagCell.axml" />
     <AndroidResource Include="Resources\layout\StartTimeEntryActivityTaskCell.axml" />
