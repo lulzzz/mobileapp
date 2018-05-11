@@ -19,6 +19,7 @@ namespace Toggl.Foundation.DataSources
         where TThreadsafe : IThreadsafeModel, IIdentifiable, TDatabase
     {
         private readonly ISingleObjectStorage<TDatabase> storage;
+
         private readonly ISubject<TThreadsafe> currentSubject;
 
         private IDisposable initializationDisposable;
@@ -46,9 +47,6 @@ namespace Toggl.Foundation.DataSources
         public virtual IObservable<TThreadsafe> Get()
             => storage.Single().Select(Convert);
 
-        public virtual IObservable<TThreadsafe> GetById(long id)
-            => storage.GetById(id).Select(Convert);
-
         public virtual IObservable<TThreadsafe> Create(TThreadsafe entity)
             => storage.Create(entity)
                 .Select(Convert)
@@ -64,7 +62,7 @@ namespace Toggl.Foundation.DataSources
                 .Select(Convert)
                 .Do(currentSubject.OnNext);
 
-        public virtual IObservable<Unit> Delete(long id)
+        public virtual IObservable<Unit> Delete()
             => storage.Delete();
 
         public IObservable<IConflictResolutionResult<TThreadsafe>> UpdateWithConflictResolution(
@@ -78,20 +76,6 @@ namespace Toggl.Foundation.DataSources
                 .Select(result => result.ToThreadSafeResult(Convert))
                 .Do(processConflictResultionResult);
         }
-
-        public IObservable<IEnumerable<IConflictResolutionResult<TThreadsafe>>> BatchUpdate(IEnumerable<TThreadsafe> entities)
-            => storage.BatchUpdate(
-                    entities.Select(entity => (entity.Id, (TDatabase)entity)),
-                    ConflictResolution)
-                .ToThreadSafeResult(Convert)
-                .Select(results => results.FirstOrDefault())
-                .Do(processConflictResultionResult);
-
-        public IObservable<IEnumerable<TThreadsafe>> GetAll()
-            => storage.GetAll().Select(preferences => preferences.Select(Convert));
-
-        public IObservable<IEnumerable<TThreadsafe>> GetAll(Func<TDatabase, bool> predicate)
-            => storage.GetAll(predicate).Select(entities => entities.Select(Convert));
 
         protected abstract TThreadsafe Convert(TDatabase entity);
 

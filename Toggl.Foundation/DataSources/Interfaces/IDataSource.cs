@@ -8,6 +8,8 @@ using Toggl.PrimeRadiant;
 namespace Toggl.Foundation.DataSources.Interfaces
 {
     public interface IDataSource<TThreadsafe, TDatabase>
+        : IOverridingDataSource<TThreadsafe>,
+          IConflictResolutionUpdatingDataSource<TThreadsafe, TDatabase>
         where TDatabase : IDatabaseSyncable
         where TThreadsafe : IThreadsafeModel, TDatabase
     {
@@ -20,16 +22,8 @@ namespace Toggl.Foundation.DataSources.Interfaces
         IObservable<TThreadsafe> Create(TThreadsafe entity);
 
         IObservable<TThreadsafe> Update(TThreadsafe entity);
-        
-        IObservable<TThreadsafe> Overwrite(TThreadsafe original, TThreadsafe entity);
 
         IObservable<Unit> Delete(long id);
-
-        IObservable<IConflictResolutionResult<TThreadsafe>> UpdateWithConflictResolution(
-            TThreadsafe original,
-            TThreadsafe entity,
-            IConflictResolver<TDatabase> conflictResolver = null,
-            IRivalsResolver<TDatabase> rivalsResolver = null);
 
         IObservable<IEnumerable<IConflictResolutionResult<TThreadsafe>>> BatchUpdate(IEnumerable<TThreadsafe> entities);
     }

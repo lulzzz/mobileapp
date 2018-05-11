@@ -27,7 +27,7 @@ namespace Toggl.Foundation.DataSources
                 .Select(preferences => updatedPreferences(preferences, dto))
                 .SelectMany(Update);
 
-        public override IObservable<Unit> Delete(long id)
+        public override IObservable<Unit> Delete()
         {
             throw new InvalidOperationException("Preferences cannot be deleted.");
         }
