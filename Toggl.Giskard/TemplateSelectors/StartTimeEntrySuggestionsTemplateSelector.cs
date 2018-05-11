@@ -58,10 +58,10 @@ namespace Toggl.Giskard.TemplateSelectors
                     return NoEntityFound;
                 case ProjectSuggestion _: 
                     return ProjectSuggestion;
-                case TimeEntrySuggestion timeEntrySuggestion:
-                    return timeEntrySuggestionHasPartialContent(timeEntrySuggestion)
-                        ? TimeEntrySuggestionWithPartialContent
-                        : TimeEntrySuggestion;
+                case TimeEntrySuggestion timeEntrySuggestion when timeEntrySuggestionHasPartialContent(timeEntrySuggestion):
+                     return TimeEntrySuggestionWithPartialContent;
+                case TimeEntrySuggestion _:
+                    return TimeEntrySuggestion;
                 case WorkspaceGroupedCollection<AutocompleteSuggestion> _: 
                     return WorkspaceHeader;
                 case string _:
