@@ -9,7 +9,6 @@ using Toggl.Ultrawave.Exceptions;
 namespace Toggl.Foundation.Sync.States.Push
 {
     public abstract class BasePushEntityState<TModel, TDatabaseModel, TThreadsafeModel>
-        where TModel : IIdentifiable
         where TDatabaseModel : class, TModel, IDatabaseSyncable
         where TThreadsafeModel : TDatabaseModel, IThreadsafeModel
     {
@@ -27,7 +26,7 @@ namespace Toggl.Foundation.Sync.States.Push
         }
 
         protected Func<TThreadsafeModel, IObservable<TThreadsafeModel>> Overwrite(TThreadsafeModel entity)
-            => pushedEntity => DataSource.Update(entity.Id, pushedEntity);
+            => pushedEntity => DataSource.Overwrite(entity, pushedEntity);
 
         protected Func<Exception, IObservable<ITransition>> Fail(TThreadsafeModel entity)
             => exception => shouldRethrow(exception)

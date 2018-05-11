@@ -79,9 +79,9 @@ namespace Toggl.Foundation.DataSources
                     .With((long)(stopTime - timeEntry.Start).TotalSeconds)
                     .Apply(Update));
 
-        public override IObservable<IThreadsafeTimeEntry> Update(long id, IThreadsafeTimeEntry entity)
-            => base.Update(id, entity)
-                .Do(updatedEntity => maybeUpdateCurrentlyRunningTimeEntryId(id, updatedEntity));
+        public override IObservable<IThreadsafeTimeEntry> Overwrite(IThreadsafeTimeEntry original, IThreadsafeTimeEntry entity)
+            => base.Overwrite(original, entity)
+                .Do(updatedEntity => maybeUpdateCurrentlyRunningTimeEntryId(original.Id, updatedEntity));
 
         public IObservable<Unit> SoftDelete(IThreadsafeTimeEntry timeEntry)
             => Observable.Return(timeEntry)

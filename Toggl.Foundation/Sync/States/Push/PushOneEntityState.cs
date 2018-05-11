@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reactive.Linq;
+using Toggl.Foundation.Extensions;
 using Toggl.Foundation.Models.Interfaces;
 using Toggl.Multivac.Models;
 using Toggl.PrimeRadiant;
@@ -7,7 +8,7 @@ using Toggl.PrimeRadiant;
 namespace Toggl.Foundation.Sync.States.Push
 {
     internal sealed class PushOneEntityState<TThreadsafeModel>
-        where TThreadsafeModel : class, IIdentifiable, IDatabaseSyncable, IThreadsafeModel
+        where TThreadsafeModel : class, IDatabaseSyncable, IThreadsafeModel
     {
         public StateResult<TThreadsafeModel> CreateEntity { get; } = new StateResult<TThreadsafeModel>();
 
@@ -21,10 +22,10 @@ namespace Toggl.Foundation.Sync.States.Push
             => createObservable(entityToPush)
                 .Select(entity =>
                     entity.IsDeleted
-                        ? wasNotPublished(entity)
+                        ? entity.IsLocalOnly()
                             ? deleteLocally(entity)
                             : delete(entity)
-                        : wasNotPublished(entity)
+                        : entity.IsLocalOnly()
                             ? create(entity)
                             : update(entity));
 
@@ -32,9 +33,6 @@ namespace Toggl.Foundation.Sync.States.Push
             => entity == null
                 ? Observable.Throw<TThreadsafeModel>(new ArgumentNullException(nameof(entity)))
                 : Observable.Return(entity);
-
-        private bool wasNotPublished(TThreadsafeModel entity)
-            => entity.Id < 0;
 
         private ITransition delete(TThreadsafeModel entity) => DeleteEntity.Transition(entity);
 

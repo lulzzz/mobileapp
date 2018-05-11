@@ -21,12 +21,12 @@ namespace Toggl.Foundation.DataSources.Interfaces
 
         IObservable<TThreadsafe> Update(TThreadsafe entity);
         
-        IObservable<TThreadsafe> Update(long id, TThreadsafe entity);
+        IObservable<TThreadsafe> Overwrite(TThreadsafe original, TThreadsafe entity);
 
         IObservable<Unit> Delete(long id);
 
         IObservable<IConflictResolutionResult<TThreadsafe>> UpdateWithConflictResolution(
-            long id,
+            TThreadsafe original,
             TThreadsafe entity,
             IConflictResolver<TDatabase> conflictResolver = null,
             IRivalsResolver<TDatabase> rivalsResolver = null);

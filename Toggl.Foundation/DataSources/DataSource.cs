@@ -38,22 +38,22 @@ namespace Toggl.Foundation.DataSources
             => Repository.Create(entity).Select(Convert);
 
         public virtual IObservable<T> Update(T entity)
-            => Update(entity.Id, entity);
+            => Repository.Update(entity.Id, entity).Select(Convert);
         
-        public virtual IObservable<T> Update(long id, T entity)
-            => Repository.Update(id, entity).Select(Convert);
+        public virtual IObservable<T> Overwrite(T original, T entity)
+            => Repository.Update(original.Id, entity).Select(Convert);
 
         public virtual IObservable<Unit> Delete(long id)
             => Repository.Delete(id);
 
         public virtual IObservable<IConflictResolutionResult<T>> UpdateWithConflictResolution(
-            long id,
+            T original,
             T entity,
             IConflictResolver<U> conflictResolver = null,
             IRivalsResolver<U> rivalsResolver = null)
         {
             var conflictResolution = conflictResolver != null ? (Func<U, U, ConflictResolutionMode>)conflictResolver.Resolve : ResolveConflicts;
-            return Repository.UpdateWithConflictResolution(id, entity, conflictResolution, rivalsResolver);
+            return Repository.UpdateWithConflictResolution(original.Id, entity, conflictResolution, rivalsResolver);
         }
 
         public virtual IObservable<IEnumerable<IConflictResolutionResult<T>>> BatchUpdate(IEnumerable<T> entities)

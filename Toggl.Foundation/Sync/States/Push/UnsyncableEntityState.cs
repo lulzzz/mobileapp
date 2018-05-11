@@ -3,6 +3,7 @@ using System.Reactive.Linq;
 using Toggl.Foundation.DataSources.Interfaces;
 using Toggl.Foundation.Models.Interfaces;
 using Toggl.Multivac;
+using Toggl.Multivac.Extensions;
 using Toggl.Multivac.Models;
 using Toggl.PrimeRadiant;
 using Toggl.Ultrawave.Exceptions;
@@ -10,8 +11,8 @@ using Toggl.Ultrawave.Exceptions;
 namespace Toggl.Foundation.Sync.States.Push
 {
     internal sealed class UnsyncableEntityState<TDatabaseModel, TThreadsafeModel>
-        where TDatabaseModel : IDatabaseSyncable
-        where TThreadsafeModel : TDatabaseModel, IIdentifiable, ILastChangedDatable, IThreadsafeModel
+        where TDatabaseModel : IDatabaseSyncable, IApiModel
+        where TThreadsafeModel : TDatabaseModel, IThreadsafeModel
     {
         private readonly IDataSource<TThreadsafeModel, TDatabaseModel> dataSource;
 
@@ -48,12 +49,12 @@ namespace Toggl.Foundation.Sync.States.Push
 
         private IObservable<ITransition> markAsUnsyncable(TThreadsafeModel entity, string reason)
             => dataSource
-                .UpdateWithConflictResolution(entity.Id, createUnsyncableFrom(entity, reason), overwriteIfLocalEntityDidNotChange(entity))
+                .UpdateWithConflictResolution(entity, createUnsyncableFrom(entity, reason), overwriteIfLocalEntityDidNotChange(entity))
                 .Select(updated => updated is UpdateResult<TThreadsafeModel> updateResult ? updateResult.Entity : entity)
                 .Select(unsyncable => MarkedAsUnsyncable.Transition(unsyncable));
 
         private Func<TThreadsafeModel, TThreadsafeModel, ConflictResolutionMode> overwriteIfLocalEntityDidNotChange(TThreadsafeModel local)
-            => (currentLocal, _) => local.At < currentLocal.At
+            => (currentLocal, _) => local.HasChanged(currentLocal)
                 ? ConflictResolutionMode.Ignore
                 : ConflictResolutionMode.Update;
     }
