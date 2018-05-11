@@ -14,14 +14,14 @@ namespace Toggl.Foundation.Sync.States.Push
         where TDatabaseModel : IDatabaseSyncable, IApiModel
         where TThreadsafeModel : TDatabaseModel, IThreadsafeModel
     {
-        private readonly IDataSource<TThreadsafeModel, TDatabaseModel> dataSource;
+        private readonly IConflictResolutionUpdatingDataSource<TThreadsafeModel, TDatabaseModel> dataSource;
 
         private readonly Func<TThreadsafeModel, string, TThreadsafeModel> createUnsyncableFrom;
         
         public StateResult<TThreadsafeModel> MarkedAsUnsyncable { get; } = new StateResult<TThreadsafeModel>();
 
         public UnsyncableEntityState(
-            IDataSource<TThreadsafeModel, TDatabaseModel> dataSource,
+            IConflictResolutionUpdatingDataSource<TThreadsafeModel, TDatabaseModel> dataSource,
             Func<TThreadsafeModel, string, TThreadsafeModel> createUnsyncableFrom)
         {
             Ensure.Argument.IsNotNull(dataSource, nameof(dataSource));

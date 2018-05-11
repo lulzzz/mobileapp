@@ -12,7 +12,7 @@ using Toggl.Ultrawave.Exceptions;
 namespace Toggl.Foundation.Sync.States.Push
 {
     internal sealed class CreateEntityState<TModel, TDatabaseModel, TThreadsafeModel>
-        : BasePushEntityState<TModel, TDatabaseModel, TThreadsafeModel>
+        : BasePushEntityState<TThreadsafeModel>
         where TModel : IIdentifiable
         where TDatabaseModel : class, TModel, IDatabaseSyncable
         where TThreadsafeModel : TDatabaseModel, IThreadsafeModel

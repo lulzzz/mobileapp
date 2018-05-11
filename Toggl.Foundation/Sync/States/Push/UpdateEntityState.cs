@@ -12,13 +12,15 @@ using Toggl.Ultrawave.ApiClients;
 namespace Toggl.Foundation.Sync.States.Push
 {
     internal sealed class UpdateEntityState<TModel, TDatabaseModel, TThreadsafeModel>
-        : BasePushEntityState<TModel, TDatabaseModel, TThreadsafeModel>, IUpdateEntityState<TModel, TThreadsafeModel>
+        : BasePushEntityState<TThreadsafeModel>, IUpdateEntityState<TModel, TThreadsafeModel>
         where TModel : IApiModel
         where TDatabaseModel : class, TModel, IDatabaseSyncable
         where TThreadsafeModel : TDatabaseModel, IThreadsafeModel
     {
         private readonly IUpdatingApiClient<TModel> api;
 
+        private readonly IConflictResolutionUpdatingDataSource<TThreadsafeModel, TDatabaseModel> dataSource;
+        
         private readonly Func<TModel, TThreadsafeModel> convertToThreadsafeModel;
         
         public StateResult<TModel> EntityChanged { get; } = new StateResult<TModel>();
@@ -27,14 +29,17 @@ namespace Toggl.Foundation.Sync.States.Push
 
         public UpdateEntityState(
             IUpdatingApiClient<TModel> api,
-            IDataSource<TThreadsafeModel, TDatabaseModel> dataSource,
+            IConflictResolutionUpdatingDataSource<TThreadsafeModel, TDatabaseModel> dataSource,
+            IOverridingDataSource<TThreadsafeModel> deletingDataSource,
             Func<TModel, TThreadsafeModel> convertToThreadsafeModel)
-            : base(dataSource)
+            : base(deletingDataSource)
         {
             Ensure.Argument.IsNotNull(api, nameof(api));
+            Ensure.Argument.IsNotNull(dataSource, nameof(dataSource));
             Ensure.Argument.IsNotNull(convertToThreadsafeModel, nameof(convertToThreadsafeModel));
 
             this.api = api;
+            this.dataSource = dataSource;
             this.convertToThreadsafeModel = convertToThreadsafeModel;
         }
 
@@ -55,7 +60,7 @@ namespace Toggl.Foundation.Sync.States.Push
             => Observable.Return(EntityChanged.Transition(entity));
 
         private Func<TModel, IObservable<IConflictResolutionResult<TThreadsafeModel>>> tryOverwrite(TModel entity)
-            => updatedEntity => DataSource.UpdateWithConflictResolution(
+            => updatedEntity => dataSource.UpdateWithConflictResolution(
                 convertToThreadsafeModel(entity), convertToThreadsafeModel(updatedEntity), overwriteIfLocalEntityDidNotChange(entity));
 
         private Func<TModel, TModel, ConflictResolutionMode> overwriteIfLocalEntityDidNotChange(TModel local)

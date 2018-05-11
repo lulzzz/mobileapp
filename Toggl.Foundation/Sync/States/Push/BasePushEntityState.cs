@@ -2,31 +2,29 @@
 using System.Reactive.Linq;
 using Toggl.Foundation.DataSources.Interfaces;
 using Toggl.Foundation.Models.Interfaces;
-using Toggl.Multivac.Models;
-using Toggl.PrimeRadiant;
+using Toggl.Foundation.Sync.States.Push.Interfaces;
 using Toggl.Ultrawave.Exceptions;
 
 namespace Toggl.Foundation.Sync.States.Push
 {
-    public abstract class BasePushEntityState<TModel, TDatabaseModel, TThreadsafeModel>
-        where TDatabaseModel : class, TModel, IDatabaseSyncable
-        where TThreadsafeModel : TDatabaseModel, IThreadsafeModel
+    public abstract class BasePushEntityState<TThreadsafeModel> : IPushEntityState<TThreadsafeModel>
+        where TThreadsafeModel : IThreadsafeModel
     {
+        private readonly IOverridingDataSource<TThreadsafeModel> dataSource;
+
         public StateResult<(Exception, TThreadsafeModel)> ServerError { get; } = new StateResult<(Exception, TThreadsafeModel)>();
 
         public StateResult<(Exception, TThreadsafeModel)> ClientError { get; } = new StateResult<(Exception, TThreadsafeModel)>();
 
         public StateResult<(Exception, TThreadsafeModel)> UnknownError { get; } = new StateResult<(Exception, TThreadsafeModel)>();
 
-        protected IDataSource<TThreadsafeModel, TDatabaseModel> DataSource { get; }
-
-        public BasePushEntityState(IDataSource<TThreadsafeModel, TDatabaseModel> dataSource)
+        protected BasePushEntityState(IOverridingDataSource<TThreadsafeModel> dataSource)
         {
-            DataSource = dataSource;
+            this.dataSource = dataSource;
         }
 
         protected Func<TThreadsafeModel, IObservable<TThreadsafeModel>> Overwrite(TThreadsafeModel entity)
-            => pushedEntity => DataSource.Overwrite(entity, pushedEntity);
+            => pushedEntity => dataSource.Overwrite(entity, pushedEntity);
 
         protected Func<Exception, IObservable<ITransition>> Fail(TThreadsafeModel entity)
             => exception => shouldRethrow(exception)
