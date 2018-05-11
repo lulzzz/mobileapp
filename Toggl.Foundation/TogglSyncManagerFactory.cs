@@ -142,7 +142,7 @@ namespace Toggl.Foundation
             var push = new PushState<IDatabaseTimeEntry, IThreadsafeTimeEntry>(dataSource.TimeEntries);
             var pushOne = new PushOneEntityState<IThreadsafeTimeEntry>();
             var create = new CreateEntityState<ITimeEntry, IDatabaseTimeEntry, IThreadsafeTimeEntry>(api.TimeEntries, dataSource.TimeEntries, TimeEntry.Clean);
-            var update = new UpdateEntityState<ITimeEntry, IDatabaseTimeEntry, IThreadsafeTimeEntry>(api.TimeEntries, dataSource.TimeEntries, TimeEntry.Clean);
+            var update = new UpdateEntityState<ITimeEntry, IDatabaseTimeEntry, IThreadsafeTimeEntry>(api.TimeEntries, dataSource.TimeEntries, dataSource.TimeEntries, TimeEntry.Clean);
             var delete = new DeleteEntityState<ITimeEntry, IDatabaseTimeEntry, IThreadsafeTimeEntry>(api.TimeEntries, dataSource.TimeEntries);
             var deleteLocal = new DeleteLocalEntityState<IDatabaseTimeEntry, IThreadsafeTimeEntry>(dataSource.TimeEntries);
             var tryResolveClientError = new TryResolveClientErrorState<IThreadsafeTimeEntry>();
@@ -236,7 +236,7 @@ namespace Toggl.Foundation
 
             var push = new PushSingleState<IDatabaseUser, IThreadsafeUser>(dataSource.User);
             var pushOne = new PushOneEntityState<IThreadsafeUser>();
-            var update = new UpdateEntityState<IUser, IDatabaseUser, IThreadsafeUser>(api.User, dataSource.User, User.Clean);
+            var update = new UpdateEntityState<IUser, IDatabaseUser, IThreadsafeUser>(api.User, dataSource.User, dataSource.User, User.Clean);
             var tryResolveClientError = new TryResolveClientErrorState<IThreadsafeUser>();
             var unsyncable = new UnsyncableEntityState<IDatabaseUser, IThreadsafeUser>(dataSource.User, User.Unsyncable);
             var checkServerStatus = new CheckServerStatusState(api, scheduler, apiDelay, statusDelay, delayCancellation);
@@ -260,7 +260,7 @@ namespace Toggl.Foundation
 
             var push = new PushSingleState<IDatabasePreferences, IThreadsafePreferences>(dataSource.Preferences);
             var pushOne = new PushOneEntityState<IThreadsafePreferences>();
-            var update = new UpdateEntityState<IPreferences, IDatabasePreferences, IThreadsafePreferences>(api.Preferences, dataSource.Preferences, Preferences.Clean);
+            var update = new UpdateEntityState<IPreferences, IDatabasePreferences, IThreadsafePreferences>(api.Preferences, dataSource.Preferences, dataSource.Preferences, Preferences.Clean);
             var tryResolveClientError = new TryResolveClientErrorState<IThreadsafePreferences>();
             var unsyncable = new UnsyncableEntityState<IDatabasePreferences, IThreadsafePreferences>(dataSource.Preferences, Preferences.Unsyncable);
             var checkServerStatus = new CheckServerStatusState(api, scheduler, apiDelay, statusDelay, delayCancellation);
