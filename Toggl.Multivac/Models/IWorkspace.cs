@@ -2,7 +2,7 @@
 
 namespace Toggl.Multivac.Models
 {
-    public interface IWorkspace : IIdentifiable, IDeletable, ILastChangedDatable
+    public interface IWorkspace : IApiModel, IIdentifiable, IDeletable, ILastChangedDatable
     {
         string Name { get; }
 

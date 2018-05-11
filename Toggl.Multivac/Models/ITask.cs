@@ -1,6 +1,6 @@
 ﻿namespace Toggl.Multivac.Models
 {
-    public interface ITask : IIdentifiable, ILastChangedDatable
+    public interface ITask : IApiModel, IIdentifiable, ILastChangedDatable
     {
         string Name { get; }
 

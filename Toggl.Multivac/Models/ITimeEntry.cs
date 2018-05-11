@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Toggl.Multivac.Models
 {
-    public interface ITimeEntry : IIdentifiable, IDeletable, ILastChangedDatable
+    public interface ITimeEntry : IApiModel, IIdentifiable, IDeletable, ILastChangedDatable
     {
         long WorkspaceId { get; }
 
