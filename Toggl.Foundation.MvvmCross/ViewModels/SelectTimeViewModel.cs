@@ -193,6 +193,25 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
         public string DurationText
             => (string)durationConverter.Convert(Duration, typeof(TimeSpan), null, CultureInfo.CurrentCulture);
 
+        private TimeSpan? editingDuration = null;
+        public TimeSpan EditingDuration
+        {
+            get => editingDuration ?? Duration;
+            set
+            {
+                if (StopTime.HasValue)
+                {
+                    StopTime = StartTime + value;
+                }
+                else
+                {
+                    StartTime = CurrentDateTime - value;
+                }
+
+                editingDuration = (StopTime ?? CurrentDateTime) - StartTime;
+            }
+        }
+
         [DependsOn(nameof(CurrentDateTime))]
         public bool IsRunningTimeEntryAM => CurrentDateTime.Hour < 12;
 
@@ -251,18 +270,7 @@ namespace Toggl.Foundation.MvvmCross.ViewModels
 
         private Action increaseDuration(int minutes)
         {
-            return () =>
-            {
-                var timespan = TimeSpan.FromMinutes(minutes);
-                if (StopTime.HasValue)
-                {
-                    StopTime = StopTime + timespan;
-                }
-                else
-                {
-                    StartTime = StartTime - timespan;
-                }
-            };
+            return () => EditingDuration = EditingDuration + TimeSpan.FromMinutes(minutes);
         }
 
         private void focusDurationCommand()
