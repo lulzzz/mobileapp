@@ -87,7 +87,17 @@ namespace Toggl.Giskard.Fragments
                 pager.SetCurrentItem(ViewModel.StartingTabIndex, false);
             });
 
+            setupDialogWindowPosition();
+
             return view;
+        }
+
+        private void setupDialogWindowPosition()
+        {
+            var window = Dialog.Window;
+            var layoutParams = window.Attributes;
+            layoutParams.Gravity = GravityFlags.Top;
+            window.Attributes = layoutParams;
         }
 
         private void onIsCalendarViewChanged(object sender, PropertyChangedEventArgs args)
