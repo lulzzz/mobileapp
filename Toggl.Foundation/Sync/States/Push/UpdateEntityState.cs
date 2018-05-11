@@ -10,8 +10,8 @@ using Toggl.Ultrawave.ApiClients;
 namespace Toggl.Foundation.Sync.States.Push
 {
     internal sealed class UpdateEntityState<TModel, TDatabaseModel, TThreadsafeModel>
-        : BasePushEntityState<TModel, TDatabaseModel, TThreadsafeModel>
         where TModel : IIdentifiable, ILastChangedDatable
+        : BasePushEntityState<TModel, TDatabaseModel, TThreadsafeModel>, IUpdateEntityState<TModel, TThreadsafeModel>
         where TDatabaseModel : class, TModel, IDatabaseSyncable
         where TThreadsafeModel : TDatabaseModel, IThreadsafeModel
     {

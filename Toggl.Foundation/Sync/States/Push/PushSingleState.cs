@@ -2,12 +2,13 @@
 using System.Reactive.Linq;
 using Toggl.Foundation.DataSources.Interfaces;
 using Toggl.Foundation.Models.Interfaces;
+using Toggl.Foundation.Sync.States.Push.Interfaces;
 using Toggl.Multivac;
 using Toggl.PrimeRadiant;
 
 namespace Toggl.Foundation.Sync.States.Push
 {
-    internal sealed class PushSingleState<TDatabaseModel, TThreadsafeModel>
+    internal sealed class PushSingleState<TDatabaseModel, TThreadsafeModel> : IPushState<TThreadsafeModel>
         where TDatabaseModel : IDatabaseSyncable
         where TThreadsafeModel : class, TDatabaseModel, IThreadsafeModel
     {
