@@ -14,6 +14,7 @@ using Toggl.Foundation.Analytics;
 using Toggl.Foundation.Models;
 using Toggl.Foundation.Models.Interfaces;
 using Toggl.Foundation.Sync.States.Push;
+using Toggl.Foundation.Sync.States.Push.Interfaces;
 
 namespace Toggl.Foundation
 {
@@ -54,7 +55,7 @@ namespace Toggl.Foundation
             IObservable<Unit> delayCancellation)
         {
             configurePullTransitions(transitions, database, api, dataSource, timeService, scheduler, entryPoints.StartPullSync, delayCancellation);
-            configurePushTransitions(transitions, database, api, dataSource, apiDelay, scheduler, entryPoints.StartPushSync, delayCancellation);
+            configurePushTransitions(transitions, api, dataSource, apiDelay, scheduler, entryPoints.StartPushSync, delayCancellation);
         }
 
         private static void configurePullTransitions(
@@ -111,7 +112,6 @@ namespace Toggl.Foundation
         
         private static void configurePushTransitions(
             TransitionHandlerProvider transitions,
-            ITogglDatabase database,
             ITogglApi api,
             ITogglDataSource dataSource,
             IRetryDelayService apiDelay,
@@ -248,7 +248,7 @@ namespace Toggl.Foundation
 
         private static IStateResult configurePushTransitionsForPreferences(
             TransitionHandlerProvider transitions,
-            ITogglDatabase database,
+            ITogglDataSource dataSource,
             ITogglApi api,
             IScheduler scheduler,
             IStateResult entryPoint,
@@ -258,15 +258,16 @@ namespace Toggl.Foundation
             var apiDelay = new RetryDelayService(rnd);
             var statusDelay = new RetryDelayService(rnd);
 
-            var push = new PushPreferencesState(database.Preferences);
-            var pushOne = new PushOneEntityState<IDatabasePreferences>();
-            var update = new UpdatePreferencesState(api, database.Preferences);
-            var tryResolveClientError = new TryResolveClientErrorState<IDatabasePreferences>();
-            var unsyncable = new UnsyncablePreferencesState(database.Preferences);
+            var push = new PushSingleState<IDatabasePreferences, IThreadsafePreferences>(dataSource.Preferences);
+            var pushOne = new PushOneEntityState<IThreadsafePreferences>();
+            var update = new UpdateEntityState<IPreferences, IDatabasePreferences, IThreadsafePreferences>(api.Preferences, dataSource.Preferences, Preferences.Clean);
+            var tryResolveClientError = new TryResolveClientErrorState<IThreadsafePreferences>();
+            var unsyncable = new UnsyncableEntityState<IDatabasePreferences, IThreadsafePreferences>(dataSource.Preferences, Preferences.Unsyncable);
             var checkServerStatus = new CheckServerStatusState(api, scheduler, apiDelay, statusDelay, delayCancellation);
             var finished = new ResetAPIDelayState(apiDelay);
 
-            return configureUpdateOnlyPush(transitions, entryPoint, push, pushOne, update, tryResolveClientError, unsyncable, checkServerStatus, finished);
+            return configureUpdateOnlyPush(
+                transitions, entryPoint, push, pushOne, update, tryResolveClientError, unsyncable, checkServerStatus, finished);
         }
 
         private static IStateResult configurePush<TModel, TDatabase, TThreadsafe>(
@@ -282,7 +283,7 @@ namespace Toggl.Foundation
             UnsyncableEntityState<TDatabase, TThreadsafe> markUnsyncable,
             CheckServerStatusState checkServerStatus,
             ResetAPIDelayState finished)
-            where TModel : IIdentifiable, ILastChangedDatable
+            where TModel : IApiModel, IIdentifiable, ILastChangedDatable
             where TDatabase : class, TModel, IDatabaseSyncable
             where TThreadsafe : class, TDatabase, IThreadsafeModel
         {
@@ -332,7 +333,7 @@ namespace Toggl.Foundation
             UnsyncableEntityState<TDatabase, TThreadsafe> markUnsyncable,
             CheckServerStatusState checkServerStatus,
             ResetAPIDelayState finished)
-            where TModel : IIdentifiable, ILastChangedDatable
+            where TModel : IApiModel, IIdentifiable, ILastChangedDatable
             where TDatabase : class, TModel, IDatabaseSyncable
             where TThreadsafe : class, TDatabase, IThreadsafeModel
         {
@@ -364,14 +365,14 @@ namespace Toggl.Foundation
         private static IStateResult configureUpdateOnlyPush<TModel, TDatabase, TThreadsafe>(
             TransitionHandlerProvider transitions,
             IStateResult entryPoint,
-            PushState<TDatabase, TThreadsafe> push,
+            IPushState<TThreadsafe> push,
             PushOneEntityState<TThreadsafe> pushOne,
-            UpdateEntityState<TModel, TDatabase, TThreadsafe> update,
+            IUpdateEntityState<TModel, TThreadsafe> update,
             TryResolveClientErrorState<TThreadsafe> tryResolveClientError,
             UnsyncableEntityState<TDatabase, TThreadsafe> markUnsyncable,
             CheckServerStatusState checkServerStatus,
             ResetAPIDelayState finished)
-            where TModel : IIdentifiable, ILastChangedDatable
+            where TModel : IApiModel
             where TDatabase : class, TModel, IDatabaseSyncable
             where TThreadsafe : class, TDatabase, IThreadsafeModel
         {
