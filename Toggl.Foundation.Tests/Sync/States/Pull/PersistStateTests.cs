@@ -22,18 +22,18 @@ namespace Toggl.Foundation.Tests.Sync.States
 {
     public sealed class PersistStateTests
     {
-        private readonly IDataSource<IThreadsafeTag, IDatabaseTag> dataSource;
+        private readonly IDataSource<IThreadsafeTestModel, IDatabaseTestModel> dataSource;
         private readonly ISinceParameterRepository sinceParameterRepository;
-        private readonly PersistState<ITag, IDatabaseTag, IThreadsafeTag> state;
+        private readonly PersistState<ITestModel, IDatabaseTestModel, IThreadsafeTestModel> state;
 
         private DateTimeOffset now { get; } = new DateTimeOffset(2017, 04, 05, 12, 34, 56, TimeSpan.Zero);
         private DateTimeOffset at = new DateTimeOffset(2017, 09, 01, 12, 34, 56, TimeSpan.Zero);
 
         public PersistStateTests()
         {
-            dataSource = Substitute.For<IDataSource<IThreadsafeTag, IDatabaseTag>>();
+            dataSource = Substitute.For<IDataSource<IThreadsafeTestModel, IDatabaseTestModel>>();
             sinceParameterRepository = Substitute.For<ISinceParameterRepository>();
-            state = new PersistState<ITag, IDatabaseTag, IThreadsafeTag>(dataSource, sinceParameterRepository, Tag.Clean);
+            state = new PersistState<ITestModel, IDatabaseTestModel, IThreadsafeTestModel>(dataSource, sinceParameterRepository, TestModel.Clean);
         }
 
         [Fact, LogIfTooSlow]
@@ -51,10 +51,10 @@ namespace Toggl.Foundation.Tests.Sync.States
         {
             var fetchObservables = createFetchObservables(
                 null,
-                tags: Observable.Create<List<ITag>>(observer =>
+                Observable.Create<List<ITestModel>>(observer =>
                 {
-                    observer.OnNext(new List<ITag>());
-                    observer.OnNext(new List<ITag>());
+                    observer.OnNext(new List<ITestModel>());
+                    observer.OnNext(new List<ITestModel>());
                     return () => { };
                 }));
 
@@ -81,33 +81,33 @@ namespace Toggl.Foundation.Tests.Sync.States
 
             state.Start(observables).SingleAsync().Wait();
 
-            sinceParameterRepository.DidNotReceive().Set<IDatabaseTag>(Arg.Any<DateTimeOffset?>());
+            sinceParameterRepository.DidNotReceive().Set<IDatabaseTestModel>(Arg.Any<DateTimeOffset?>());
         }
 
         [Fact, LogIfTooSlow]
         public void UpdatesSinceParametersOfTheFetchedEntity()
         {
             var newAt = new DateTimeOffset(2017, 10, 01, 12, 34, 56, TimeSpan.Zero);
-            var entities = new List<ITag> { new MockTag { At = newAt } };
+            var entities = new List<ITestModel> { new TestModel { At = newAt } };
             var observables = createObservables(entities);
             setupDatabaseBatchUpdateMocksToReturnUpdatedDatabaseEntitiesAndSimulateDeletionOfEntities(entities);
-            sinceParameterRepository.Supports<IDatabaseTag>().Returns(true);
+            sinceParameterRepository.Supports<IDatabaseTestModel>().Returns(true);
 
             state.Start(observables).SingleAsync().Wait();
 
-            sinceParameterRepository.Received().Set<IDatabaseTag>(Arg.Is(newAt));
+            sinceParameterRepository.Received().Set<IDatabaseTestModel>(Arg.Is(newAt));
         }
 
         [Fact, LogIfTooSlow]
         public void HandlesNullValueReceivedFromTheServerAsAnEmptyList()
         {
-            List<ITag> entities = null;
+            List<ITestModel> entities = null;
             var observables = createObservables(entities);
 
-            var transition = (Transition<FetchObservables>)state.Start(observables).SingleAsync().Wait();
+            var transition = (Transition<IFetchObservables>)state.Start(observables).SingleAsync().Wait();
 
             transition.Result.Should().Be(state.FinishedPersisting);
-            assertBatchUpdateWasCalled(new List<ITag>());
+            assertBatchUpdateWasCalled(new List<ITestModel>());
         }
 
         [Fact, LogIfTooSlow]
@@ -116,11 +116,11 @@ namespace Toggl.Foundation.Tests.Sync.States
             var entities = createComplexListWhereTheLastUpdateEntityIsDeleted(at);
             var observables = createObservables(entities);
             setupDatabaseBatchUpdateMocksToReturnUpdatedDatabaseEntitiesAndSimulateDeletionOfEntities(entities);
-            sinceParameterRepository.Supports<IDatabaseTag>().Returns(true);
+            sinceParameterRepository.Supports<IDatabaseTestModel>().Returns(true);
 
             state.Start(observables).SingleAsync().Wait();
 
-            sinceParameterRepository.Received().Set<IDatabaseTag>(Arg.Is<DateTimeOffset?>(at));
+            sinceParameterRepository.Received().Set<IDatabaseTestModel>(Arg.Is<DateTimeOffset?>(at));
         }   
 
         [Fact, LogIfTooSlow]
@@ -136,7 +136,7 @@ namespace Toggl.Foundation.Tests.Sync.States
             }
             catch (TestException) { }
 
-            sinceParameterRepository.DidNotReceiveWithAnyArgs().Set<IDatabaseTag>(null);
+            sinceParameterRepository.DidNotReceiveWithAnyArgs().Set<IDatabaseTestModel>(null);
         }
 
         [Fact, LogIfTooSlow]
@@ -154,7 +154,7 @@ namespace Toggl.Foundation.Tests.Sync.States
         [MemberData(nameof(ApiExceptions.ClientExceptionsWhichAreNotReThrownInSyncStates), MemberType = typeof(ApiExceptions))]
         public void ReturnsClientErrorTransitionWhenHttpFailsWithClientErrorException(ClientErrorException exception)
         {
-            var state = new PersistState<ITag, IDatabaseTag, IThreadsafeTag>(dataSource, sinceParameterRepository, Tag.Clean);
+            var state = new PersistState<ITestModel, IDatabaseTestModel, IThreadsafeTestModel>(dataSource, sinceParameterRepository, TestModel.Clean);
             var observables = createFetchObservablesWhichThrow(exception);
 
             var transition = state.Start(observables).SingleAsync().Wait();
@@ -168,7 +168,7 @@ namespace Toggl.Foundation.Tests.Sync.States
         [MemberData(nameof(ApiExceptions.ServerExceptions), MemberType = typeof(ApiExceptions))]
         public void ReturnsServerErrorTransitionWhenHttpFailsWithServerErrorException(ServerErrorException exception)
         {
-            var state = new PersistState<ITag, IDatabaseTag, IThreadsafeTag>(dataSource, sinceParameterRepository, Tag.Clean);
+            var state = new PersistState<ITestModel, IDatabaseTestModel, IThreadsafeTestModel>(dataSource, sinceParameterRepository, TestModel.Clean);
             var observables = createFetchObservablesWhichThrow(exception);
 
             var transition = state.Start(observables).SingleAsync().Wait();
@@ -182,7 +182,7 @@ namespace Toggl.Foundation.Tests.Sync.States
         [MemberData(nameof(ApiExceptions.ExceptionsWhichCauseRethrow), MemberType = typeof(ApiExceptions))]
         public void ThrowsWhenCertainExceptionsAreCaught(Exception exception)
         {
-            var state = new PersistState<ITag, IDatabaseTag, IThreadsafeTag>(dataSource, sinceParameterRepository, Tag.Clean);
+            var state = new PersistState<ITestModel, IDatabaseTestModel, IThreadsafeTestModel>(dataSource, sinceParameterRepository, TestModel.Clean);
             Exception caughtException = null;
             var observables = createFetchObservablesWhichThrow(exception);
 
@@ -199,57 +199,34 @@ namespace Toggl.Foundation.Tests.Sync.States
             caughtException.Should().BeAssignableTo(exception.GetType());
         }
 
-        private FetchObservables createFetchObservables(
-            FetchObservables old,
-            IObservable<List<IWorkspace>> workspaces = null,
-            IObservable<List<IWorkspaceFeatureCollection>> workspaceFeatures = null,
-            IObservable<IUser> user = null,
-            IObservable<List<IClient>> clients = null,
-            IObservable<List<IProject>> projects = null,
-            IObservable<List<ITimeEntry>> timeEntries = null,
-            IObservable<List<ITag>> tags = null,
-            IObservable<List<ITask>> tasks = null,
-            IObservable<IPreferences> preferences = null)
-        => new FetchObservables(
-            old?.Workspaces ?? workspaces,
-            old?.WorkspaceFeatures ?? workspaceFeatures,
-            old?.User ?? user,
-            old?.Clients ?? clients,
-            old?.Projects ?? projects,
-            old?.TimeEntries ?? timeEntries,
-            old?.Tags ?? tags,
-            old?.Tasks ?? tasks,
-            old?.Preferences ?? preferences);
+        private IFetchObservables createFetchObservables(IFetchObservables old, IObservable<List<ITestModel>> observable = null) 
+        {
+            var observables = Substitute.For<IFetchObservables>();
+            observables.Get<ITestModel>().Returns(observable ?? old?.Get<ITestModel>());
+            return observables;
+        }
+            
 
-        private List<ITag> createComplexListWhereTheLastUpdateEntityIsDeleted(DateTimeOffset? maybeAt)
+        private List<ITestModel> createComplexListWhereTheLastUpdateEntityIsDeleted(DateTimeOffset? maybeAt)
         {
             var at = maybeAt ?? now;
-            return new List<ITag>
+            return new List<ITestModel>
             {
-                new MockTag { At = at.AddDays(-1), Name = Guid.NewGuid().ToString() },
-                new MockTag { At = at.AddDays(-3), Name = Guid.NewGuid().ToString() },
-                new MockTag { At = at, Name = Guid.NewGuid().ToString(), ServerDeletedAt = at.AddDays(-1) },
-                new MockTag { At = at.AddDays(-2), Name = Guid.NewGuid().ToString() }
+                new TestModel { At = at.AddDays(-1), Id = 0 },
+                new TestModel { At = at.AddDays(-3), Id = 1 },
+                new TestModel { At = at, Id = 2, ServerDeletedAt = at.AddDays(-1) },
+                new TestModel { At = at.AddDays(-2), Id = 3 }
             };
         }
 
-        private FetchObservables createObservables(List<ITag> entities = null)
-            => new FetchObservables(
-                Observable.Return(new List<IWorkspace>()),
-                Observable.Return(new List<IWorkspaceFeatureCollection>()),
-                Observable.Return(Substitute.For<IUser>()),
-                Observable.Return(new List<IClient>()),
-                Observable.Return(new List<IProject>()),
-                Observable.Return(new List<ITimeEntry>()),
-                Observable.Return(entities),
-                Observable.Return(new List<ITask>()),
-                Observable.Return(Substitute.For<IPreferences>()));
+        private IFetchObservables createObservables(List<ITestModel> entities = null)
+            => createFetchObservables(null, Observable.Return(entities));
 
-        private void setupDatabaseBatchUpdateMocksToReturnUpdatedDatabaseEntitiesAndSimulateDeletionOfEntities(List<ITag> entities = null)
+        private void setupDatabaseBatchUpdateMocksToReturnUpdatedDatabaseEntitiesAndSimulateDeletionOfEntities(List<ITestModel> entities = null)
         {
             var foundationEntities = entities?.Select(entity => entity.ServerDeletedAt.HasValue
-                ? (IConflictResolutionResult<IThreadsafeTag>)new DeleteResult<IThreadsafeTag>(0)
-                : new UpdateResult<IThreadsafeTag>(0, Tag.Clean(entity)));
+                ? (IConflictResolutionResult<IThreadsafeTestModel>)new DeleteResult<IThreadsafeTestModel>(0)
+                : new UpdateResult<IThreadsafeTestModel>(0, TestModel.Clean(entity)));
             dataSource.BatchUpdate(null)
                 .ReturnsForAnyArgs(Observable.Return(foundationEntities));
         }
@@ -257,23 +234,14 @@ namespace Toggl.Foundation.Tests.Sync.States
         private void setupBatchUpdateToThrow(Exception exception)
             => dataSource.BatchUpdate(null).ReturnsForAnyArgs(_ => throw exception);
 
-        private void assertBatchUpdateWasCalled(List<ITag> entities = null)
+        private void assertBatchUpdateWasCalled(List<ITestModel> entities = null)
         {
-            dataSource.Received().BatchUpdate(Arg.Is<IEnumerable<IThreadsafeTag>>(
+            dataSource.Received().BatchUpdate(Arg.Is<IEnumerable<IThreadsafeTestModel>>(
                 list => list.Count() == entities.Count && list.All(
-                    persisted => persisted.SyncStatus == SyncStatus.InSync && entities.Any(te => te.Name == persisted.Name))));
+                    persisted => persisted.SyncStatus == SyncStatus.InSync && entities.Any(te => te.Id == persisted.Id))));
         }
 
-        private FetchObservables createFetchObservablesWhichThrow(Exception exception)
-            => createFetchObservables(null,
-                Observable.Throw<List<IWorkspace>>(exception),
-                Observable.Throw<List<IWorkspaceFeatureCollection>>(exception),
-                Observable.Throw<IUser>(exception),
-                Observable.Throw<List<IClient>>(exception),
-                Observable.Throw<List<IProject>>(exception),
-                Observable.Throw<List<ITimeEntry>>(exception),
-                Observable.Throw<List<ITag>>(exception),
-                Observable.Throw<List<ITask>>(exception),
-                Observable.Throw<IPreferences>(exception));
+        private IFetchObservables createFetchObservablesWhichThrow(Exception exception)
+            => createFetchObservables(null, Observable.Throw<List<ITestModel>>(exception));
     }
 }
