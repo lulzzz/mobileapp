@@ -234,7 +234,7 @@ namespace Toggl.Foundation
             var apiDelay = new RetryDelayService(rnd);
             var statusDelay = new RetryDelayService(rnd);
 
-            var push = new PushState<IDatabaseUser, IThreadsafeUser>(dataSource.User);
+            var push = new PushSingleState<IDatabaseUser, IThreadsafeUser>(dataSource.User);
             var pushOne = new PushOneEntityState<IThreadsafeUser>();
             var update = new UpdateEntityState<IUser, IDatabaseUser, IThreadsafeUser>(api.User, dataSource.User, User.Clean);
             var tryResolveClientError = new TryResolveClientErrorState<IThreadsafeUser>();
