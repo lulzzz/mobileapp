@@ -53,7 +53,8 @@ namespace Toggl.Foundation.DataSources
             IRivalsResolver<U> rivalsResolver = null)
         {
             var conflictResolution = conflictResolver != null ? (Func<U, U, ConflictResolutionMode>)conflictResolver.Resolve : ResolveConflicts;
-            return Repository.UpdateWithConflictResolution(original.Id, entity, conflictResolution, rivalsResolver);
+            return Repository.UpdateWithConflictResolution(original.Id, entity, conflictResolution, rivalsResolver)
+                .Select(result => result.ToThreadSafeResult(Convert));
         }
 
         public virtual IObservable<IEnumerable<IConflictResolutionResult<T>>> BatchUpdate(IEnumerable<T> entities)

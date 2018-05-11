@@ -2,6 +2,7 @@
 using System.Reactive.Linq;
 using Toggl.Foundation.DataSources.Interfaces;
 using Toggl.Foundation.Models.Interfaces;
+using Toggl.Foundation.Sync.ConflictResolution;
 using Toggl.Multivac;
 using Toggl.Multivac.Extensions;
 using Toggl.Multivac.Models;
@@ -49,7 +50,7 @@ namespace Toggl.Foundation.Sync.States.Push
 
         private IObservable<ITransition> markAsUnsyncable(TThreadsafeModel entity, string reason)
             => dataSource
-                .UpdateWithConflictResolution(entity, createUnsyncableFrom(entity, reason), overwriteIfLocalEntityDidNotChange(entity))
+                .UpdateWithConflictResolution(entity, createUnsyncableFrom(entity, reason), new OverwriteIfLocalDidNotChange<TDatabaseModel, TDatabaseModel>(entity))
                 .Select(updated => updated is UpdateResult<TThreadsafeModel> updateResult ? updateResult.Entity : entity)
                 .Select(unsyncable => MarkedAsUnsyncable.Transition(unsyncable));
 

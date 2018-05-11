@@ -283,7 +283,7 @@ namespace Toggl.Foundation
             UnsyncableEntityState<TDatabase, TThreadsafe> markUnsyncable,
             CheckServerStatusState checkServerStatus,
             ResetAPIDelayState finished)
-            where TModel : IApiModel, IIdentifiable, ILastChangedDatable
+            where TModel : class, IApiModel, IIdentifiable, ILastChangedDatable
             where TDatabase : class, TModel, IDatabaseSyncable
             where TThreadsafe : class, TDatabase, IThreadsafeModel
         {
@@ -373,7 +373,7 @@ namespace Toggl.Foundation
             CheckServerStatusState checkServerStatus,
             ResetAPIDelayState finished)
             where TModel : IApiModel
-            where TDatabase : class, TModel, IDatabaseSyncable
+            where TDatabase : TModel, IDatabaseSyncable
             where TThreadsafe : class, TDatabase, IThreadsafeModel
         {
             transitions.ConfigureTransition(entryPoint, push.Start);
