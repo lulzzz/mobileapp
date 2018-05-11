@@ -180,7 +180,7 @@ namespace Toggl.Foundation.Tests.Sync.States
 
         [Theory, LogIfTooSlow]
         [MemberData(nameof(ApiExceptions.ExceptionsWhichCauseRethrow), MemberType = typeof(ApiExceptions))]
-        public void ThrowsWhenExceptionsWhichShouldCauseRetrhrowAreCaught(Exception exception)
+        public void ThrowsWhenExceptionsWhichShouldCauseRethrowAreCaught(Exception exception)
         {
             var state = new PersistState<ITestModel, IDatabaseTestModel, IThreadsafeTestModel>(dataSource, sinceParameterRepository, TestModel.Clean);
             Exception caughtException = null;
